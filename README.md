@@ -91,22 +91,41 @@ engineering discipline.
 See `METHODOLOGY.md` for the design philosophy and `dev-docs/` for the
 detailed how-tos as they get written.
 
-## Quick start (when Pass 1 lands)
+## Quick start
+
+This is an **agent-driven** workflow — you don't customize the YAML
+files by hand. You paste a bootstrap prompt into Claude Code and let
+the agent harness do the scoping, profile activation, UN drafting,
+and render-chain setup conversationally.
 
 ```bash
-# 1. Use this template on GitHub → "Use this template" → new private repo
-# 2. Clone your copy
-# 3. Customize config/
-nano config/disciplines.yml    # which discipline leads are active
-nano config/stages.yml         # your project's phase model
-nano config/evidence-kinds.yml # what counts as V&V evidence in your domain
-# Resource budgets (mass/power/cost/thermal/schedule) are aggregated KPMs
-# in requirements/requirement-map.yml — file them as you add UNs.
-# 4. Bootstrap the repo (creates Milestones, syncs labels, activates agents)
-python scripts/init_project.py --dry-run     # preview
-python scripts/init_project.py --seed-sample # apply + file UN-001
-# 5. Open in Claude Code and let the agent harness scaffold the rest.
+# 1. On GitHub: "Use this template" → create new private repo
+# 2. Locally:
+gh repo clone <owner>/<your-new-repo>
+cd <your-new-repo>
+pip install -r requirements.txt
+# 3. Open in Claude Code and paste the bootstrap prompt:
+code .
+# Copy the contents of prompts/bootstrap.md into a new Claude Code session.
+# Claude will ask 5 scoping questions, run init_project.py with the
+# right profile, file your first 6–12 UNs as GitHub Issues, draft
+# requirements/requirement-map.yml, and run the full render chain.
 ```
+
+The bootstrap prompt lives at [prompts/bootstrap.md](prompts/bootstrap.md).
+It is self-contained — Claude reads `METHODOLOGY.md` and the doc
+source-of-truth spec before it asks you anything.
+
+If you'd rather skip the conversation and drive the bootstrap by hand:
+
+```bash
+nano config/disciplines.yml config/stages.yml config/evidence-kinds.yml
+python scripts/init_project.py --activate-profile A    # or B / C
+python scripts/init_project.py --seed-sample           # files UN-001
+```
+
+But the prompt path is the recommended one — it's what the template
+is built around.
 
 ## Layout
 
@@ -120,6 +139,7 @@ See `METHODOLOGY.md` for what each directory is for. Brief tour:
 - `verification/` — test plans (markdown) and result links
 - `dev-docs/` — developer documentation source; rendered to the wiki
 - `docs/` — placeholder for end-user / customer-facing docs
+- `prompts/` — paste-into-Claude prompts that drive multi-step agent workflows the template can't fully script. Start with `prompts/bootstrap.md`.
 - `scripts/` — 10 scripts: `init_project`, `generate_docs`, `pr_rollup`, `migrate_wiki`, `kpm_rollup`, `export_sysml`, `validate_artifacts`, `github_comment`, `sync_labels`, `github_client`. See `scripts/README.md`.
 - `.claude/agents/` — active agent roster (populated from agent-packs by `init_project.py`)
 - `.claude/agent-packs/` — discipline-specific lead agents (software, mechanical; electrical/firmware/manufacturing/regulatory are roadmapped placeholders)
