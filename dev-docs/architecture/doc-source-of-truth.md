@@ -73,11 +73,18 @@ sections you want auto-managed.
 |---|---|---|
 | @verification | Issue comments (with `Next action:` and `via:` footers) via `github_comment.py` | `dev-docs/*` AUTO sections; status labels |
 | @validation | Issue comments via `github_comment.py`; `verification/*` test plans + result links | `dev-docs/*` AUTO sections; status labels; `src/`; `tests/test_*` |
+| @systems_lead | `requirements/*`, `requirements/interfaces/*`, `dev-docs/architecture/*`, `CLAUDE.md` | Status labels; AUTO sections of living docs |
 | @software_lead | `src/`, `tests/`, PR descriptions | Status labels; AUTO sections; non-software discipline artifacts |
-| @systems_lead | `requirements/*`, `dev-docs/architecture/*`, `CLAUDE.md` | Status labels; AUTO sections of living docs |
-| @<discipline>_lead | the discipline's `artifacts/` and `verification/` content | Other disciplines' content; status labels |
+| @firmware_lead | `firmware/`, `tests/firmware/`, `artifacts/firmware/*.md` manifests, `verification/hil/*` test plans | Status labels; other disciplines' content |
+| @electrical_lead | `artifacts/electrical/*.md` manifests + snapshots, `verification/bench/*` and `verification/simulation/*` (SPICE) test plans, BOM CSVs | Status labels; other disciplines' content |
+| @mechanical_lead | `artifacts/mechanical/*.md` manifests + snapshots, `verification/simulation/*` (FEA) and `verification/bench/*` test plans, BOM CSVs | Status labels; other disciplines' content |
+| @manufacturing_lead | `artifacts/manufacturing/*` (AVL, supplier audits, fixture manifests), `verification/dfm/*`, `verification/evt/*`, `verification/pvt/*` | Designs themselves; status labels |
+| @regulatory_lead | `artifacts/regulatory/*` (cert roadmap, DoCs, technical file, per-standard plans), `verification/inspection/bom-compliance-*` | Designs themselves; status labels |
 | `pr_rollup.py` (workflow) | `verified` / `validated` labels on PR merge; closes milestones | Anything else |
 | `generate_docs.py` (workflow) | AUTO sections of the four living docs | Anything outside AUTO sentinels |
+| `kpm_rollup.py` (workflow) | KPM rollup comments on parent KPM Issues | Status labels; AUTO sections; non-KPM Issues |
+| `export_sysml.py` (workflow) | `model/system.sysml` | Anything else |
+| `validate_artifacts.py` (CI) | nothing (read-only) | n/a |
 
 If you find an agent writing outside this table, that's the bug — fix
 the agent, not the doc.

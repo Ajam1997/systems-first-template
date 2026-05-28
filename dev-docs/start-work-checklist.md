@@ -32,11 +32,18 @@ Open `CLAUDE.md` and check the Agent Roster + Superpowers pairing table.
 If you can't decide, default:
 
 - **Design / interfaces / budgets / architecture** → @systems_lead
-- **src/ implementation, software tests** → @software_lead (or your project's software-pack agent)
-- **Hardware artifacts (CAD/PCB/firmware)** → discipline lead per `config/disciplines.yml`
+- **src/ implementation, software tests** → @software_lead
+- **Embedded code, RTOS, peripheral drivers, HAL** → @firmware_lead
+- **Schematics, PCB layout, SPICE, EMC pre-compliance** → @electrical_lead
+- **CAD, FEA, drawings, tolerance analysis** → @mechanical_lead
+- **DFM/DFA reviews, EVT/PVT plans, supplier qualification, AVL** → @manufacturing_lead
+- **FCC/CE/UL roadmap, DoC, test-house engagement, BOM compliance** → @regulatory_lead
 - **Per-commit verification** → @verification (or skip — `pr_rollup.py` handles labels)
 - **Per-milestone E2E pass** → @validation
-- **Cross-cutting** → @systemmaster
+- **Cross-cutting / architecture review** → @systemmaster (operator-invoked only)
+
+Which leads are active on *your* project depends on `config/disciplines.yml`.
+Run `init_project.py --activate-profile A|B|C` to seed a starter set.
 
 ## 5. Will the next person resuming this session find a breadcrumb?
 
