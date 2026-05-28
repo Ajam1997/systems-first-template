@@ -178,6 +178,18 @@ class GitHubClient:
             page += 1
         return milestones
 
+    def create_milestone(self, title: str, description: str = "", due_on: str | None = None) -> dict:
+        """Create a milestone. Returns the new milestone dict (with `number`)."""
+        body: dict[str, Any] = {"title": title, "description": description}
+        if due_on:
+            body["due_on"] = due_on
+        r = self._session.post(
+            f"{self.REST_BASE}/repos/{self.owner}/{self.repo}/milestones",
+            json=body,
+        )
+        r.raise_for_status()
+        return r.json()
+
     def close_milestone(self, milestone_number: int) -> None:
         r = self._session.patch(
             f"{self.REST_BASE}/repos/{self.owner}/{self.repo}/milestones/{milestone_number}",

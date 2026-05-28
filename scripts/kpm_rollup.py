@@ -34,6 +34,13 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+# Force UTF-8 stdout/stderr so rollup status glyphs render on cp1252 consoles.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 import yaml
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
