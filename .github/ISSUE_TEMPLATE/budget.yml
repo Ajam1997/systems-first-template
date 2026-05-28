@@ -1,0 +1,79 @@
+name: Budget Allocation
+description: A reserved resource allocation — mass, power, cost, thermal, schedule, memory, etc.
+title: "[BUDGET] <resource> allocation tracking"
+labels: ["type: budget", "status: defined"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Budgets are bookkeeping, not requirements.** They track how a
+        finite resource (mass, power, cost, etc.) gets allocated down
+        the requirement tree. The *cap* is the contract; the *allocations*
+        show where the budget is spent.
+
+        The top-level cap and per-subsystem allocations also live in
+        `config/budgets.yml`. This Issue is the *discussion* surface
+        for tracking changes and decisions.
+
+  - type: input
+    id: name
+    attributes:
+      label: Budget Name
+      description: "Must match an entry in `config/budgets.yml`."
+      placeholder: "memory_rss | mass | power_peak | bom_cost"
+    validations:
+      required: true
+
+  - type: input
+    id: cap
+    attributes:
+      label: Cap
+      description: "Top-level limit with units."
+      placeholder: "1.5 GB | 250 g | 500 mW | $35"
+    validations:
+      required: true
+
+  - type: input
+    id: margin_target
+    attributes:
+      label: Margin Target
+      description: "Fraction held back as margin (0.0–1.0)."
+      placeholder: "0.10"
+    validations:
+      required: true
+
+  - type: textarea
+    id: allocations
+    attributes:
+      label: Allocations
+      description: "Current allocation snapshot. Reflects `config/budgets.yml` plus discussion."
+      placeholder: |
+        | Subsystem | Allocation | Note |
+        |---|---|---|
+        | enclosure | 80 g | rev-B CAD measurement |
+        | pcb_assembly | 60 g | preliminary, BOM not finalized |
+        | battery | 80 g | 2000 mAh Li-Po |
+        | misc | 30 g | screws, gasket, cable |
+        | **margin** | **0 g** | DRAINED — see comments |
+    validations:
+      required: false
+
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      description: "Discipline lead responsible for keeping the budget in spec."
+      placeholder: "@systems_lead"
+    validations:
+      required: true
+
+  - type: textarea
+    id: linked_requirements
+    attributes:
+      label: Linked Requirements
+      description: "Which NFRs / KPMs reference this budget."
+      placeholder: |
+        - NFR-2.2 (RSS ≤ 1.5 GB)
+        - KPM-1.3 (Analyzer Peak RSS)
+    validations:
+      required: false

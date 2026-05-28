@@ -1,0 +1,96 @@
+# config/disciplines.yml — Active discipline-lead agents
+#
+# Which discipline-lead agents are active for THIS project. Edit at
+# project start; revisit when a new discipline enters scope.
+#
+# Each active discipline must have a corresponding agent file in
+# .claude/agents/ (typically copied or symlinked from .claude/agent-packs/).
+#
+# Three universal agents are always active and not listed here:
+#   - @systemmaster (operator-only cross-cutting review)
+#   - @verification (per-commit verification cycle)
+#   - @validation   (per-milestone E2E validation)
+#
+# Schema:
+#   disciplines:
+#     - name: <discipline-lead-name>      # matches .claude/agents/<name>.md
+#       active: true | false
+#       evidence_kinds: [<list>]          # subset of config/evidence-kinds.yml
+#       responsible_for: <one-line scope>
+#
+# Three worked-example profiles below. UNCOMMENT the one that fits;
+# delete the others or keep them as reference.
+
+# ============================================================================
+# PROFILE A — Pure software project
+# ============================================================================
+disciplines:
+  - name: systems_lead
+    active: true
+    evidence_kinds: [review, inspection]
+    responsible_for: requirements tree, architecture, interfaces, budgets
+
+  - name: software_lead
+    active: true
+    evidence_kinds: [pytest, unittest, e2e, kpm, inspection]
+    responsible_for: src/, tests/, software performance KPMs
+
+# ============================================================================
+# PROFILE B — Pure mechanical / hardware project
+# (Uncomment to use; delete Profile A above)
+# ============================================================================
+# disciplines:
+#   - name: systems_lead
+#     active: true
+#     evidence_kinds: [review, inspection]
+#     responsible_for: requirements tree, architecture, interfaces, mass+power+thermal budgets
+#
+#   - name: mechanical_lead
+#     active: true
+#     evidence_kinds: [fea, simulation, bench, dvt, evt, pvt, review, dfm]
+#     responsible_for: CAD assemblies, FEA, manufacturing drawings, tolerance analysis
+#
+#   - name: manufacturing_lead
+#     active: true
+#     evidence_kinds: [dfm, dvt, evt, pvt, review]
+#     responsible_for: supplier qualification, DFM/DFA reviews, EVT/PVT planning
+
+# ============================================================================
+# PROFILE C — Mixed-discipline IoT device (battery + custom enclosure + RF)
+# (Uncomment to use; delete the others)
+# ============================================================================
+# disciplines:
+#   - name: systems_lead
+#     active: true
+#     evidence_kinds: [review, inspection]
+#     responsible_for: requirements, interfaces, budgets, integration
+#
+#   - name: software_lead
+#     active: true
+#     evidence_kinds: [pytest, unittest, e2e, inspection]
+#     responsible_for: cloud-side software, mobile app
+#
+#   - name: firmware_lead
+#     active: true
+#     evidence_kinds: [unittest, hil, bench, simulation, review]
+#     responsible_for: embedded firmware, RTOS configuration, hardware-software interfaces
+#
+#   - name: electrical_lead
+#     active: true
+#     evidence_kinds: [spice, bench, dvt, evt, emc, review]
+#     responsible_for: schematics, PCB layout, signal/power integrity, RF compliance
+#
+#   - name: mechanical_lead
+#     active: true
+#     evidence_kinds: [fea, simulation, bench, dvt, evt, dfm, review]
+#     responsible_for: enclosure, thermal path, antenna mounting, drop-test fixtures
+#
+#   - name: manufacturing_lead
+#     active: true
+#     evidence_kinds: [dfm, evt, pvt, review]
+#     responsible_for: supplier qualification, EVT/PVT, BOM management
+#
+#   - name: regulatory_lead
+#     active: true
+#     evidence_kinds: [emc, regulatory, review]
+#     responsible_for: FCC Part 15, CE-RED, RoHS, REACH, applicable safety standards

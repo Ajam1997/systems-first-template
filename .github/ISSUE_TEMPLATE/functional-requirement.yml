@@ -1,0 +1,72 @@
+name: Functional Requirement (FR)
+description: A specific behavior the system must perform. Decomposed from a parent UN.
+title: "[FR-X.Y] <short description>"
+labels: ["type: fr", "status: defined"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **FRs are the what.** They describe specific behaviors the
+        system must perform. Each FR has exactly one *primary* parent
+        UN (multi-parent FRs are allowed via `requirement-map.yml`).
+
+        The implementation lives in `src/`, `firmware/`, or a discipline-
+        specific artifact under `artifacts/`. The proof lives in
+        `**Verified By:**`.
+
+  - type: input
+    id: id
+    attributes:
+      label: ID
+      description: "Use a stable FR-X.Y number. Sub-FRs use FR-X.Y.Z."
+      placeholder: "FR-1.4"
+    validations:
+      required: true
+
+  - type: input
+    id: parent_un
+    attributes:
+      label: Parent UN
+      description: "Primary parent user need. Add cross-cutting parents in `requirement-map.yml`."
+      placeholder: "UN-012"
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation
+      description: "One-line description of the implementation approach."
+      placeholder: "Normalized Laplacian Variance"
+    validations:
+      required: true
+
+  - type: textarea
+    id: verified_by
+    attributes:
+      label: Verified By
+      description: |
+        Evidence sources proving the implementation works. One per line, prefixed with the evidence kind.
+        Valid kinds in `config/evidence-kinds.yml`. Empty is fine when the FR is fresh.
+      placeholder: |
+        - pytest: tests/test_sharpness.py::test_sharp_image_scores_high
+        - pytest: tests/test_sharpness.py::test_score_is_normalized
+    validations:
+      required: false
+
+  - type: textarea
+    id: validated_by
+    attributes:
+      label: Validated By
+      description: "How we know this FR was the right one. Usually a KPM or E2E reference."
+      placeholder: |
+        - e2e: Stage 2 milestone — sharpness column populated in library.db
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        After submitting, ensure `requirements/requirement-map.yml` lists this
+        FR under its parent UN.

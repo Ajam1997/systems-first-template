@@ -1,0 +1,90 @@
+# .github/labels.yml — Repo labels managed by github-label-sync
+#
+# Run `npx github-label-sync --access-token $GITHUB_TOKEN \
+#       --labels .github/labels.yml <owner>/<repo>` to apply.
+#
+# Or apply manually via the GitHub UI; this file is the canonical list.
+
+# ─── Type (mutually exclusive — exactly one per Issue) ──────────────
+- name: "type: user-need"
+  color: "0e8a16"   # green
+  description: A stakeholder capability (UN-XXX)
+
+- name: "type: fr"
+  color: "1d76db"   # blue
+  description: Functional requirement (FR-X.Y)
+
+- name: "type: nfr"
+  color: "5319e7"   # purple
+  description: Non-functional requirement (NFR-X.Y)
+
+- name: "type: if"
+  color: "ff9500"   # orange
+  description: Interface requirement (IF-X.Y)
+
+- name: "type: kpm"
+  color: "b60205"   # red
+  description: Key performance measure (KPM-X.Y)
+
+- name: "type: budget"
+  color: "d4c5f9"   # light purple
+  description: Resource budget allocation tracking
+
+- name: "type: epic"
+  color: "c5def5"   # light blue
+  description: "Legacy: epic Issue, replaced by Milestones"
+
+# ─── Status (mutually exclusive — exactly one per requirement Issue) ──
+- name: "status: defined"
+  color: "fbca04"   # yellow
+  description: Requirement filed; implementation not started or in progress
+
+- name: "status: in-progress"
+  color: "0e8a16"   # green
+  description: Implementation in flight
+
+- name: "status: verified"
+  color: "006b75"   # teal
+  description: Implementation passes its Verified-By evidence (pr_rollup.py writes this)
+
+- name: "status: validated"
+  color: "1d76db"   # blue
+  description: Integrated demonstration of the user need (pr_rollup.py writes this)
+
+# ─── Discipline (one or more per Issue — informational) ──────────────
+- name: "discipline: systems"
+  color: "ededed"
+  description: Owned by @systems_lead
+
+- name: "discipline: software"
+  color: "c2e0c6"
+  description: Owned by @software_lead
+
+- name: "discipline: firmware"
+  color: "bfd4f2"
+  description: Owned by @firmware_lead
+
+- name: "discipline: electrical"
+  color: "fef2c0"
+  description: Owned by @electrical_lead
+
+- name: "discipline: mechanical"
+  color: "f9d0c4"
+  description: Owned by @mechanical_lead
+
+- name: "discipline: manufacturing"
+  color: "d4c5f9"
+  description: Owned by @manufacturing_lead
+
+- name: "discipline: regulatory"
+  color: "e99695"
+  description: Owned by @regulatory_lead
+
+# ─── Process ─────────────────────────────────────────────────────────
+- name: "type: validation-failure"
+  color: "b60205"
+  description: Opened by @validation on E2E failure; escalates to @architect
+
+- name: "type: drift-report"
+  color: "fbca04"
+  description: Auto-opened by check_drift.py for stale unverified requirements

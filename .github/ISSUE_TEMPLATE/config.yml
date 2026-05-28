@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Methodology
+    url: ../../blob/main/METHODOLOGY.md
+    about: The five rules, artifact hierarchy, and agent roster pattern.
+  - name: Source-of-truth precedence
+    url: ../../blob/main/dev-docs/architecture/doc-source-of-truth.md
+    about: What lives where and which writer wins on conflict.

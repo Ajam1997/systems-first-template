@@ -1,0 +1,147 @@
+# config/evidence-kinds.yml — Valid V&V evidence vocabulary
+#
+# Defines which `<kind>: <reference>` entries are valid in the
+# `**Verified By:**` and `**Validated By:**` sections of Issue bodies.
+# The V&V matrix renderer (scripts/generate_docs.py) validates that
+# every evidence line uses an active kind.
+#
+# Schema:
+#   evidence_kinds:
+#     <kind-name>:
+#       active: true | false
+#       description: <one-line purpose>
+#       reference_shape: <example of <reference> format>
+#       file_check: <regex>   # optional — if set, generate_docs checks
+#                             # the file exists for matching references
+#
+# Activate the subset that matches your active disciplines (see
+# config/disciplines.yml). The full vocabulary is below; toggle
+# `active: false` for the ones your project doesn't use.
+
+evidence_kinds:
+
+  # ─── Software / general code ─────────────────────────────────────────
+  pytest:
+    active: true
+    description: Python pytest test function
+    reference_shape: "tests/<file>.py::<func>"
+    file_check: '^tests/.+\.py(::\w+)?$'
+
+  unittest:
+    active: true
+    description: any non-pytest unit-test framework (jest, gtest, etc.)
+    reference_shape: "<path-to-test>"
+    file_check: null
+
+  e2e:
+    active: true
+    description: end-to-end demonstration of integrated behavior
+    reference_shape: "<test-name> | Stage N milestone"
+    file_check: null
+
+  # ─── Numerical / simulation ──────────────────────────────────────────
+  simulation:
+    active: false
+    description: generic numerical simulation result
+    reference_shape: "sim/<run>.json"
+    file_check: null
+
+  fea:
+    active: false
+    description: finite-element analysis run
+    reference_shape: "cad/<assembly>-stress-rev<N>.fea"
+    file_check: null
+
+  spice:
+    active: false
+    description: SPICE circuit simulation
+    reference_shape: "pcb/<schematic>-tran.sp"
+    file_check: null
+
+  # ─── Bench / lab measurement ─────────────────────────────────────────
+  bench:
+    active: false
+    description: bench-top measurement (oscilloscope, multimeter, chamber, etc.)
+    reference_shape: "<date> <instrument>, <conditions>"
+    file_check: null
+
+  hil:
+    active: false
+    description: hardware-in-the-loop test
+    reference_shape: "hil/<run-id>"
+    file_check: null
+
+  emc:
+    active: false
+    description: EMC pre-compliance or compliance scan
+    reference_shape: "<lab> <date> <standard>"
+    file_check: null
+
+  # ─── Phase-gated hardware tests ──────────────────────────────────────
+  dvt:
+    active: false
+    description: Design Verification Test
+    reference_shape: "verification/dvt/<plan>.md (PASS|FAIL <date>)"
+    file_check: '^verification/dvt/.+\.md'
+
+  evt:
+    active: false
+    description: Engineering Verification Test (per-build-lot)
+    reference_shape: "verification/evt/<plan>.md (build-N, unit #X)"
+    file_check: '^verification/evt/.+\.md'
+
+  pvt:
+    active: false
+    description: Production Verification Test (sampling, AQL)
+    reference_shape: "verification/pvt/<plan>.md (lot-N, AQL <value>)"
+    file_check: '^verification/pvt/.+\.md'
+
+  # ─── Process / review ────────────────────────────────────────────────
+  dfm:
+    active: false
+    description: Design-for-Manufacturing / DFA review
+    reference_shape: "<date> review with supplier <name>"
+    file_check: null
+
+  review:
+    active: true
+    description: formal design review (PDR, CDR, etc.)
+    reference_shape: "<review-type> <date> minutes"
+    file_check: null
+
+  regulatory:
+    active: false
+    description: regulatory submission or certification artifact
+    reference_shape: "<standard> <cert-number> <date>"
+    file_check: null
+
+  # ─── Universal ───────────────────────────────────────────────────────
+  kpm:
+    active: true
+    description: measurement against a declared KPM target
+    reference_shape: "KPM-X.Y"
+    file_check: null
+
+  soak:
+    active: false
+    description: endurance / soak test (cycles over time)
+    reference_shape: "<target> N-cycle log"
+    file_check: null
+
+  script:
+    active: true
+    description: scripted verification check
+    reference_shape: "scripts/<file>.py <args>"
+    file_check: '^scripts/.+\.py'
+
+  manual:
+    active: true
+    description: manual verification step performed by operator
+    reference_shape: "<description of action and observed result>"
+    file_check: null
+
+  inspection:
+    active: true
+    description: visual or document inspection (no instrumentation)
+    reference_shape: "<what was inspected>"
+    file_check: null

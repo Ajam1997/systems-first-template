@@ -1,0 +1,74 @@
+name: User Need (UN)
+description: A capability a stakeholder wants. Black-box. Decomposes into FRs / NFRs / IFs / KPMs.
+title: "[UN-XXX] <short description>"
+labels: ["type: user-need", "status: defined"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **User needs are the why.** They describe what a stakeholder wants
+        from the system as a whole. They are black-box: written in terms
+        of observable outcomes, not implementation.
+
+        Each user need decomposes into one or more FR / NFR / IF / KPM.
+        The decomposition tree lives in `requirements/requirement-map.yml`.
+
+        After creating this Issue, also add the parent/child links to
+        `requirement-map.yml`.
+
+  - type: input
+    id: id
+    attributes:
+      label: ID
+      description: "Use the next available UN-XXX number. See open Issues for current numbering."
+      placeholder: "UN-042"
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance
+      description: "The observable, measurable acceptance criterion. What does success look like from outside the system?"
+      placeholder: "When the user does X, the system outputs Y within Z."
+    validations:
+      required: true
+
+  - type: input
+    id: kpm
+    attributes:
+      label: KPM
+      description: "Which KPM (if any) validates this user need? `NONE` if no measurable KPM applies."
+      placeholder: "KPM-1.2 or NONE"
+    validations:
+      required: true
+
+  - type: input
+    id: stage
+    attributes:
+      label: Stage
+      description: "Which roadmap stage delivers this UN? See `config/stages.yml`."
+      placeholder: "2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: validated_by
+    attributes:
+      label: Validated By
+      description: |
+        Evidence sources demonstrating this UN is satisfied. One per line, prefixed with the evidence kind.
+        Leave empty until validation lands. Valid kinds in `config/evidence-kinds.yml`.
+      placeholder: |
+        - e2e: Stage 2 milestone — observable output verified
+        - kpm: KPM-1.2
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        After submitting, run `python -m scripts.generate_docs` to refresh the
+        AUTO sections of `dev-docs/`. Add the FR/NFR/IF/KPM decomposition links
+        to `requirements/requirement-map.yml`.

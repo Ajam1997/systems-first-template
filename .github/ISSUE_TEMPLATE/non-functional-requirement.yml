@@ -1,0 +1,68 @@
+name: Non-Functional Requirement (NFR)
+description: A constraint the system must respect (offline-only, RSS cap, EMC limits, MTBF, etc.).
+title: "[NFR-X.Y] <short description>"
+labels: ["type: nfr", "status: defined"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **NFRs are the constraints.** They describe properties the system
+        must respect, often cross-cutting many FRs. Examples: offline
+        operation, RSS limit, EMC class, reliability target.
+
+        NFRs frequently link to a budget in `config/budgets.yml`.
+
+  - type: input
+    id: id
+    attributes:
+      label: ID
+      placeholder: "NFR-2.3"
+    validations:
+      required: true
+
+  - type: input
+    id: parent_un
+    attributes:
+      label: Parent UN
+      description: "If this NFR is decomposed from a single UN, name it. Cross-cutting NFRs may decompose multiple UNs — list extras in `requirement-map.yml`."
+      placeholder: "UN-031 or N/A (cross-cutting)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: specification
+    attributes:
+      label: Specification
+      description: "The constraint, with measurable bounds where possible."
+      placeholder: "Library.db + user config live on external SSD, not host filesystem."
+    validations:
+      required: true
+
+  - type: input
+    id: linked_budget
+    attributes:
+      label: Linked Budget
+      description: "Budget this NFR constrains (from `config/budgets.yml`). NONE if N/A."
+      placeholder: "memory_rss | NONE"
+    validations:
+      required: false
+
+  - type: textarea
+    id: verified_by
+    attributes:
+      label: Verified By
+      description: "Evidence sources. See `config/evidence-kinds.yml`."
+      placeholder: |
+        - inspection: NFR-2.1 audit — no network imports in src/
+        - script: scripts/check_offline.py
+    validations:
+      required: false
+
+  - type: textarea
+    id: validated_by
+    attributes:
+      label: Validated By
+      placeholder: |
+        - kpm: KPM-1.3 (RSS measurement)
+    validations:
+      required: false

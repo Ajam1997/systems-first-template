@@ -1,0 +1,100 @@
+name: Interface Requirement (IF)
+description: A boundary between subsystems / disciplines. Defines what crosses (data, energy, signals, forces, fluids, heat).
+title: "[IF-X.Y] <subsystem-A> ↔ <subsystem-B> <interface name>"
+labels: ["type: if", "status: defined"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Interface requirements are the cross-discipline boundaries.**
+        They have **two sides** and **dual ownership**. Each side has
+        its own V&V evidence.
+
+        Detailed ICDs (pinouts, protocol specs, mechanical drawings)
+        live in `requirements/interfaces/IF-X.Y.md` for cases that
+        need diagrams.
+
+  - type: input
+    id: id
+    attributes:
+      label: ID
+      placeholder: "IF-3.2"
+    validations:
+      required: true
+
+  - type: input
+    id: side_a
+    attributes:
+      label: Side A
+      description: "Owning discipline + subsystem on one side"
+      placeholder: "electrical_lead — USB-C front port"
+    validations:
+      required: true
+
+  - type: input
+    id: side_b
+    attributes:
+      label: Side B
+      description: "Owning discipline + subsystem on the other side"
+      placeholder: "software_lead — ingest.py"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_crosses
+    attributes:
+      label: What Crosses
+      description: "Data, energy, signals, mechanical forces, fluids, heat — what flows across this boundary?"
+      placeholder: "Raw JPEG/RAW file bytes; rsync streams over USB 3.0 mass-storage protocol."
+    validations:
+      required: true
+
+  - type: textarea
+    id: contract
+    attributes:
+      label: Contract
+      description: "The specification — formats, rates, tolerances, timing, etc."
+      placeholder: |
+        - Transfer rate ≥ 500 MB/s (80% of USB 3.0 5 Gbps)
+        - rsync target directory: /mnt/photon_ssd/<id>/staging/
+        - file naming preserved verbatim
+        - SD card not unmounted until rsync exit 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: verified_by
+    attributes:
+      label: Verified By (Side A)
+      description: "Evidence the Side A owner provides — that their side meets the spec."
+      placeholder: |
+        - bench: USB 3.0 throughput measurement, 2026-06-10
+    validations:
+      required: false
+
+  - type: textarea
+    id: verified_by_b
+    attributes:
+      label: Verified By (Side B)
+      description: "Evidence the Side B owner provides — that their side handles the spec correctly."
+      placeholder: |
+        - pytest: tests/test_ingest.py::test_full_rsync_cycle
+    validations:
+      required: false
+
+  - type: textarea
+    id: validated_by
+    attributes:
+      label: Validated By
+      description: "Integrated proof that the interface works end-to-end."
+      placeholder: |
+        - e2e: Stage 4 milestone — SD insertion → SSD ingest, KPM-1.1 measured
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        For interfaces complex enough to need diagrams (pinouts, protocol specs,
+        mechanical drawings), also create `requirements/interfaces/IF-X.Y.md`.

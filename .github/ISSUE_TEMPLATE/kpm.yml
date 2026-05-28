@@ -1,0 +1,93 @@
+name: Key Performance Measure (KPM)
+description: A measurable that gates acceptance. KPMs are MOPs/MOEs in MBSE terms.
+title: "[KPM-X.Y] <metric name>"
+labels: ["type: kpm", "status: defined"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **KPMs are the gates.** A measurable target with a specific
+        method. KPMs validate one or more UN/FR/NFR/IF.
+
+        KPM status (passing/failing/untested) and last-measured value
+        are tracked on the **KPM Dashboard** project board, updated by
+        `@verification` via `scripts/github_comment.py update-kpm`.
+
+  - type: input
+    id: id
+    attributes:
+      label: ID
+      placeholder: "KPM-1.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: target
+    attributes:
+      label: Target
+      description: "The measurable threshold. Include units and direction (≤ vs ≥)."
+      placeholder: "Peak RSS ≤ 1.5 GB during full scoring pipeline"
+    validations:
+      required: true
+
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      description: "Discipline lead responsible for hitting the target."
+      placeholder: "@software_lead"
+    validations:
+      required: true
+
+  - type: input
+    id: verified_by_agent
+    attributes:
+      label: Verified By
+      description: "Which agent runs the measurement."
+      placeholder: "@verification"
+    validations:
+      required: true
+
+  - type: textarea
+    id: method
+    attributes:
+      label: Measurement Method
+      description: "How is this measured? Cite the benchmark script or procedure."
+      placeholder: |
+        - `/usr/bin/time -v` parsing of Maximum resident set size
+        - run via `python -m photo_workflow.pipeline --source tests/fixtures/ ...`
+        - fail if > 1.5 GB
+    validations:
+      required: true
+
+  - type: input
+    id: last_measured
+    attributes:
+      label: Last Measured
+      description: "Latest measurement result. Set by @verification on each run."
+      placeholder: "1.83 GB on i7-7500U — 2026-06-12"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: status_kpm
+    attributes:
+      label: KPM Status
+      description: "Current state of the KPM. Set by @verification."
+      options:
+        - untested
+        - passing
+        - failing
+    validations:
+      required: true
+
+  - type: textarea
+    id: linked_requirements
+    attributes:
+      label: Linked Requirements
+      description: "Which UNs / FRs / NFRs / IFs does this KPM validate? Bullet list."
+      placeholder: |
+        - UN-012
+        - FR-1.4
+    validations:
+      required: false

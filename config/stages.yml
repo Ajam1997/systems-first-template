@@ -1,0 +1,122 @@
+# config/stages.yml — Phase model
+#
+# This project's lifecycle stages. Each entry maps 1:1 to a GitHub
+# Milestone (created automatically by scripts/sync_milestones.py
+# during Pass 1 setup, or by you on the Milestones tab).
+#
+# `pr_rollup.py` closes the milestone when all its `user_needs`
+# transition to status: verified.
+#
+# Schema:
+#   stages:
+#     <stage-number>:
+#       title: <full milestone title, "Stage N — <name>">
+#       user_needs: [<list of UN-IDs to be completed in this stage>]
+#       exit_criteria: <one-line summary, optional>
+#
+# Three example presets below. UNCOMMENT the one that fits your
+# lifecycle; delete or comment-out the others.
+
+# ============================================================================
+# PRESET A — Software project (fast iteration, no hardware gates)
+# ============================================================================
+stages:
+  1:
+    title: "Stage 1 — Scaffold & Foundation"
+    user_needs: [UN-001, UN-002]
+    exit_criteria: project structure in place, all agents discoverable
+
+  2:
+    title: "Stage 2 — Core Engine"
+    user_needs: []
+    exit_criteria: primary functionality demonstrable on fixtures
+
+  3:
+    title: "Stage 3 — Integration"
+    user_needs: []
+    exit_criteria: end-to-end pipeline runs on real inputs
+
+  4:
+    title: "Stage 4 — V&V"
+    user_needs: []
+    exit_criteria: all KPMs measured, all user needs validated
+
+  5:
+    title: "Stage 5 — Release"
+    user_needs: []
+    exit_criteria: production deploy + monitoring in place
+
+# ============================================================================
+# PRESET B — Hardware product (gated by physical builds)
+# (Uncomment to use; delete Preset A above)
+# ============================================================================
+# stages:
+#   1:
+#     title: "Stage 1 — Concept"
+#     user_needs: []
+#     exit_criteria: concept selection, top-level UNs defined, budgets locked
+#
+#   2:
+#     title: "Stage 2 — Preliminary Design (PDR)"
+#     user_needs: []
+#     exit_criteria: PDR passed, FRs decomposed, interfaces defined
+#
+#   3:
+#     title: "Stage 3 — Critical Design (CDR)"
+#     user_needs: []
+#     exit_criteria: CDR passed, all NFRs satisfied in simulation/analysis
+#
+#   4:
+#     title: "Stage 4 — Engineering Build (EB)"
+#     user_needs: []
+#     exit_criteria: first physical build available for bench testing
+#
+#   5:
+#     title: "Stage 5 — Design Verification Test (DVT)"
+#     user_needs: []
+#     exit_criteria: all DVT procedures pass on EB units
+#
+#   6:
+#     title: "Stage 6 — Engineering Verification Test (EVT)"
+#     user_needs: []
+#     exit_criteria: EVT build qualified, ECOs frozen
+#
+#   7:
+#     title: "Stage 7 — Production Verification Test (PVT)"
+#     user_needs: []
+#     exit_criteria: PVT lot qualifies, AQL met, mass production approved
+#
+#   8:
+#     title: "Stage 8 — Production"
+#     user_needs: []
+#     exit_criteria: shipping to customers
+
+# ============================================================================
+# PRESET C — Research / experimental project
+# (Uncomment to use; delete the others)
+# ============================================================================
+# stages:
+#   1:
+#     title: "Stage 1 — Literature & State of the Art"
+#     user_needs: []
+#     exit_criteria: research questions framed, gap analysis written
+#
+#   2:
+#     title: "Stage 2 — Hypothesis & Method"
+#     user_needs: []
+#     exit_criteria: experimental method defined, success criteria locked
+#
+#   3:
+#     title: "Stage 3 — Prototype"
+#     user_needs: []
+#     exit_criteria: prototype operational on representative input
+#
+#   4:
+#     title: "Stage 4 — Evaluation"
+#     user_needs: []
+#     exit_criteria: results collected against success criteria
+#
+#   5:
+#     title: "Stage 5 — Writeup & Handoff"
+#     user_needs: []
+#     exit_criteria: findings documented, decision made on path forward
