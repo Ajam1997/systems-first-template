@@ -1,0 +1,4 @@
+# Runtime dependencies for the systems-first-template scripts.
+# Install with: pip install -r requirements.txt
+PyYAML>=6.0
+requests>=2.31
