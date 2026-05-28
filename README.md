@@ -5,8 +5,11 @@ across software, electrical, mechanical, firmware, and mixed-discipline
 projects. Built on top of GitHub Issues + Milestones + a Claude Code agent
 harness. SysML-flavored without leaving GitHub.
 
-> **Status:** seedling. Pass 1 (software-flavored skeleton) under construction.
-> Mechanical and electrical discipline packs to follow.
+> **Status:** structurally complete (Passes 1–3 landed). 7 discipline-lead
+> agent packs ship (systems, software, mechanical, electrical, firmware,
+> manufacturing, regulatory). Roadmap → Pass 4: `critical_path` aggregation
+> in `kpm_rollup`, per-discipline example manifests beyond mechanical, and
+> pilot validation on a real project.
 
 ---
 
