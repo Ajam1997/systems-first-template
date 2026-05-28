@@ -1,0 +1,51 @@
+name: KPM Rollup
+
+# Runs scripts/kpm_rollup.py: aggregates child KPM measurements into
+# parent KPMs (sum/max/min) per requirements/requirement-map.yml.
+#
+# Triggers:
+#   - workflow_run after pr-close-issues.yml so rollup happens after the
+#     status labels stabilize on PR merge
+#   - issues edit/closed events (a KPM measurement landing on a leaf
+#     should propagate to the parent)
+#   - manual via workflow_dispatch
+
+on:
+  workflow_run:
+    workflows: ["PR — Roll Up Issue Status"]
+    types: [completed]
+    branches: [main]
+  issues:
+    types: [edited, closed]
+  workflow_dispatch:
+
+# Serialize so two PR merges don't race on the same parent KPM.
+concurrency:
+  group: kpm-rollup
+  cancel-in-progress: false
+
+jobs:
+  rollup:
+    runs-on: ubuntu-latest
+    # Skip if upstream workflow failed (workflow_run trigger only).
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests PyYAML
+
+      - name: Run KPM rollup
+        env:
+          GITHUB_TOKEN: ${{ secrets.REGEN_TOKEN || secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: python -m scripts.kpm_rollup

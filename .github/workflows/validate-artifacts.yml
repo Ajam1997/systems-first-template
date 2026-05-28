@@ -1,0 +1,37 @@
+name: Validate Artifact Manifests
+
+# Runs scripts/validate_artifacts.py on PRs that touch artifacts/ to
+# catch missing required fields, broken snapshot pointers, malformed
+# sha256 hashes, and stale linked_requirements references.
+#
+# Errors fail the workflow (PR cannot merge until clean).
+# Warnings are surfaced in the log but don't block.
+
+on:
+  pull_request:
+    paths:
+      - "artifacts/**"
+      - "dev-docs/architecture/artifact-manifest.md"
+      - "scripts/validate_artifacts.py"
+      - "requirements/requirement-map.yml"
+      - "config/disciplines.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install PyYAML
+
+      - name: Validate all artifact manifests
+        run: python scripts/validate_artifacts.py --verbose

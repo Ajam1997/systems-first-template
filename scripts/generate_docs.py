@@ -6,7 +6,7 @@ renderer. Reads:
 
   config/disciplines.yml      — active disciplines (for future filtering)
   config/evidence-kinds.yml   — valid V&V evidence vocabulary
-  requirements/requirement-map.yml — UN → FR/NFR/IF/KPM decomposition
+  requirements/requirement-map.yml — UN -> FR/NFR/IF/KPM decomposition
 
 Writes into the AUTO sentinels of:
 
@@ -195,8 +195,8 @@ def render_vv_matrix(
 ) -> str:
     """Render the V&V matrix table.
 
-    Columns: ID · Type · Verified By · Validated By · Coverage
-    Coverage flags: ✓ verified+validated, ⚠ partial, ✗ neither (unverified).
+    Columns: ID - Type - Verified By - Validated By - Coverage
+    Coverage flags: [ok] verified+validated, [WARN] partial, [FAIL] neither (unverified).
     """
     rows = [
         "| ID | Type | Verified By | Validated By | Coverage |",
@@ -207,14 +207,14 @@ def render_vv_matrix(
         # UNs derive verification from children — no direct check here.
         # KPMs are self-validating.
         if req_type == "user-need":
-            return "✓" if validated else "⚠"
+            return "[ok]" if validated else "[WARN]"
         if req_type == "kpm":
-            return "✓" if verified else "✗"
+            return "[ok]" if verified else "[FAIL]"
         if verified and validated:
-            return "✓"
+            return "[ok]"
         if verified or validated:
-            return "⚠"
-        return "✗"
+            return "[WARN]"
+        return "[FAIL]"
 
     def row_for(issue: dict, req_type_label: str, req_type_key: str) -> str:
         req_id = _extract_id(issue["title"])
@@ -243,7 +243,7 @@ def render_vv_matrix(
         1 for issue, _, key in grouped
         if coverage(_body_list_field(issue.get("body") or "", "Verified By"),
                     _body_list_field(issue.get("body") or "", "Validated By"),
-                    key) == "✓"
+                    key) == "[ok]"
     )
     rows.append("")
     rows.append(f"_Coverage: **{full} / {total}** requirements fully verified+validated. "

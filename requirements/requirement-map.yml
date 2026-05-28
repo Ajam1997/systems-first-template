@@ -1,47 +1,77 @@
-# requirements/requirement-map.yml — Decomposition tree
+# requirements/requirement-map.yml — Decomposition tree + KPM rollup
 #
-# The SysML requirement diagram, in YAML form. Captures the «derive»
-# and «contain» relationships between user needs and their decomposed
-# functional, non-functional, and interface requirements.
+# The SysML requirement diagram and the KPM parametric chain, both in
+# YAML. Read by:
+#   - scripts/pr_rollup.py     (UN → child relationships drive status rollup)
+#   - scripts/generate_docs.py (renders UN list + V&V matrix + KPM tree)
+#   - scripts/kpm_rollup.py    (aggregates child KPM measurements into parents)
 #
-# Read by:
-#   - scripts/pr_rollup.py  (UN → child relationships drive rollup)
-#   - scripts/generate_docs.py  (renders UN list with decomposition)
+# ─── Schema ─────────────────────────────────────────────────────────
 #
-# Schema:
 #   stages:
 #     <stage-number>:
-#       title: <milestone title; must match config/stages.yml entry>
-#       user_needs: [<UN-IDs in this stage>]
+#       title: <milestone title; must match config/stages.yml>
+#       user_needs: [<UN-IDs>]
 #
 #   user_needs:
 #     <UN-ID>:
-#       functional_requirements: [<FR-IDs>]
+#       functional_requirements:     [<FR-IDs>]
 #       non_functional_requirements: [<NFR-IDs>]
-#       interface_requirements: [<IF-IDs>]
+#       interface_requirements:      [<IF-IDs>]
+#       kpms:                        [<KPM-IDs>]  # acceptance-level
+#
+#   functional_requirements:
+#     <FR-ID>:
+#       kpms: [<KPM-IDs>]   # subsystem-level KPMs validating this FR
+#
+#   non_functional_requirements:
+#     <NFR-ID>:
 #       kpms: [<KPM-IDs>]
 #
-# A single FR / NFR / IF may legitimately decompose more than one UN
-# (cross-cutting requirements). pr_rollup.py handles this correctly —
-# both parents roll up when the child verifies.
+#   interface_requirements:
+#     <IF-ID>:
+#       kpms: [<KPM-IDs>]
 #
-# ─── Starter content ─────────────────────────────────────────────────
-# Replace this with your project's actual decomposition. The structure
-# below shows the schema in use; delete or extend.
+#   kpms:
+#     <KPM-ID>:
+#       target_value: <number>         # numeric value of the target
+#       target_op:    "<="|">="|"=="   # comparison direction
+#       unit:         <string>         # all children must match
+#       aggregation:  independent | sum | max | min
+#       aggregates_from: [<child KPM-IDs>]  # only for non-independent
+#       margin_target: 0.0 - 1.0       # optional; fraction held in reserve
+#
+# ─── KPMs and the V-model ───────────────────────────────────────────
+#
+# KPMs sit at every level of the decomposition, not just at the top.
+# Leaf KPMs (`aggregation: independent`) are measured directly on the
+# implementation. Parent KPMs (`aggregation: sum|max|min`) are computed
+# from their children by scripts/kpm_rollup.py — they verify the system
+# bottom-up as the V-model demands.
+#
+# Five aggregation patterns cover most cases:
+#   sum            mass, BOM cost, average power, total LOC
+#   max            peak power, peak temperature, peak RSS
+#   min            min battery margin, weakest-link reliability
+#   independent    emergent properties (overall accuracy, "feels fast",
+#                  any UX KPM where no per-subsystem KPM rolls up cleanly)
+#
+# Independent KPMs are the escape hatch — use them when the integrated
+# system has behavior the subsystems individually don't have.
+#
+# ─── Starter content ────────────────────────────────────────────────
+# Replace with your project's actual decomposition.
 
 stages:
   1:
     title: "Stage 1 — Scaffold & Foundation"
-    user_needs:
-      - UN-001
-      - UN-002
+    user_needs: [UN-001, UN-002]
 
   2:
     title: "Stage 2 — Core Engine"
     user_needs: []
 
 user_needs:
-
   UN-001:
     functional_requirements: []
     non_functional_requirements: []
@@ -53,3 +83,9 @@ user_needs:
     non_functional_requirements: []
     interface_requirements: []
     kpms: []
+
+functional_requirements: {}
+non_functional_requirements: {}
+interface_requirements: {}
+
+kpms: {}

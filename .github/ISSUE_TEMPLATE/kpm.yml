@@ -9,9 +9,23 @@ body:
         **KPMs are the gates.** A measurable target with a specific
         method. KPMs validate one or more UN/FR/NFR/IF.
 
+        **Two kinds of KPM:**
+        - **Independent (leaf):** measured directly. Most KPMs.
+        - **Computed (aggregated):** value derived from child KPMs by
+          `scripts/kpm_rollup.py`. Used for budget-style KPMs (mass,
+          power, cost, latency) where the system-level value is the
+          sum/max/min of subsystem values.
+
+        Aggregation metadata (target_value, target_op, unit, aggregation,
+        aggregates_from) lives in `requirements/requirement-map.yml`,
+        not in the Issue body — it's structural data the rollup script
+        reads. This Issue is for the human-readable description.
+
         KPM status (passing/failing/untested) and last-measured value
         are tracked on the **KPM Dashboard** project board, updated by
-        `@verification` via `scripts/github_comment.py update-kpm`.
+        `@verification` via `scripts/github_comment.py update-kpm`. For
+        computed KPMs, `scripts/kpm_rollup.py` posts the rolled-up
+        value as a comment on this Issue.
 
   - type: input
     id: id

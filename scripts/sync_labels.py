@@ -148,11 +148,11 @@ def print_plan(creates, updates, deletes):
             cur_desc = cur.get('description') or ''
             changes = []
             if cur_color != d["color"].lower():
-                changes.append(f"color {cur_color}→{d['color']}")
+                changes.append(f"color {cur_color}->{d['color']}")
             if cur_desc != d["description"]:
                 old = (cur_desc[:25] + "…") if len(cur_desc) > 25 else cur_desc
                 new = (d['description'][:25] + "…") if len(d['description']) > 25 else d['description']
-                changes.append(f"desc '{old}'→'{new}'")
+                changes.append(f"desc '{old}'->'{new}'")
             print(f"  ~ {d['name']:<28} ({'; '.join(changes)})")
     if deletes:
         print(f"\n- Deleting {len(deletes)} unmanaged label(s):")

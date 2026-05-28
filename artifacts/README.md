@@ -48,7 +48,17 @@ so reviewers can see what changed without installing the tool.
   automatic — `generate_docs.py` builds a manifest-to-requirement
   matrix from these.
 
-## Pass 1 status
+## Format spec + validator
 
-The manifest format above is preliminary. Pass 2 (mechanical pack) will
-formalize it with a JSON schema and an artifact-validator script.
+Full schema and field reference: [`dev-docs/architecture/artifact-manifest.md`](../dev-docs/architecture/artifact-manifest.md).
+
+Worked example: [`artifacts/mechanical/EXAMPLE-motor-mount.md`](mechanical/EXAMPLE-motor-mount.md).
+
+Validate all manifests:
+```bash
+python scripts/validate_artifacts.py           # check, exit 1 on errors
+python scripts/validate_artifacts.py --verbose # show clean files too
+```
+
+The validator runs in CI on every PR via a future workflow; for now,
+run it locally before opening a PR that touches `artifacts/`.

@@ -20,7 +20,10 @@ firmware_lead, mechanical_lead, etc.) own the how.
 
 - Maintain `requirements/requirement-map.yml` — the decomposition tree
 - Define and own interface requirements (`IF-X.Y`) — including dual ownership
-- Allocate and track budgets in `config/budgets.yml`
+- Allocate and track resource budgets as aggregated KPMs in
+  `requirements/requirement-map.yml` (`aggregation: sum`, child
+  allocations as leaf KPMs). See METHODOLOGY.md "The V-model and
+  where KPMs live".
 - Author architecture documents in `dev-docs/architecture/`
 - Draft per-feature engineer briefs that decompose into discipline-specific work
 - Review proposed FRs/NFRs/IFs for consistency with parent UNs
@@ -63,7 +66,8 @@ When a new UN arrives:
 2. **Decompose into FR/NFR/IF.** What behaviors satisfy this UN? What
    constraints apply? What interfaces does it cross?
 3. **Allocate budgets.** If this UN consumes mass/power/cost/RSS,
-   carve out an allocation in `config/budgets.yml`.
+   file the system-level KPM with `aggregation: sum` plus per-subsystem
+   child KPMs (allocations) in `requirements/requirement-map.yml`.
 4. **Identify KPM coverage.** Which KPMs (existing or new) validate
    this UN? File new KPM Issues if needed.
 5. **Update `requirement-map.yml`.** Link the new requirements under

@@ -77,4 +77,4 @@ alternatives considered, rationale. Append-only.>
 - [METHODOLOGY.md](../METHODOLOGY.md) — the five rules
 - [requirements/requirement-map.yml](../requirements/requirement-map.yml) — decomposition tree
 - [config/disciplines.yml](../config/disciplines.yml) — active discipline leads
-- [config/budgets.yml](../config/budgets.yml) — resource budgets
+- Resource budgets: aggregated KPMs in [requirements/requirement-map.yml](../requirements/requirement-map.yml)

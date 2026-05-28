@@ -21,7 +21,7 @@ at project start; refer back whenever a writer collision feels possible.**
 | Decomposition (UN → FR/NFR/IF/KPM) | `requirements/requirement-map.yml` | Living-user-needs.md AUTO section | Hand-edited; not regenerated from Issues. |
 | Interface details (ICDs, pinouts, protocols, drawings) | `requirements/interfaces/IF-X.Y.md` | n/a (hand-authored) | Free-form markdown for cross-discipline boundaries. |
 | Stage / Milestone definition | GitHub Milestones | `dev-docs/roadmap.md` AUTO section | Created from `config/stages.yml` on project setup. `pr_rollup.py` closes milestones when their UNs verify. |
-| Budget allocations | `config/budgets.yml` + Budget Issues for discussion | Architecture doc or a future budgets AUTO section | YAML is canonical; Issues are the discussion surface. |
+| Budget allocations | KPMs in `requirements/requirement-map.yml` with `aggregation: sum`; allocations are child KPMs | Architecture doc KPM table + rollup comments on parent KPM Issues | A budget is just an aggregated KPM. `scripts/kpm_rollup.py` posts computed values. |
 | Architecture contracts (module interfaces) | `dev-docs/architecture/<feature>-contracts.md` | n/a (hand-authored) | Design docs, not status docs. Edit freely. |
 | Engineer briefs (per-feature plans) | `dev-docs/architecture/<feature>-engineer-brief.md` | n/a | Authored by @systems_lead, consumed by the assigned discipline lead. Must include "Open questions if you stop mid-step". |
 | Research / scratch notes | `dev-docs/research/*.md` | n/a | Free-form. Not in AUTO regen. |
@@ -73,11 +73,18 @@ sections you want auto-managed.
 |---|---|---|
 | @verification | Issue comments (with `Next action:` and `via:` footers) via `github_comment.py` | `dev-docs/*` AUTO sections; status labels |
 | @validation | Issue comments via `github_comment.py`; `verification/*` test plans + result links | `dev-docs/*` AUTO sections; status labels; `src/`; `tests/test_*` |
+| @systems_lead | `requirements/*`, `requirements/interfaces/*`, `dev-docs/architecture/*`, `CLAUDE.md` | Status labels; AUTO sections of living docs |
 | @software_lead | `src/`, `tests/`, PR descriptions | Status labels; AUTO sections; non-software discipline artifacts |
-| @systems_lead | `requirements/*`, `dev-docs/architecture/*`, `CLAUDE.md` | Status labels; AUTO sections of living docs |
-| @<discipline>_lead | the discipline's `artifacts/` and `verification/` content | Other disciplines' content; status labels |
+| @firmware_lead | `firmware/`, `tests/firmware/`, `artifacts/firmware/*.md` manifests, `verification/hil/*` test plans | Status labels; other disciplines' content |
+| @electrical_lead | `artifacts/electrical/*.md` manifests + snapshots, `verification/bench/*` and `verification/simulation/*` (SPICE) test plans, BOM CSVs | Status labels; other disciplines' content |
+| @mechanical_lead | `artifacts/mechanical/*.md` manifests + snapshots, `verification/simulation/*` (FEA) and `verification/bench/*` test plans, BOM CSVs | Status labels; other disciplines' content |
+| @manufacturing_lead | `artifacts/manufacturing/*` (AVL, supplier audits, fixture manifests), `verification/dfm/*`, `verification/evt/*`, `verification/pvt/*` | Designs themselves; status labels |
+| @regulatory_lead | `artifacts/regulatory/*` (cert roadmap, DoCs, technical file, per-standard plans), `verification/inspection/bom-compliance-*` | Designs themselves; status labels |
 | `pr_rollup.py` (workflow) | `verified` / `validated` labels on PR merge; closes milestones | Anything else |
 | `generate_docs.py` (workflow) | AUTO sections of the four living docs | Anything outside AUTO sentinels |
+| `kpm_rollup.py` (workflow) | KPM rollup comments on parent KPM Issues | Status labels; AUTO sections; non-KPM Issues |
+| `export_sysml.py` (workflow) | `model/system.sysml` | Anything else |
+| `validate_artifacts.py` (CI) | nothing (read-only) | n/a |
 
 If you find an agent writing outside this table, that's the bug — fix
 the agent, not the doc.
