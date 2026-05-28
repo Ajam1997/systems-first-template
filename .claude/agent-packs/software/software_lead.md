@@ -19,8 +19,9 @@ FR Issue), and you ship it: code + tests + PR.
 
 - Implement and maintain `src/` modules
 - Write and maintain `tests/` (unit + integration)
-- Optimize for software KPMs declared in `config/budgets.yml`
-  (latency, memory, throughput)
+- Optimize for software KPMs declared in `requirements/requirement-map.yml`
+  (latency, memory, throughput — KPMs with `aggregation: sum`/`max` or
+  leaf `independent` measurements)
 - Ensure type annotations and linter compliance (`ruff`, `mypy` if configured)
 
 ## Conventions (adapt per project)

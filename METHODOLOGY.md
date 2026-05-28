@@ -107,13 +107,11 @@ Five Issue types form the spine:
 | `type: fr` (functional) | A specific behavior the system must perform | "Generate semantic filename from image content" | discipline lead |
 | `type: nfr` (non-functional) | A constraint the system must respect | "Runs offline, no network calls" | systems lead |
 | `type: if` (interface) | A boundary between two subsystems / disciplines | "Motor mount thermal interface" | dual ownership |
-| `type: kpm` (key performance measure) | A measurable that gates acceptance | "Inference ≤ 2.5 s/image" | discipline lead |
+| `type: kpm` (key performance measure) | A measurable that gates acceptance. Can be a leaf measurement or a computed rollup of child KPMs. | "Inference ≤ 2.5 s/image" (leaf); "System mass ≤ 250 g" (sum-aggregated) | discipline lead (leaves); systems lead (rollups) |
 
-Plus a sixth that's a peer-tracker, not a requirement:
-
-| Type | What it is |
-|---|---|
-| `type: budget` | A reserved resource: mass, power, cost, thermal, schedule, RSS, MTBF |
+Budgets are a specialization of KPMs — a budget is a KPM with
+`aggregation: sum` and a list of subsystem allocations as children.
+See `requirements/requirement-map.yml` for the schema.
 
 Decomposition lives in `requirements/requirement-map.yml`:
 
@@ -128,6 +126,60 @@ user_needs:
 
 The `requirement-map.yml` is the SysML *requirement diagram* in YAML form.
 It's the «derive», «contain», «satisfy» relationships, plain text.
+
+---
+
+## The V-model and where KPMs live
+
+The classic systems-engineering V-model decomposes top-down on the left
+side and verifies bottom-up on the right side. KPMs sit at **every level**
+of the V, not just at the top.
+
+```
+   User Needs ───────────────────► Acceptance Test (UN-level KPMs)
+       │                                     ▲
+       ▼                                     │
+   FRs / NFRs / IFs ─────► System Test (FR/NFR/IF-level KPMs)
+       │                            ▲
+       ▼                            │
+   Implementation ───► Unit Test (component-level KPMs)
+```
+
+Putting KPMs only at the user-need level would force acceptance testing
+to catch every regression — too late, with no way to localize the
+failure. The template puts KPMs as children of *any* requirement level.
+
+KPMs come in two flavors:
+
+- **Independent KPMs** are measured directly on the implementation —
+  the leaves of the V's right side.
+- **Computed (aggregated) KPMs** derive their value from child KPMs.
+  System-level mass is the sum of subsystem masses. Peak power is the
+  max of subsystem peaks. End-to-end latency is the bottleneck path.
+
+`scripts/kpm_rollup.py` reads the KPM tree from
+`requirements/requirement-map.yml`, collects leaf measurements from each
+KPM's Issue, and computes parent values automatically. If a child
+overruns its target, the parent flips to failing *by construction* —
+you see margin erosion before integration testing reveals it.
+
+Five aggregation patterns cover most cases:
+
+| Pattern | Math | Typical use |
+|---|---|---|
+| `sum` | parent = Σ children | mass, BOM cost, average power, total LOC |
+| `max` | parent = max(children) | peak power, peak temp, peak RSS |
+| `min` | parent = min(children) | min margin, weakest-link MTBF |
+| `independent` | leaf — measured directly | most KPMs at the lowest level |
+| (future) `critical_path` | bottleneck over a declared path | end-to-end latency, throughput |
+
+Use `independent` as the escape hatch for emergent system behavior
+that doesn't roll up from subsystems — overall accuracy, "feels fast,"
+or any UX KPM where measurement only makes sense on the integrated
+whole.
+
+This pattern replaces the older notion of separate "budgets" — a
+budget *is* a rolled-up KPM with `aggregation: sum`.
 
 ---
 

@@ -26,10 +26,10 @@
   color: "b60205"   # red
   description: Key performance measure (KPM-X.Y)
 
-- name: "type: budget"
-  color: "d4c5f9"   # light purple
-  description: Resource budget allocation tracking
-
+# Note: `type: budget` is NOT a separate type in this template.
+# A budget is a KPM with `aggregation: sum` and child allocations —
+# the rollup engine handles them as ordinary KPMs.
+#
 # Note: `type: epic` is intentionally NOT in this template.
 # Stages / phases are GitHub Milestones, not Epic Issues.
 # Epics duplicate Milestones in the data model (PHOTONForge migrated

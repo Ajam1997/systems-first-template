@@ -77,7 +77,8 @@ detailed how-tos as they get written.
 nano config/disciplines.yml    # which discipline leads are active
 nano config/stages.yml         # your project's phase model
 nano config/evidence-kinds.yml # what counts as V&V evidence in your domain
-nano config/budgets.yml        # mass / power / cost / thermal / schedule
+# Resource budgets (mass/power/cost/thermal/schedule) are KPMs
+# in requirements/requirement-map.yml — file them as you add UNs.
 # 4. Create your first user need
 gh issue create --label "type: user-need,status: defined,stage: 1" \
   --title "[UN-001] First user need"

@@ -21,7 +21,7 @@ at project start; refer back whenever a writer collision feels possible.**
 | Decomposition (UN → FR/NFR/IF/KPM) | `requirements/requirement-map.yml` | Living-user-needs.md AUTO section | Hand-edited; not regenerated from Issues. |
 | Interface details (ICDs, pinouts, protocols, drawings) | `requirements/interfaces/IF-X.Y.md` | n/a (hand-authored) | Free-form markdown for cross-discipline boundaries. |
 | Stage / Milestone definition | GitHub Milestones | `dev-docs/roadmap.md` AUTO section | Created from `config/stages.yml` on project setup. `pr_rollup.py` closes milestones when their UNs verify. |
-| Budget allocations | `config/budgets.yml` + Budget Issues for discussion | Architecture doc or a future budgets AUTO section | YAML is canonical; Issues are the discussion surface. |
+| Budget allocations | KPMs in `requirements/requirement-map.yml` with `aggregation: sum`; allocations are child KPMs | Architecture doc KPM table + rollup comments on parent KPM Issues | A budget is just an aggregated KPM. `scripts/kpm_rollup.py` posts computed values. |
 | Architecture contracts (module interfaces) | `dev-docs/architecture/<feature>-contracts.md` | n/a (hand-authored) | Design docs, not status docs. Edit freely. |
 | Engineer briefs (per-feature plans) | `dev-docs/architecture/<feature>-engineer-brief.md` | n/a | Authored by @systems_lead, consumed by the assigned discipline lead. Must include "Open questions if you stop mid-step". |
 | Research / scratch notes | `dev-docs/research/*.md` | n/a | Free-form. Not in AUTO regen. |
