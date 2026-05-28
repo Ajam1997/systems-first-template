@@ -1,0 +1,61 @@
+name: Export SysMLv2 Model
+
+# Auto-regenerates model/system.sysml from requirements/requirement-map.yml
+# (and live Issue bodies) on push to main, and commits the result.
+#
+# Optional — disable by deleting this file or commenting out the `on:`
+# triggers. The script is also runnable manually:
+#   python scripts/export_sysml.py
+#
+# See dev-docs/architecture/sysml-export.md for the YAML → SysMLv2 mapping.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "requirements/requirement-map.yml"
+      - "scripts/export_sysml.py"
+  workflow_run:
+    workflows: ["PR — Roll Up Issue Status"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: sysml-export
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+      issues: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.REGEN_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install PyYAML
+
+      - name: Export SysMLv2 model
+        env:
+          GITHUB_TOKEN: ${{ secrets.REGEN_TOKEN || secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: python scripts/export_sysml.py
+
+      - name: Commit regenerated model
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add model/system.sysml
+          git diff --staged --quiet || git commit -m "model: auto-regenerate system.sysml [skip ci]"
+          git push

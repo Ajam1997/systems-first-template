@@ -9,6 +9,8 @@ The four scripts that enforce the five rules from `METHODOLOGY.md`.
 | `migrate_wiki.py` | One-way render of `dev-docs/` to the GitHub Wiki. Diff-mode preview, LOCAL-ONLY escape hatch. | On push to main (`.github/workflows/wiki-publish.yml`) and manually with `--diff` / `--push` |
 | `github_comment.py` | Agent-safe CLI for posting Issue comments. Required `--next-action` flag enforces the breadcrumb rule. | Invoked by `verification` and `validation` agents |
 | `kpm_rollup.py` | Aggregates child KPM measurements into parent KPMs (sum/max/min). The V-model rollup engine. | On every PR merge + manually (`.github/workflows/kpm-rollup.yml`) |
+| `export_sysml.py` | Renders the requirement tree as SysMLv2 textual notation into `model/system.sysml`. | On `requirement-map.yml` change + manually (`.github/workflows/sysml-export.yml`) |
+| `init_project.py` | One-command bootstrapper: validate config, sync labels, create milestones, activate agent packs, regen docs. | Manually after first clone |
 
 Plus shared infrastructure:
 
