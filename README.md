@@ -142,7 +142,7 @@ See `METHODOLOGY.md` for what each directory is for. Brief tour:
 - `prompts/` — paste-into-Claude prompts that drive multi-step agent workflows the template can't fully script. Start with `prompts/bootstrap.md`.
 - `scripts/` — 10 scripts: `init_project`, `generate_docs`, `pr_rollup`, `migrate_wiki`, `kpm_rollup`, `export_sysml`, `validate_artifacts`, `github_comment`, `sync_labels`, `github_client`. See `scripts/README.md`.
 - `.claude/agents/` — active agent roster (populated from agent-packs by `init_project.py`)
-- `.claude/agent-packs/` — discipline-specific lead agents (software, mechanical; electrical/firmware/manufacturing/regulatory are roadmapped placeholders)
+- `.claude/agent-packs/` — discipline-specific lead agents: software, mechanical, electrical, firmware, manufacturing, regulatory (all landed in Pass 3)
 - `.github/` — Issue templates, workflows (regen-docs, pr-close-issues, wiki-publish, kpm-rollup, sysml-export), labels
 
 ## License
