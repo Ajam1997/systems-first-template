@@ -30,9 +30,13 @@
   color: "d4c5f9"   # light purple
   description: Resource budget allocation tracking
 
-- name: "type: epic"
-  color: "c5def5"   # light blue
-  description: "Legacy: epic Issue, replaced by Milestones"
+# Note: `type: epic` is intentionally NOT in this template.
+# Stages / phases are GitHub Milestones, not Epic Issues.
+# Epics duplicate Milestones in the data model (PHOTONForge migrated
+# away from them mid-2026) — the template ships Milestones-first.
+# If a project legitimately needs Epic-style parent Issues for a
+# *non-stage* grouping (e.g. a customer-facing initiative spanning
+# multiple stages), add the label here per-project.
 
 # ─── Status (mutually exclusive — exactly one per requirement Issue) ──
 - name: "status: defined"

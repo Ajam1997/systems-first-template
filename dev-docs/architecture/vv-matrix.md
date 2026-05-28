@@ -86,15 +86,18 @@ rendered matrix — useful for finding the next test to write.
 | ⚠ | One of the two populated |
 | ✗ | Neither populated — this is your worklist |
 
-## Migration tips when adopting
+## Adoption tips
 
-If you're adopting this on an existing project where requirements
-already exist:
+When starting V&V on a fresh project:
 
-1. Start with the Issues for landed work (where the tests already
-   exist) — the `Verified By` lines write themselves from the existing
-   test inventory. ~10 minutes per stage of landed code.
-2. Then file in `Validated By` lines for any UN that's been
-   demonstrated end-to-end.
-3. The remaining ✗ rows are the work that genuinely lacks evidence —
-   triage them.
+1. For each landed FR, file in `Verified By` lines as you write each
+   test. The matrix tracks coverage in near-real-time.
+2. For each UN whose work has been demonstrated end-to-end, file a
+   `Validated By` line citing the demonstration.
+3. The remaining ✗ rows are your worklist of "next test to write" or
+   "next demo to run."
+
+If you're starting from a project that already had tests written but
+no V&V matrix, do step 1 in bulk first — the lines write themselves
+from the existing test inventory and the matrix immediately reveals
+where coverage genuinely lapses.

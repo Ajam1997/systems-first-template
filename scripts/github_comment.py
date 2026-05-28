@@ -200,7 +200,7 @@ def cmd_validate_un(client: GitHubClient, issue_map: dict, args: argparse.Namesp
     )
     client.post_comment(num, body)
     print(f"posted validation comment on {args.id} (#{num})")
-    print("note: status label NOT moved â€” pr_rollup.py + Epic merge own that transition.")
+    print("note: status label NOT moved — pr_rollup.py owns that on PR merge.")
 
 
 def cmd_validation_failure(client: GitHubClient, issue_map: dict, args: argparse.Namespace) -> None:
