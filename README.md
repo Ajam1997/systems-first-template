@@ -43,10 +43,11 @@ A working scaffold for a project that wants:
   git. Spec: `dev-docs/architecture/artifact-manifest.md`. Validator:
   `scripts/validate_artifacts.py`.
 - **A Claude Code agent harness** — declarative discipline leads
-  (`systems_lead`, `software_lead`, `mechanical_lead`, with
-  `electrical_lead` / `firmware_lead` / `manufacturing_lead` /
-  `regulatory_lead` packs landing per Pass 3), plus universal
-  `verification`, `validation`, and `systemmaster` agents.
+  (`systems_lead`, `software_lead`, `mechanical_lead`,
+  `electrical_lead`, `firmware_lead`, `manufacturing_lead`,
+  `regulatory_lead`), plus universal `verification`, `validation`,
+  and `systemmaster` agents. Mix and match per project via
+  `config/disciplines.yml` or `init_project.py --activate-profile`.
 
 ## Who this is for
 
@@ -69,10 +70,11 @@ You, if:
 - Not a heavyweight modeling environment. If you need SysMLv2 with
   formal semantics, look at Cameo or Capella. This trades formal rigor
   for ergonomics and zero tooling install.
-- Not finished. Pass 1 (software) and Pass 2 (mechanical) are done;
-  electrical, firmware, manufacturing, and regulatory packs are
-  roadmapped for Pass 3. Pass 4 plans `critical_path` aggregation
-  in `kpm_rollup` for end-to-end-latency-style KPMs.
+- Pass 1 (software), Pass 2 (mechanical + artifact manifest format),
+  and Pass 3 (electrical, firmware, manufacturing, regulatory agent
+  packs) are landed. Pass 4 plans `critical_path` aggregation in
+  `kpm_rollup` for end-to-end-latency-style KPMs and discipline-pack
+  example manifests beyond mechanical.
 
 ## Origin
 
