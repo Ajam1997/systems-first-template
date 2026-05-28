@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Local secrets — NEVER commit
+.env
+.env.local
+*.token
+*.pem
+
+# Large binary artifacts (use git-LFS or external storage)
+*.step
+*.STEP
+*.prt
+*.PRT
+*.iges
+*.IGES
+*.sldprt
+*.sldasm
+*.slddrw
+*.f3d
+*.f3z
+# PCB editor binaries
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*.PcbDoc.bak
+*.SchDoc.bak
+# Simulation result blobs
+*.raw
+*.simulation
