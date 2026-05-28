@@ -1,0 +1,74 @@
+name: Publish Dev Docs to Wiki
+
+# Auto-publishes dev-docs/ to the GitHub Wiki on push to main.
+# Chains after regen-docs.yml via workflow_run so the wiki always
+# reflects the latest AUTO-regenerated state, not a stale snapshot.
+#
+# Auth: requires a **classic** Personal Access Token with the `repo`
+# scope, stored as the `WIKI_PUSH_TOKEN` secret. Fine-grained PATs do
+# NOT support wiki write access — they fail with HTTP 403. Default
+# GITHUB_TOKEN also cannot push to the wiki repo.
+#
+# Setup checklist:
+#   1. GitHub → Settings → Developer settings → Personal access tokens →
+#      Tokens (classic) → Generate new token (classic)
+#      - Note: "<your-repo-name> wiki push"
+#      - Scope: `repo` (full control of private repositories; the
+#        narrowest scope that includes wiki write on a private repo).
+#      - Expiration: 1 year recommended.
+#   2. Copy the token (only shown once).
+#   3. Repo → Settings → Secrets and variables → Actions →
+#      New repository secret
+#      Name: WIKI_PUSH_TOKEN
+#      Value: (paste token)
+#   4. Trigger this workflow manually (Actions tab → Publish Dev Docs
+#      to Wiki → Run workflow) to verify auth.
+
+on:
+  workflow_run:
+    workflows: ["Regenerate Docs from Issues"]
+    types: [completed]
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - "dev-docs/**"
+      - "scripts/migrate_wiki.py"
+  workflow_dispatch:
+
+# Prevent overlapping wiki pushes — two PRs merged back-to-back must serialize.
+concurrency:
+  group: wiki-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Skip if the upstream regen workflow failed (workflow_run only)
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install PyYAML
+
+      - name: Verify WIKI_PUSH_TOKEN is set
+        env:
+          WIKI_PUSH_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN }}
+        run: |
+          if [ -z "$WIKI_PUSH_TOKEN" ]; then
+            echo "::error::WIKI_PUSH_TOKEN secret is not set. See workflow file for setup instructions."
+            exit 1
+          fi
+          echo "WIKI_PUSH_TOKEN is set (length: ${#WIKI_PUSH_TOKEN})."
+
+      - name: Publish wiki
+        env:
+          WIKI_PUSH_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: python scripts/migrate_wiki.py --push

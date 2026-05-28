@@ -1,0 +1,40 @@
+name: PR — Roll Up Issue Status
+
+# On PR merge, scripts/pr_rollup.py:
+#   1. Sets status: verified on every FR/NFR/IF Issue referenced by
+#      "Closes #N" (or Fixes/Resolves) in the PR body.
+#   2. Rolls up to parent UNs: when all FR/NFR/IF siblings of a UN
+#      verify, the UN flips to status: verified.
+#   3. Closes the GitHub Milestone for any stage whose UNs all verify.
+#
+# This is the sole writer of `status: verified`. See METHODOLOGY.md §1.
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  roll-up-status:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests PyYAML
+
+      - name: Roll up Issue status
+        env:
+          GITHUB_TOKEN: ${{ secrets.REGEN_TOKEN || secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python -m scripts.pr_rollup

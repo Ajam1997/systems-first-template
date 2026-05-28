@@ -1,0 +1,55 @@
+# requirements/requirement-map.yml — Decomposition tree
+#
+# The SysML requirement diagram, in YAML form. Captures the «derive»
+# and «contain» relationships between user needs and their decomposed
+# functional, non-functional, and interface requirements.
+#
+# Read by:
+#   - scripts/pr_rollup.py  (UN → child relationships drive rollup)
+#   - scripts/generate_docs.py  (renders UN list with decomposition)
+#
+# Schema:
+#   stages:
+#     <stage-number>:
+#       title: <milestone title; must match config/stages.yml entry>
+#       user_needs: [<UN-IDs in this stage>]
+#
+#   user_needs:
+#     <UN-ID>:
+#       functional_requirements: [<FR-IDs>]
+#       non_functional_requirements: [<NFR-IDs>]
+#       interface_requirements: [<IF-IDs>]
+#       kpms: [<KPM-IDs>]
+#
+# A single FR / NFR / IF may legitimately decompose more than one UN
+# (cross-cutting requirements). pr_rollup.py handles this correctly —
+# both parents roll up when the child verifies.
+#
+# ─── Starter content ─────────────────────────────────────────────────
+# Replace this with your project's actual decomposition. The structure
+# below shows the schema in use; delete or extend.
+
+stages:
+  1:
+    title: "Stage 1 — Scaffold & Foundation"
+    user_needs:
+      - UN-001
+      - UN-002
+
+  2:
+    title: "Stage 2 — Core Engine"
+    user_needs: []
+
+user_needs:
+
+  UN-001:
+    functional_requirements: []
+    non_functional_requirements: []
+    interface_requirements: []
+    kpms: []
+
+  UN-002:
+    functional_requirements: []
+    non_functional_requirements: []
+    interface_requirements: []
+    kpms: []

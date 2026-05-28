@@ -1,0 +1,57 @@
+name: Regenerate Docs from Issues
+
+# Runs on push to main, on Issue label/edit events, and manually.
+# Reads live GitHub Issues + Milestones, re-renders the AUTO sections
+# of dev-docs/ via scripts/generate_docs.py, and commits the result.
+#
+# Required secret: REGEN_TOKEN — a token with `repo` scope (Issues:read,
+# Contents:write). The default GITHUB_TOKEN can't push back to the
+# repo if branch protection requires it; the REGEN_TOKEN bypasses
+# that for [skip ci] regeneration commits.
+#
+# If you don't have branch protection on main, you can replace
+# REGEN_TOKEN with secrets.GITHUB_TOKEN throughout.
+
+on:
+  push:
+    branches: [main]
+  issues:
+    types: [labeled, unlabeled, closed, reopened, edited]
+  workflow_dispatch:
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.REGEN_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests PyYAML
+
+      - name: Regenerate docs from GitHub Issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.REGEN_TOKEN || secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: python -m scripts.generate_docs
+
+      - name: Commit regenerated docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Stage any modified file under dev-docs/ — generate_docs.py only
+          # touches AUTO sections of the four canonical docs, but the
+          # exact set is up to the project's `_maybe_inject` opt-ins.
+          git add dev-docs/
+          git diff --staged --quiet || git commit -m "docs: auto-regenerate from GitHub Issues [skip ci]"
+          git push
