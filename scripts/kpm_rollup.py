@@ -48,6 +48,18 @@ from scripts.github_client import GitHubClient
 
 REPO_ROOT = Path(__file__).parent.parent
 REQ_MAP_PATH = REPO_ROOT / "requirements" / "requirement-map.yml"
+ARTIFACTS_DIR = REPO_ROOT / "artifacts"
+
+# Manifest fields that can supply a leaf KPM measurement directly. Keyed
+# by the KPM's `unit` (lowercase) so we know which field carries the
+# value. Extend here if you add more unit/field pairs to the manifest
+# format spec (dev-docs/architecture/artifact-manifest.md).
+MANIFEST_FIELD_BY_UNIT: dict[str, str] = {
+    "g":   "mass_g",
+    "kg":  "mass_g",      # converts kg→g below
+    "usd": "cost_unit_usd",
+    "$":   "cost_unit_usd",
+}
 
 OPS = {"<=": operator.le, ">=": operator.ge, "==": operator.eq,
        "<": operator.lt, ">": operator.gt}
@@ -190,15 +202,106 @@ def resolve_issue_numbers(client: GitHubClient, tree: dict[str, KPM]) -> None:
             kpm.issue_number = found["number"]
 
 
-def collect_leaf_measurements(client: GitHubClient, tree: dict[str, KPM]) -> None:
-    """Fetch the latest measurement for every leaf KPM."""
-    for kpm in tree.values():
+_FRONT_MATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
+
+
+def collect_manifest_contributions(tree: dict[str, KPM]) -> dict[str, list[tuple[Path, float]]]:
+    """Walk artifacts/<discipline>/*.md, return {kpm_id: [(manifest_path, value), ...]}.
+
+    For each manifest whose `linked_requirements` includes a leaf KPM ID,
+    and whose front-matter carries a field matching that KPM's unit
+    (per MANIFEST_FIELD_BY_UNIT), record the value. A KPM may have
+    multiple contributing manifests — the caller sums them.
+    """
+    contributions: dict[str, list[tuple[Path, float]]] = {}
+    if not ARTIFACTS_DIR.exists():
+        return contributions
+
+    # Build a unit→field lookup for each leaf KPM we care about
+    leaf_targets: dict[str, str] = {}  # kpm_id → manifest field name
+    for kid, kpm in tree.items():
         if kpm.aggregation != "independent":
             continue
-        if kpm.issue_number is None:
+        field_name = MANIFEST_FIELD_BY_UNIT.get(kpm.unit.lower())
+        if field_name:
+            leaf_targets[kid] = field_name
+    if not leaf_targets:
+        return contributions
+
+    for path in sorted(ARTIFACTS_DIR.rglob("*.md")):
+        if path.name == "README.md" or "snapshots" in path.parts:
             continue
-        raw = fetch_latest_measurement(client, kpm.issue_number)
-        kpm.measured_value = parse_measurement(raw) if raw else None
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        fm_match = _FRONT_MATTER_RE.search(text)
+        if not fm_match:
+            continue
+        try:
+            fm = yaml.safe_load(fm_match.group(1)) or {}
+        except yaml.YAMLError:
+            continue
+        if not isinstance(fm, dict):
+            continue
+        linked = fm.get("linked_requirements") or []
+        for kid, field_name in leaf_targets.items():
+            if kid not in linked:
+                continue
+            raw_val = fm.get(field_name)
+            if raw_val is None:
+                continue
+            try:
+                value = float(raw_val)
+            except (TypeError, ValueError):
+                continue
+            # kg → g normalization if needed
+            kpm = tree[kid]
+            if kpm.unit.lower() == "kg" and field_name == "mass_g":
+                value = value / 1000.0
+            contributions.setdefault(kid, []).append((path, value))
+    return contributions
+
+
+def collect_leaf_measurements(client: GitHubClient | None,
+                              tree: dict[str, KPM]) -> dict[str, str]:
+    """Fetch the latest measurement for every leaf KPM.
+
+    Order of precedence per leaf:
+      1. Sum of contributions from artifact manifests (if any match by
+         linked_requirements + unit-keyed field — see MANIFEST_FIELD_BY_UNIT)
+      2. The latest `## KPM Update` comment on the KPM's GitHub Issue
+      3. None (KPM stays unmeasured, parent rolls up as missing)
+
+    Returns a `source` dict {kpm_id: "manifest:N artifacts" | "issue-comment" | "—"}
+    for transparent reporting.
+    """
+    sources: dict[str, str] = {}
+    contributions = collect_manifest_contributions(tree)
+
+    for kid, kpm in tree.items():
+        if kpm.aggregation != "independent":
+            continue
+
+        # Source 1: artifact manifests
+        if kid in contributions:
+            total = sum(v for _, v in contributions[kid])
+            kpm.measured_value = total
+            n = len(contributions[kid])
+            sources[kid] = f"manifest ({n} artifact{'s' if n != 1 else ''})"
+            continue
+
+        # Source 2: latest KPM Update comment on the Issue
+        if client is not None and kpm.issue_number is not None:
+            raw = fetch_latest_measurement(client, kpm.issue_number)
+            if raw:
+                kpm.measured_value = parse_measurement(raw)
+                sources[kid] = "issue comment"
+                continue
+
+        sources[kid] = "—"
+
+    return sources
 
 
 def aggregate(tree: dict[str, KPM]) -> dict[str, tuple[float | None, list[str]]]:
@@ -331,14 +434,15 @@ def main() -> None:
     if unresolved:
         print(f"note: {len(unresolved)} KPM(s) have no matching Issue: {', '.join(unresolved)}")
 
-    collect_leaf_measurements(client, tree)
+    sources = collect_leaf_measurements(client, tree)
     print("\nLeaf measurements:")
     for kid in sorted(tree):
         k = tree[kid]
         if k.aggregation != "independent":
             continue
-        m = f"{k.measured_value:g} {k.unit}" if k.measured_value is not None else "—"
-        print(f"  {kid:30s} {m}")
+        m = f"{k.measured_value:g} {k.unit}" if k.measured_value is not None else "-"
+        src = sources.get(kid, "-")
+        print(f"  {kid:30s} {m:>15s}   [from: {src}]")
 
     aggregated = aggregate(tree)
 

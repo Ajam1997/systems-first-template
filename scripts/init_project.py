@@ -17,7 +17,10 @@ done and reports what it did vs what was already there.
 
 Usage:
   python scripts/init_project.py --dry-run        # show plan, no writes
-  python scripts/init_project.py                  # apply
+  python scripts/init_project.py                  # apply (config must be set)
+  python scripts/init_project.py --activate-profile A    # Software profile
+  python scripts/init_project.py --activate-profile B    # Mechanical/Hardware
+  python scripts/init_project.py --activate-profile C    # Mixed-discipline IoT
   python scripts/init_project.py --seed-sample    # also file UN-001 Issue
   python scripts/init_project.py --skip-labels    # skip label sync step
   python scripts/init_project.py --skip-agents    # leave .claude/agents/ alone
@@ -59,6 +62,185 @@ AGENTS_DIR = REPO_ROOT / ".claude" / "agents"
 PACKS_DIR = REPO_ROOT / ".claude" / "agent-packs"
 LABELS_PATH = REPO_ROOT / ".github" / "labels.yml"
 
+# Preset profile YAML — used by --activate-profile to write a clean
+# config/disciplines.yml + config/stages.yml without trying to surgically
+# uncomment the multi-profile template file. Each preset is a self-contained
+# minimal YAML body; users edit further after writing.
+
+PROFILE_DISCIPLINES = {
+    "A": """\
+# config/disciplines.yml — Profile A (Software)
+# Activated by `init_project.py --activate-profile A`.
+disciplines:
+  - name: systems_lead
+    active: true
+    evidence_kinds: [review, inspection]
+    responsible_for: requirements tree, architecture, interfaces, budgets
+
+  - name: software_lead
+    active: true
+    evidence_kinds: [pytest, unittest, e2e, kpm, inspection]
+    responsible_for: src/, tests/, software performance KPMs
+""",
+    "B": """\
+# config/disciplines.yml — Profile B (Mechanical / Hardware)
+# Activated by `init_project.py --activate-profile B`.
+disciplines:
+  - name: systems_lead
+    active: true
+    evidence_kinds: [review, inspection]
+    responsible_for: requirements tree, architecture, interfaces, mass+power+thermal budgets
+
+  - name: mechanical_lead
+    active: true
+    evidence_kinds: [fea, simulation, bench, dvt, evt, pvt, review, dfm]
+    responsible_for: CAD assemblies, FEA, manufacturing drawings, tolerance analysis
+
+  - name: manufacturing_lead
+    active: true
+    evidence_kinds: [dfm, dvt, evt, pvt, review]
+    responsible_for: supplier qualification, DFM/DFA reviews, EVT/PVT planning
+""",
+    "C": """\
+# config/disciplines.yml — Profile C (Mixed-discipline IoT)
+# Activated by `init_project.py --activate-profile C`.
+disciplines:
+  - name: systems_lead
+    active: true
+    evidence_kinds: [review, inspection]
+    responsible_for: requirements, interfaces, budgets, integration
+
+  - name: software_lead
+    active: true
+    evidence_kinds: [pytest, unittest, e2e, inspection]
+    responsible_for: cloud-side software, mobile app
+
+  - name: firmware_lead
+    active: true
+    evidence_kinds: [unittest, hil, bench, simulation, review]
+    responsible_for: embedded firmware, RTOS, hardware-software interfaces
+
+  - name: electrical_lead
+    active: true
+    evidence_kinds: [spice, bench, dvt, evt, emc, review]
+    responsible_for: schematics, PCB layout, signal/power integrity, RF compliance
+
+  - name: mechanical_lead
+    active: true
+    evidence_kinds: [fea, simulation, bench, dvt, evt, dfm, review]
+    responsible_for: enclosure, thermal path, antenna mounting, drop-test fixtures
+
+  - name: manufacturing_lead
+    active: true
+    evidence_kinds: [dfm, evt, pvt, review]
+    responsible_for: supplier qualification, EVT/PVT, BOM management
+
+  - name: regulatory_lead
+    active: true
+    evidence_kinds: [emc, regulatory, review]
+    responsible_for: FCC Part 15, CE-RED, RoHS, REACH, applicable safety standards
+""",
+}
+
+PROFILE_STAGES = {
+    "A": """\
+# config/stages.yml — Software preset
+stages:
+  1:
+    title: "Stage 1 — Scaffold & Foundation"
+    user_needs: [UN-001, UN-002]
+    exit_criteria: project structure in place, all agents discoverable
+  2:
+    title: "Stage 2 — Core Engine"
+    user_needs: []
+    exit_criteria: primary functionality demonstrable on fixtures
+  3:
+    title: "Stage 3 — Integration"
+    user_needs: []
+    exit_criteria: end-to-end pipeline runs on real inputs
+  4:
+    title: "Stage 4 — V&V"
+    user_needs: []
+    exit_criteria: all KPMs measured, all user needs validated
+  5:
+    title: "Stage 5 — Release"
+    user_needs: []
+    exit_criteria: production deploy + monitoring in place
+""",
+    "B": """\
+# config/stages.yml — Hardware preset (DVT/EVT/PVT gated)
+stages:
+  1:
+    title: "Stage 1 — Concept"
+    user_needs: []
+    exit_criteria: concept selection, top-level UNs defined, budgets locked
+  2:
+    title: "Stage 2 — Preliminary Design (PDR)"
+    user_needs: []
+    exit_criteria: PDR passed, FRs decomposed, interfaces defined
+  3:
+    title: "Stage 3 — Critical Design (CDR)"
+    user_needs: []
+    exit_criteria: CDR passed, all NFRs satisfied in simulation/analysis
+  4:
+    title: "Stage 4 — Engineering Build (EB)"
+    user_needs: []
+    exit_criteria: first physical build available for bench testing
+  5:
+    title: "Stage 5 — Design Verification Test (DVT)"
+    user_needs: []
+    exit_criteria: all DVT procedures pass on EB units
+  6:
+    title: "Stage 6 — Engineering Verification Test (EVT)"
+    user_needs: []
+    exit_criteria: EVT build qualified, ECOs frozen
+  7:
+    title: "Stage 7 — Production Verification Test (PVT)"
+    user_needs: []
+    exit_criteria: PVT lot qualifies, AQL met, mass production approved
+  8:
+    title: "Stage 8 — Production"
+    user_needs: []
+    exit_criteria: shipping to customers
+""",
+    "C": """\
+# config/stages.yml — Mixed-discipline IoT preset (modified hardware flow)
+stages:
+  1:
+    title: "Stage 1 — System Architecture"
+    user_needs: []
+    exit_criteria: top-level decomposition; cross-discipline interfaces defined
+  2:
+    title: "Stage 2 — Preliminary Design"
+    user_needs: []
+    exit_criteria: PCB schematics, mechanical CAD draft, firmware skeleton
+  3:
+    title: "Stage 3 — Critical Design"
+    user_needs: []
+    exit_criteria: CDR passed across all disciplines
+  4:
+    title: "Stage 4 — Engineering Build + Bring-up"
+    user_needs: []
+    exit_criteria: first integrated build powers on; firmware boots
+  5:
+    title: "Stage 5 — DVT"
+    user_needs: []
+    exit_criteria: DVT pass across mech/elec/firmware
+  6:
+    title: "Stage 6 — Regulatory Pre-compliance"
+    user_needs: []
+    exit_criteria: EMC pre-compliance scan; RoHS/REACH BOM check
+  7:
+    title: "Stage 7 — EVT"
+    user_needs: []
+    exit_criteria: EVT build qualified; full regulatory compliance pass
+  8:
+    title: "Stage 8 — PVT + Production"
+    user_needs: []
+    exit_criteria: PVT lot qualifies; shipping
+""",
+}
+
 
 def banner(title: str) -> None:
     print(f"\n{'=' * 70}\n  {title}\n{'=' * 70}")
@@ -77,6 +259,23 @@ def warn(msg: str) -> None:
 
 
 # --- Step 0: Validate ------------------------------------------------
+
+def write_profile(profile: str, dry_run: bool) -> None:
+    """Overwrite config/disciplines.yml + config/stages.yml from a preset."""
+    if profile not in PROFILE_DISCIPLINES:
+        sys.exit(f"Unknown profile {profile!r}. Valid: A (software), B (mechanical), C (mixed IoT).")
+    disc_path = CONFIG / "disciplines.yml"
+    stages_path = CONFIG / "stages.yml"
+    step(f"Activating Profile {profile} (overwrites disciplines.yml + stages.yml)")
+    info(f"  target: {disc_path.relative_to(REPO_ROOT)}")
+    info(f"  target: {stages_path.relative_to(REPO_ROOT)}")
+    if dry_run:
+        info("(dry-run -- no writes)")
+        return
+    disc_path.write_text(PROFILE_DISCIPLINES[profile], encoding="utf-8")
+    stages_path.write_text(PROFILE_STAGES[profile], encoding="utf-8")
+    info(f"  wrote {profile}-profile content to both files")
+
 
 def validate_configs() -> tuple[dict, dict]:
     """Ensure required configs exist and have at least one active discipline.
@@ -97,15 +296,20 @@ def validate_configs() -> tuple[dict, dict]:
     active = [d for d in (disc.get("disciplines") or []) if d.get("active")]
     if not active:
         sys.exit(
-            "No active disciplines in config/disciplines.yml. "
-            "Uncomment a profile (A, B, or C) and re-run."
+            "No active disciplines in config/disciplines.yml.\n"
+            "  Re-run with one of:\n"
+            "    python scripts/init_project.py --activate-profile A   # Software\n"
+            "    python scripts/init_project.py --activate-profile B   # Mechanical/Hardware\n"
+            "    python scripts/init_project.py --activate-profile C   # Mixed-discipline IoT\n"
+            "  Or edit config/disciplines.yml manually and uncomment a profile."
         )
     info(f"{len(active)} active discipline(s): {', '.join(d['name'] for d in active)}")
 
     n_stages = len(stages.get("stages") or {})
     if n_stages == 0:
         sys.exit(
-            "No stages in config/stages.yml. Uncomment a preset and re-run."
+            "No stages in config/stages.yml.\n"
+            "  Re-run with --activate-profile to seed both files, or edit manually."
         )
     info(f"{n_stages} stage(s) declared")
     return disc, stages
@@ -255,9 +459,16 @@ def main() -> None:
     ap.add_argument("--skip-milestones", action="store_true")
     ap.add_argument("--skip-agents", action="store_true")
     ap.add_argument("--skip-regen", action="store_true")
+    ap.add_argument("--activate-profile", choices=["A", "B", "C"],
+                    help="Overwrite config/disciplines.yml + config/stages.yml with "
+                         "Profile A (Software), B (Mechanical/Hardware), or "
+                         "C (Mixed-discipline IoT) before validating. Idempotent.")
     args = ap.parse_args()
 
     banner("Systems-First Template — Project Initializer")
+
+    if args.activate_profile:
+        write_profile(args.activate_profile, args.dry_run)
 
     disc, stages = validate_configs()
 
