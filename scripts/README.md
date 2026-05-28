@@ -12,17 +12,21 @@ The four scripts that enforce the five rules from `METHODOLOGY.md`.
 Plus shared infrastructure:
 
 - `github_client.py` — thin REST + GraphQL wrapper. The token-holder.
-- `requirement_map.yml` — reads from `requirements/requirement-map.yml`
-  (the canonical location; this is a legacy alias).
+- `sync_labels.py` — pure-Python label syncer (uses `gh`); reconciles
+  the repo's labels to `.github/labels.yml`.
 
 ## Configuration-driven
 
-All four scripts read `config/disciplines.yml`, `config/evidence-kinds.yml`,
-`config/stages.yml`, and `config/budgets.yml`. Edit the config, not the
-scripts, to adapt to your domain.
+The scripts read `config/disciplines.yml`, `config/evidence-kinds.yml`,
+`config/stages.yml`, and `config/budgets.yml`, plus the requirement tree
+at `requirements/requirement-map.yml`. Edit the config, not the scripts,
+to adapt to your domain.
 
-## Pass 1 status
+## Repo identity
 
-The PHOTONForge versions of these scripts are the starting point. Pass 1
-generalizes them to read `config/` instead of hardcoded constants. Pass 2+
-adds discipline-specific evidence kinds and artifact references.
+Every script resolves the GitHub owner/repo from:
+1. Explicit `--owner` / `--repo` (or `owner=` / `repo=` kwargs)
+2. `REPO_OWNER` and `REPO_NAME` env vars
+3. `git config --get remote.origin.url`
+
+CI workflows set the env vars explicitly; local runs auto-detect.

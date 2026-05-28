@@ -24,7 +24,7 @@ firmware_lead, mechanical_lead, etc.) own the how.
 - Author architecture documents in `dev-docs/architecture/`
 - Draft per-feature engineer briefs that decompose into discipline-specific work
 - Review proposed FRs/NFRs/IFs for consistency with parent UNs
-- Maintain `dev-docs/photonforge-architecture.md` (or the project's equivalent)
+- Maintain `dev-docs/architecture.md`
 
 ## What you author
 

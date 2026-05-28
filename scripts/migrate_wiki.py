@@ -207,7 +207,11 @@ def render_sidebar(nav: dict) -> str:
 
 
 def render_footer() -> str:
-    return f"_PHOTONForge — [Source](https://github.com/{REPO})_\n"
+    return f"_[Source]({_source_url()})_\n"
+
+
+def _source_url() -> str:
+    return f"https://github.com/{REPO}"
 
 
 # ---------------------------------------------------------------------------
@@ -400,7 +404,7 @@ def main() -> None:
 
     source_pairs = collect_source_pages(nav)
 
-    tmpdir = Path(tempfile.mkdtemp(prefix="photonforge-wiki-"))
+    tmpdir = Path(tempfile.mkdtemp(prefix="wiki-publish-"))
     try:
         wiki_dir = clone_wiki(tmpdir)
         ops = plan_operations(source_pairs, wiki_dir)

@@ -11,9 +11,8 @@ renderer. Reads:
 Writes into the AUTO sentinels of:
 
   dev-docs/living-user-needs.md      — UN list with status and decomp
-  dev-docs/photonforge-architecture.md (or generic: dev-docs/architecture-doc.md)
-                                       — FR / NFR / IF / KPM tables +
-                                         V&V matrix
+  dev-docs/architecture.md           — FR / NFR / IF / KPM tables +
+                                        V&V matrix
   dev-docs/roadmap.md                — milestone-driven stage table
   dev-docs/kpm-dashboard.md          — KPM-only table
 
@@ -39,9 +38,6 @@ REPO_ROOT = Path(__file__).parent.parent
 DOCS = REPO_ROOT / "dev-docs"
 CONFIG = REPO_ROOT / "config"
 REQUIREMENTS = REPO_ROOT / "requirements"
-
-# Backward-compat for callers that previously expected `SCRIPTS` constant.
-SCRIPTS = REPO_ROOT / "scripts"
 
 
 def _extract_id(title: str) -> str:
@@ -260,7 +256,7 @@ _STAGE_TITLE_RE = re.compile(r"^Stage\s+(\d+)\b")
 
 
 def render_roadmap_section(milestones: list[dict]) -> str:
-    """Render roadmap table from GitHub Milestones (post Increment 3 migration).
+    """Render roadmap table from GitHub Milestones.
 
     Each milestone titled like "Stage N — Title" becomes one row.
     Status is derived from milestone state + open/closed counts:
@@ -323,17 +319,8 @@ def main() -> None:
     """Fetch issues from GitHub and regenerate living docs."""
     client = GitHubClient()
 
-    # Requirement map: prefer requirements/requirement-map.yml (canonical
-    # location in this template); fall back to scripts/requirement_map.yml
-    # (PHOTONForge legacy location) for projects that haven't migrated.
-    req_map_paths = [
-        REQUIREMENTS / "requirement-map.yml",
-        SCRIPTS / "requirement_map.yml",
-    ]
-    req_map = next(
-        (_read_yaml(p) for p in req_map_paths if p.exists()),
-        {"stages": {}, "user_needs": {}},
-    )
+    req_map_path = REQUIREMENTS / "requirement-map.yml"
+    req_map = _read_yaml(req_map_path) if req_map_path.exists() else {"stages": {}, "user_needs": {}}
 
     print("Fetching Issues from GitHub...")
     un_issues = client.list_issues(labels="type: user-need", state="all")
@@ -356,10 +343,9 @@ def main() -> None:
         un_path.write_text(text, encoding="utf-8")
         print(f"Updated {un_path}")
 
-    # Regenerate architecture doc — try generic name first, then project-specific.
-    arch_candidates = [DOCS / "architecture-doc.md", DOCS / "photonforge-architecture.md"]
-    arch_path = next((p for p in arch_candidates if p.exists()), None)
-    if arch_path:
+    # Regenerate architecture doc
+    arch_path = DOCS / "architecture.md"
+    if arch_path.exists():
         text = arch_path.read_text(encoding="utf-8")
         text = _maybe_inject(text, "fr_table", render_fr_table(fr_issues))
         text = _maybe_inject(text, "nfr_table", render_nfr_table(nfr_issues))

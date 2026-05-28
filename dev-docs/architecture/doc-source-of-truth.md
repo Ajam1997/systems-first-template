@@ -16,7 +16,7 @@ at project start; refer back whenever a writer collision feels possible.**
 
 | Thing | Canonical location | Rendered into | Notes |
 |---|---|---|---|
-| FR / UN / NFR / IF / KPM **status** (`defined`, `in-progress`, `verified`, `validated`) | GitHub Issue labels | `dev-docs/living-user-needs.md`, `dev-docs/photonforge-architecture.md` (or architecture-doc.md), `dev-docs/roadmap.md`, `dev-docs/kpm-dashboard.md` AUTO sections | Only `scripts/pr_rollup.py` writes `verified` / `validated`. Agents post comments via `github_comment.py` but never move labels. |
+| FR / UN / NFR / IF / KPM **status** (`defined`, `in-progress`, `verified`, `validated`) | GitHub Issue labels | `dev-docs/living-user-needs.md`, `dev-docs/architecture.md`, `dev-docs/roadmap.md`, `dev-docs/kpm-dashboard.md` AUTO sections | Only `scripts/pr_rollup.py` writes `verified` / `validated`. Agents post comments via `github_comment.py` but never move labels. |
 | FR / UN / NFR acceptance criteria, KPM target | GitHub Issue body | Architecture doc tables | Edit the Issue body, then run `python -m scripts.generate_docs`. |
 | Decomposition (UN → FR/NFR/IF/KPM) | `requirements/requirement-map.yml` | Living-user-needs.md AUTO section | Hand-edited; not regenerated from Issues. |
 | Interface details (ICDs, pinouts, protocols, drawings) | `requirements/interfaces/IF-X.Y.md` | n/a (hand-authored) | Free-form markdown for cross-discipline boundaries. |

@@ -26,8 +26,7 @@ python -m scripts.generate_docs    # re-render docs from current config + Issues
 
 to refresh the AUTO sections of `dev-docs/` immediately.
 
-## Pass 1 status
+## Status
 
-Files in this directory will be added in Pass 1. Until then, the agent
-roster runs in software-only mode and assumes the PHOTONForge defaults
-for evidence kinds and stages.
+All four files ship with the template. The default profiles are
+commented-out worked examples; uncomment the one that fits and edit.
