@@ -11,6 +11,7 @@ The four scripts that enforce the five rules from `METHODOLOGY.md`.
 | `kpm_rollup.py` | Aggregates child KPM measurements into parent KPMs (sum/max/min). The V-model rollup engine. | On every PR merge + manually (`.github/workflows/kpm-rollup.yml`) |
 | `export_sysml.py` | Renders the requirement tree as SysMLv2 textual notation into `model/system.sysml`. | On `requirement-map.yml` change + manually (`.github/workflows/sysml-export.yml`) |
 | `init_project.py` | One-command bootstrapper: validate config, sync labels, create milestones, activate agent packs, regen docs. | Manually after first clone |
+| `validate_artifacts.py` | Lints artifact manifests under `artifacts/<discipline>/` against the spec at `dev-docs/architecture/artifact-manifest.md`. | Locally before PR; CI via future workflow |
 
 Plus shared infrastructure:
 
