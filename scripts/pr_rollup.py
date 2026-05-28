@@ -1,4 +1,4 @@
-"""PR merge → Issue status rollup.
+"""PR merge -> Issue status rollup.
 
 Called by .github/workflows/pr-close-issues.yml after a PR is merged.
 Parses closed Issue numbers from the PR body, applies status: verified
@@ -10,8 +10,8 @@ Other agents post evidence comments via github_comment.py but must not
 move labels — see METHODOLOGY.md §1.
 
 Configuration:
-  requirements/requirement-map.yml  — UN → FR/NFR/IF/KPM decomposition,
-                                      stage → UN mapping
+  requirements/requirement-map.yml  — UN -> FR/NFR/IF/KPM decomposition,
+                                      stage -> UN mapping
   config/stages.yml                  — milestone definitions (canonical
                                       titles also live on GitHub Milestones;
                                       this script parses live titles)
@@ -67,7 +67,7 @@ def build_reverse_maps(issue_map: dict, req_map: dict) -> tuple[dict, dict]:
 
 
 def build_num_to_req_id(issue_map: dict) -> dict[int, str]:
-    """Map GitHub Issue number → requirement ID for all FR/NFR/IF entries."""
+    """Map GitHub Issue number -> requirement ID for all FR/NFR/IF entries."""
     result: dict[int, str] = {}
     for section in ("functional_requirements", "non_functional_requirements", "interface_requirements"):
         for req_id, data in issue_map.get(section, {}).items():
@@ -88,7 +88,7 @@ def get_req_issue_num(issue_map: dict, req_id: str) -> int | None:
 
 
 def build_stage_to_milestone(client: GitHubClient) -> dict[int, int]:
-    """Map stage number → milestone number by parsing milestone titles.
+    """Map stage number -> milestone number by parsing milestone titles.
 
     Titles must start with "Stage N" (e.g. "Stage 4 — Host Integration").
     A stage without a matching milestone logs a warning and is skipped
@@ -177,7 +177,7 @@ def rollup(pr_body: str, dry_run: bool = False) -> None:
             if parent_un in newly_verified_uns:
                 # Already promoted via another sibling FR in this same PR
                 continue
-            print(f"    all siblings verified → {parent_un} (#{un_num}): applying status: verified")
+            print(f"    all siblings verified -> {parent_un} (#{un_num}): applying status: verified")
             if not dry_run:
                 client.replace_status_label(un_num, "status: verified")
             if un_num in all_issues:
@@ -211,7 +211,7 @@ def rollup(pr_body: str, dry_run: bool = False) -> None:
 
         milestone_num = stage_to_milestone_num.get(stage_num)
         if milestone_num:
-            print(f"  Stage {stage_num}: all UNs verified → closing Milestone #{milestone_num}")
+            print(f"  Stage {stage_num}: all UNs verified -> closing Milestone #{milestone_num}")
             if not dry_run:
                 client.close_milestone(milestone_num)
             closed_stages.add(stage_num)

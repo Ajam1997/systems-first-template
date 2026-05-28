@@ -68,7 +68,7 @@ class KPM:
 
 
 def load_kpm_tree(path: Path = REQ_MAP_PATH) -> dict[str, KPM]:
-    """Load KPMs from requirement-map.yml. Returns id → KPM."""
+    """Load KPMs from requirement-map.yml. Returns id -> KPM."""
     if not path.exists():
         return {}
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
@@ -114,7 +114,7 @@ def validate_tree(tree: dict[str, KPM]) -> list[str]:
         if st == 2:
             return
         if st == 1:
-            errors.append(f"cycle detected: {' → '.join(stack + [kid])}")
+            errors.append(f"cycle detected: {' -> '.join(stack + [kid])}")
             return
         visited[kid] = 1
         for child in tree.get(kid, KPM(kid, None, "<=", "", "independent")).aggregates_from:
@@ -148,8 +148,8 @@ _NUM_RE = re.compile(r"-?\d+\.?\d*(?:[eE][-+]?\d+)?")
 def parse_measurement(text: str) -> float | None:
     """Extract the first numeric value from a measurement string.
 
-    `1.83 GB on i7-7500U — 2026-05-23` → 1.83
-    `47.2 W peak`                       → 47.2
+    `1.83 GB on i7-7500U — 2026-05-23` -> 1.83
+    `47.2 W peak`                       -> 47.2
     Returns None if no number found.
     """
     if not text:
@@ -164,7 +164,7 @@ def fetch_latest_measurement(client: GitHubClient, issue_number: int) -> str | N
 
     Comments are posted by scripts/github_comment.py update-kpm; their
     body contains a line like:
-      **KPM-1.2** · `1.83 GB on i7-7500U` · **passing**
+      **KPM-1.2** - `1.83 GB on i7-7500U` - **passing**
     """
     # Issues comments endpoint; sort newest first for cheap recency
     r = client._session.get(
@@ -204,8 +204,8 @@ def collect_leaf_measurements(client: GitHubClient, tree: dict[str, KPM]) -> Non
 def aggregate(tree: dict[str, KPM]) -> dict[str, tuple[float | None, list[str]]]:
     """Compute measured_value for every non-independent KPM.
 
-    Returns dict of kpm_id → (computed_value, list_of_missing_children).
-    Missing children → computed_value=None, names listed.
+    Returns dict of kpm_id -> (computed_value, list_of_missing_children).
+    Missing children -> computed_value=None, names listed.
     """
     results: dict[str, tuple[float | None, list[str]]] = {}
     for kid in topo_sort(tree):
@@ -265,8 +265,8 @@ def evaluate_pass_fail(kpm: KPM) -> str | None:
 def format_rollup_comment(kpm: KPM, tree: dict[str, KPM], missing: list[str]) -> str:
     """Build the comment body to post on a non-independent KPM."""
     status = evaluate_pass_fail(kpm) or "unmeasured"
-    icon = {"passing": "✓", "failing": "✗",
-            "margin-warning": "⚠", "unmeasured": "·"}[status]
+    icon = {"passing": "[ok]", "failing": "[FAIL]",
+            "margin-warning": "[WARN]", "unmeasured": "-"}[status]
     value_str = (f"{kpm.measured_value:g} {kpm.unit}" if kpm.measured_value is not None
                  else "—")
     target_str = (f"{kpm.target_op} {kpm.target_value:g} {kpm.unit}"
@@ -274,7 +274,7 @@ def format_rollup_comment(kpm: KPM, tree: dict[str, KPM], missing: list[str]) ->
     lines = [
         f"## KPM Rollup ({kpm.aggregation}) — {icon} {status}",
         "",
-        f"**{kpm.id}**  ·  computed: `{value_str}`  ·  target: `{target_str}`",
+        f"**{kpm.id}**  -  computed: `{value_str}`  -  target: `{target_str}`",
         "",
         "**Contributing children:**",
     ]

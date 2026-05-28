@@ -417,7 +417,7 @@ def main() -> None:
         counts: dict[Action, int] = {}
         for op in ops:
             counts[op.action] = counts.get(op.action, 0) + 1
-        summary = " · ".join(f"{a.value}={n}" for a, n in counts.items())
+        summary = " - ".join(f"{a.value}={n}" for a, n in counts.items())
         print(f"\nSummary: {summary}")
 
         if args.diff:

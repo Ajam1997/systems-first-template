@@ -20,7 +20,7 @@ Mapping (see dev-docs/architecture/sysml-export.md for the full spec):
   non_functional_requirements   requirement def NFR_X
   interface_requirements        interface def IF_X
   kpms                          constraint def KPM_X (with attributes)
-    aggregation: sum/max/min      → expression in constraint body
+    aggregation: sum/max/min      -> expression in constraint body
   stages                        verification case def Stage_N
 
 Usage:
@@ -79,7 +79,7 @@ class IssueInfo:
 def fetch_issue_bodies(ids: list[str]) -> dict[str, IssueInfo]:
     """For each requirement ID, fetch the Issue title + body via gh CLI.
 
-    Returns id → IssueInfo. Missing Issues map to empty IssueInfo.
+    Returns id -> IssueInfo. Missing Issues map to empty IssueInfo.
     Best-effort: failures are silent so --offline-style fallback works.
     """
     result: dict[str, IssueInfo] = {i: IssueInfo() for i in ids}
@@ -281,7 +281,7 @@ def render_verification_case(stage_num: int, stage_data: dict) -> str:
 # --- Reverse-map helpers -------------------------------------------
 
 def build_child_to_parents(req_map: dict) -> dict[str, list[str]]:
-    """Map FR/NFR/IF/KPM ID → list of parent UN IDs (preserving order)."""
+    """Map FR/NFR/IF/KPM ID -> list of parent UN IDs (preserving order)."""
     result: dict[str, list[str]] = {}
     for un_id, un_entry in (req_map.get("user_needs") or {}).items():
         if not isinstance(un_entry, dict):

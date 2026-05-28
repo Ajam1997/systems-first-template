@@ -8,7 +8,7 @@ it to a working state:
   2. Syncs labels from .github/labels.yml
   3. Creates Milestones from config/stages.yml (idempotent)
   4. Activates the discipline agent packs declared in
-     config/disciplines.yml (copies agent-packs/<name>/*.md → .claude/agents/)
+     config/disciplines.yml (copies agent-packs/<name>/*.md -> .claude/agents/)
   5. (optional) Seeds a starter UN-001 Issue
   6. Runs scripts/generate_docs.py to fill the AUTO sections
 
@@ -61,11 +61,11 @@ LABELS_PATH = REPO_ROOT / ".github" / "labels.yml"
 
 
 def banner(title: str) -> None:
-    print(f"\n{'═' * 70}\n  {title}\n{'═' * 70}")
+    print(f"\n{'=' * 70}\n  {title}\n{'=' * 70}")
 
 
 def step(msg: str) -> None:
-    print(f"\n→ {msg}")
+    print(f"\n-> {msg}")
 
 
 def info(msg: str) -> None:
@@ -76,7 +76,7 @@ def warn(msg: str) -> None:
     print(f"  ! {msg}")
 
 
-# ─── Step 0: Validate ────────────────────────────────────────────────
+# --- Step 0: Validate ------------------------------------------------
 
 def validate_configs() -> tuple[dict, dict]:
     """Ensure required configs exist and have at least one active discipline.
@@ -111,7 +111,7 @@ def validate_configs() -> tuple[dict, dict]:
     return disc, stages
 
 
-# ─── Step 1: Labels ──────────────────────────────────────────────────
+# --- Step 1: Labels --------------------------------------------------
 
 def sync_labels_step(client: GitHubClient, dry_run: bool) -> None:
     step("Syncing labels from .github/labels.yml")
@@ -130,7 +130,7 @@ def sync_labels_step(client: GitHubClient, dry_run: bool) -> None:
     labels_apply(repo_id, creates, updates, deletes)
 
 
-# ─── Step 2: Milestones ─────────────────────────────────────────────
+# --- Step 2: Milestones ---------------------------------------------
 
 def create_milestones_step(client: GitHubClient, stages: dict, dry_run: bool) -> None:
     step("Creating GitHub Milestones from config/stages.yml")
@@ -140,7 +140,7 @@ def create_milestones_step(client: GitHubClient, stages: dict, dry_run: bool) ->
     for stage_num, stage_data in (stages.get("stages") or {}).items():
         title = stage_data.get("title") or f"Stage {stage_num}"
         if title in existing:
-            info(f"  ✓ {title} (already exists, #{existing[title]['number']})")
+            info(f"  [ok] {title} (already exists, #{existing[title]['number']})")
             skipped += 1
             continue
         desc = (stage_data.get("exit_criteria") or "").strip()
@@ -153,7 +153,7 @@ def create_milestones_step(client: GitHubClient, stages: dict, dry_run: bool) ->
     info(f"summary: {created} new, {skipped} already existed")
 
 
-# ─── Step 3: Activate agent packs ───────────────────────────────────
+# --- Step 3: Activate agent packs -----------------------------------
 
 def activate_agent_packs(disc: dict, dry_run: bool) -> None:
     step("Activating discipline agent packs into .claude/agents/")
@@ -178,11 +178,11 @@ def activate_agent_packs(disc: dict, dry_run: bool) -> None:
         src = pack_files[0]
         dst = AGENTS_DIR / f"{name}.md"
         if dst.exists():
-            info(f"  ✓ {name}.md (already activated)")
+            info(f"  [ok] {name}.md (already activated)")
             skipped += 1
             continue
         if dry_run:
-            info(f"  + would copy {src.relative_to(REPO_ROOT)} → {dst.relative_to(REPO_ROOT)}")
+            info(f"  + would copy {src.relative_to(REPO_ROOT)} -> {dst.relative_to(REPO_ROOT)}")
         else:
             shutil.copy2(src, dst)
             info(f"  + activated {name}.md from {src.parent.name} pack")
@@ -190,7 +190,7 @@ def activate_agent_packs(disc: dict, dry_run: bool) -> None:
     info(f"summary: {activated} activated, {skipped} already present, {missing} missing")
 
 
-# ─── Step 4: Seed sample Issues (optional) ──────────────────────────
+# --- Step 4: Seed sample Issues (optional) --------------------------
 
 SAMPLE_UN_BODY = """**Acceptance:** The systems-first scaffolding works end-to-end on this repo.
 
@@ -223,7 +223,7 @@ def seed_sample_issues(client: GitHubClient, dry_run: bool) -> None:
     info(f"filed UN-001 as #{issue['number']}")
 
 
-# ─── Step 5: Regen docs ─────────────────────────────────────────────
+# --- Step 5: Regen docs ---------------------------------------------
 
 def run_generate_docs(dry_run: bool) -> None:
     step("Regenerating docs from current Issue state")
@@ -242,7 +242,7 @@ def run_generate_docs(dry_run: bool) -> None:
         info(line)
 
 
-# ─── Main ───────────────────────────────────────────────────────────
+# --- Main -----------------------------------------------------------
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,

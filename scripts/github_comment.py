@@ -15,7 +15,7 @@ line to resume work (the breadcrumb rule from METHODOLOGY.md §5). Every
 comment carries a `via: @<agent>` footer so writer origin is legible.
 
 Repo identity is auto-resolved (see scripts/github_client.py): explicit
-flags → REPO_OWNER/REPO_NAME env vars → `git config remote.origin.url`.
+flags -> REPO_OWNER/REPO_NAME env vars -> `git config remote.origin.url`.
 
 ID-based commands:
 
@@ -137,7 +137,7 @@ def cmd_verify_fr(client: GitHubClient, issue_map: dict, args: argparse.Namespac
     num = lookup_req(client, issue_map, args.id)
     body = (
         f"## Verification â€” {today_str()}\n\n"
-        f"**{args.id}** Â· {args.summary}"
+        f"**{args.id}** Â- {args.summary}"
         f"{render_footer(args.via, args.next_action)}"
     )
     client.post_comment(num, body)
@@ -149,7 +149,7 @@ def cmd_regress_fr(client: GitHubClient, issue_map: dict, args: argparse.Namespa
     num = lookup_req(client, issue_map, args.id)
     body = (
         f"## Regression â€” {today_str()}\n\n"
-        f"**{args.id}** Â· {args.reason}"
+        f"**{args.id}** Â- {args.reason}"
         f"{render_footer(args.via, args.next_action)}"
     )
     client.post_comment(num, body)
@@ -166,7 +166,7 @@ def cmd_update_kpm(client: GitHubClient, issue_map: dict, args: argparse.Namespa
     num = lookup_req(client, issue_map, args.id)
     body = (
         f"## KPM Update â€” {today_str()}\n\n"
-        f"**{args.id}** Â· `{args.last_measured}` Â· **{args.kpm_status}**"
+        f"**{args.id}** Â- `{args.last_measured}` Â- **{args.kpm_status}**"
         f"{render_footer(args.via, args.next_action)}"
     )
     client.post_comment(num, body)
@@ -195,7 +195,7 @@ def cmd_validate_un(client: GitHubClient, issue_map: dict, args: argparse.Namesp
     num = lookup_req(client, issue_map, args.id)
     body = (
         f"## Validation â€” {today_str()}\n\n"
-        f"**{args.id}** Â· {args.summary}"
+        f"**{args.id}** Â- {args.summary}"
         f"{render_footer(args.via, args.next_action)}"
     )
     client.post_comment(num, body)
@@ -207,7 +207,7 @@ def cmd_validation_failure(client: GitHubClient, issue_map: dict, args: argparse
     num = lookup_req(client, issue_map, args.id)
     body = (
         f"## Validation Failure â€” {today_str()}\n\n"
-        f"**{args.id}** Â· {args.reason}\n\n"
+        f"**{args.id}** Â- {args.reason}\n\n"
         f"Escalating to @architect for requirement reassessment."
         f"{render_footer(args.via, args.next_action)}"
     )
