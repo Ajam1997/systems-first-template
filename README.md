@@ -14,22 +14,38 @@ harness. SysML-flavored without leaving GitHub.
 
 A working scaffold for a project that wants:
 
-- **Requirements as data** — user needs, functional requirements, non-functional
-  requirements, interface requirements, KPMs/budgets — all live as GitHub
-  Issues with structured bodies and decomposition links.
-- **A single source of truth** — Issues are canonical. Docs are auto-rendered
-  from Issues. The wiki is a one-way export. Hand edits to AUTO sections lose.
-- **Verification & Validation traceability** — every requirement carries an
-  explicit list of evidence sources (test, simulation, bench, inspection,
-  review) in its Issue body. A V&V matrix table renders automatically and
-  shows the coverage gap.
-- **Stage-gated delivery via GitHub Milestones** — one milestone per phase.
-  A milestone closes automatically when its user-needs roll up to verified.
+- **Requirements as data** — user needs, functional requirements,
+  non-functional requirements, interface requirements, KPMs (including
+  computed/rolled-up KPMs that subsume the "budgets" concept) — all
+  live as GitHub Issues with structured bodies and decomposition links
+  in `requirements/requirement-map.yml`.
+- **A single source of truth, three render targets** — Issues are
+  canonical. `generate_docs.py` regenerates `dev-docs/`. `migrate_wiki.py`
+  publishes to the GitHub Wiki. `export_sysml.py` produces a SysMLv2
+  `.sysml` file for Eclipse Syson / Cameo / any conformant tool. Hand
+  edits to AUTO sections lose.
+- **Verification & Validation traceability** — every requirement carries
+  an explicit list of evidence sources (test, simulation, bench,
+  inspection, review) in its Issue body. A V&V matrix table renders
+  automatically and shows the coverage gap.
+- **V-model KPM rollup** — KPMs sit at every level of the decomposition,
+  not just at user-need level. `scripts/kpm_rollup.py` aggregates child
+  measurements into parent values (sum / max / min), flags margin
+  erosion, replaces the older "budget" concept.
+- **Stage-gated delivery via GitHub Milestones** — one milestone per
+  phase. Closes automatically when its user-needs roll up to verified.
 - **SysML-style diagrams** — Mermaid-based state machines, activity
-  diagrams, block-definition diagrams. Renders natively in GitHub & wiki.
+  diagrams, block-definition diagrams in `dev-docs/architecture/`.
+  Renders natively in GitHub and the wiki.
+- **Non-text artifact manifests** — `artifacts/<discipline>/<name>.md`
+  carries a reference + SHA-256 + snapshot PNG for CAD assemblies,
+  schematics, firmware binaries, anything else that doesn't diff in
+  git. Spec: `dev-docs/architecture/artifact-manifest.md`. Validator:
+  `scripts/validate_artifacts.py`.
 - **A Claude Code agent harness** — declarative discipline leads
-  (`systems_lead`, `mechanical_lead`, `electrical_lead`, `firmware_lead`,
-  `software_lead`, `manufacturing_lead`, `regulatory_lead`), plus universal
+  (`systems_lead`, `software_lead`, `mechanical_lead`, with
+  `electrical_lead` / `firmware_lead` / `manufacturing_lead` /
+  `regulatory_lead` packs landing per Pass 3), plus universal
   `verification`, `validation`, and `systemmaster` agents.
 
 ## Who this is for
@@ -53,8 +69,10 @@ You, if:
 - Not a heavyweight modeling environment. If you need SysMLv2 with
   formal semantics, look at Cameo or Capella. This trades formal rigor
   for ergonomics and zero tooling install.
-- Not finished. Pass 1 is software-shaped. Hardware/EE/ME discipline
-  packs are roadmapped.
+- Not finished. Pass 1 (software) and Pass 2 (mechanical) are done;
+  electrical, firmware, manufacturing, and regulatory packs are
+  roadmapped for Pass 3. Pass 4 plans `critical_path` aggregation
+  in `kpm_rollup` for end-to-end-latency-style KPMs.
 
 ## Origin
 
@@ -77,11 +95,11 @@ detailed how-tos as they get written.
 nano config/disciplines.yml    # which discipline leads are active
 nano config/stages.yml         # your project's phase model
 nano config/evidence-kinds.yml # what counts as V&V evidence in your domain
-# Resource budgets (mass/power/cost/thermal/schedule) are KPMs
+# Resource budgets (mass/power/cost/thermal/schedule) are aggregated KPMs
 # in requirements/requirement-map.yml — file them as you add UNs.
-# 4. Create your first user need
-gh issue create --label "type: user-need,status: defined,stage: 1" \
-  --title "[UN-001] First user need"
+# 4. Bootstrap the repo (creates Milestones, syncs labels, activates agents)
+python scripts/init_project.py --dry-run     # preview
+python scripts/init_project.py --seed-sample # apply + file UN-001
 # 5. Open in Claude Code and let the agent harness scaffold the rest.
 ```
 
@@ -89,14 +107,18 @@ gh issue create --label "type: user-need,status: defined,stage: 1" \
 
 See `METHODOLOGY.md` for what each directory is for. Brief tour:
 
-- `requirements/` — the requirement decomposition tree
-- `artifacts/` — links + pointers + snapshots for non-text engineering artifacts
+- `config/` — three YAML files (disciplines, stages, evidence kinds) that adapt the template to your project
+- `requirements/` — the requirement decomposition tree (`requirement-map.yml`) + interface ICDs (`interfaces/IF-*.md`)
+- `artifacts/` — text manifests for non-text engineering artifacts (CAD, PCB, firmware, large datasets). Format spec: `dev-docs/architecture/artifact-manifest.md`. Validator: `scripts/validate_artifacts.py`. Worked example: `artifacts/mechanical/EXAMPLE-motor-mount.md`.
+- `verification/` — DVT/EVT/PVT/bench/simulation test plans + result links
+- `model/` — auto-generated SysMLv2 textual notation (`system.sysml`); read by Syson, Cameo, etc.
 - `verification/` — test plans (markdown) and result links
 - `dev-docs/` — developer documentation source; rendered to the wiki
 - `docs/` — placeholder for end-user / customer-facing docs
-- `scripts/` — `generate_docs.py`, `pr_rollup.py`, `migrate_wiki.py`
-- `.claude/agents/` — agent roster
-- `.github/` — Issue templates, workflows, labels
+- `scripts/` — 10 scripts: `init_project`, `generate_docs`, `pr_rollup`, `migrate_wiki`, `kpm_rollup`, `export_sysml`, `validate_artifacts`, `github_comment`, `sync_labels`, `github_client`. See `scripts/README.md`.
+- `.claude/agents/` — active agent roster (populated from agent-packs by `init_project.py`)
+- `.claude/agent-packs/` — discipline-specific lead agents (software, mechanical; electrical/firmware/manufacturing/regulatory are roadmapped placeholders)
+- `.github/` — Issue templates, workflows (regen-docs, pr-close-issues, wiki-publish, kpm-rollup, sysml-export), labels
 
 ## License
 

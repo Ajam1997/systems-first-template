@@ -127,6 +127,30 @@ user_needs:
 The `requirement-map.yml` is the SysML *requirement diagram* in YAML form.
 It's the «derive», «contain», «satisfy» relationships, plain text.
 
+### Non-text artifacts: the manifest pattern
+
+CAD assemblies, PCB layouts, firmware binaries, and large simulation
+results don't fit in Issues or YAML — they're binary, opaque to git
+diff, and often live in vendor-specific formats.
+
+The template's answer: store a **text manifest** in
+`artifacts/<discipline>/<name>.md`, store the actual artifact in your
+vault / git-LFS / shared drive. The manifest carries:
+
+- A reference URI to where the artifact actually lives
+- A SHA-256 hash so silent vault overwrites get caught on PR review
+- A snapshot PNG so reviewers don't need the CAD/EDA tool
+- The requirement IDs this artifact «satisfy»s
+- An append-only change log
+
+Full schema: `dev-docs/architecture/artifact-manifest.md`. Worked
+example: `artifacts/mechanical/EXAMPLE-motor-mount.md`. Validator:
+`scripts/validate_artifacts.py`.
+
+This format is discipline-neutral — same manifest shape works for
+mechanical STEP files, electrical schematics, firmware `.elf` binaries,
+or anything else that doesn't diff in git.
+
 ---
 
 ## The V-model and where KPMs live
@@ -275,25 +299,40 @@ verified.
 
 ---
 
-## The doc/wiki render chain
+## The render chain
+
+GitHub Issues + `requirements/requirement-map.yml` are the canonical
+source of truth. Three render targets consume them:
 
 ```
-GitHub Issues  ─generate_docs.py─►  dev-docs/<AUTO files>
-                                          │
-                                          │   (hand-authored .md files)
-                                          ▼
-                              migrate_wiki.py --push
-                                          │
-                                          ▼
-                                 github.com/<repo>/wiki
+GitHub Issues + requirement-map.yml  <-- source of truth
+              |
+              +-> generate_docs.py    --> dev-docs/<AUTO sections>
+              |                            (living-user-needs.md,
+              |                             architecture.md, etc.)
+              |
+              +-> migrate_wiki.py     --> github.com/<repo>/wiki
+              |                            (one-way; LOCAL-ONLY escape hatch)
+              |
+              +-> export_sysml.py     --> model/system.sysml
+                                           (SysMLv2 textual notation
+                                            for Syson, Cameo, etc.)
 ```
 
-- Edit Issues to change status, body, or labels — `generate_docs.py`
-  picks it up on next run.
-- Edit `dev-docs/` hand-authored files (architecture notes, briefs,
+- Edit **Issues** to change status, body, or labels — all three render
+  targets refresh on next run.
+- Edit **dev-docs/** hand-authored files (architecture notes, briefs,
   research) directly — they ship to the wiki as-is.
-- Edit AUTO-sentineled regions of living docs — *don't*; edit the
+- Edit **AUTO-sentineled regions** of living docs — *don't*; edit the
   Issue instead.
+- Never edit `model/system.sysml` by hand — regenerate from the YAML
+  via `python scripts/export_sysml.py`.
+
+The KPM rollup runs in parallel with these render targets:
+`scripts/kpm_rollup.py` reads child KPM measurements from Issue
+comments, aggregates them per the `aggregation` field in
+`requirement-map.yml`, and posts the computed parent values back as
+Issue comments.
 
 ---
 
