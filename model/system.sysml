@@ -5,29 +5,29 @@
 
 package SystemsFirstTemplate {
 
-    // ═══════ User Needs ═══════
+    // ======= User Needs =======
 
-    // ── User Need: UN-001 ──
+    // -- User Need: UN-001 --
     requirement def UN_001 {
-    doc /* UN-001 */
+        doc /* UN-001 */
     }
 
-    // ── User Need: UN-002 ──
+    // -- User Need: UN-002 --
     requirement def UN_002 {
-    doc /* UN-002 */
+        doc /* UN-002 */
     }
 
-    // ═══════ Verification Cases (Stages) ═══════
+    // ======= Verification Cases (Stages) =======
 
-    // ── Verification Case: Stage 1 — Scaffold & Foundation ──
+    // -- Verification Case: Stage 1 — Scaffold & Foundation --
     verification case def Stage_1___Scaffold___Foundation {
-    doc /* Stage 1 — Scaffold & Foundation */
+        doc /* Stage 1 — Scaffold & Foundation */
         verify UN_001;
         verify UN_002;
     }
 
-    // ── Verification Case: Stage 2 — Core Engine ──
+    // -- Verification Case: Stage 2 — Core Engine --
     verification case def Stage_2___Core_Engine {
-    doc /* Stage 2 — Core Engine */
+        doc /* Stage 2 — Core Engine */
     }
 }

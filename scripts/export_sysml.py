@@ -14,7 +14,7 @@ validation, simulation, or vendor portability.
 Mapping (see dev-docs/architecture/sysml-export.md for the full spec):
 
   YAML                          SysMLv2 element
-  ─────────────────             ─────────────────────────────────
+  -----------------             ---------------------------------
   user_needs (UN-X)             requirement def UN_X
   functional_requirements       requirement def FR_X (:> parent UN)
   non_functional_requirements   requirement def NFR_X
@@ -61,14 +61,14 @@ REQ_MAP_PATH = REPO_ROOT / "requirements" / "requirement-map.yml"
 DEFAULT_OUTPUT = REPO_ROOT / "model" / "system.sysml"
 
 
-# ─── ID normalization ──────────────────────────────────────────────
+# --- ID normalization ----------------------------------------------
 # SysMLv2 identifiers can't contain hyphens or dots. Convert to underscores.
 
 def sysml_id(req_id: str) -> str:
     return re.sub(r"[-.]+", "_", req_id)
 
 
-# ─── Issue body fetch (optional) ───────────────────────────────────
+# --- Issue body fetch (optional) -----------------------------------
 
 @dataclass
 class IssueInfo:
@@ -108,7 +108,7 @@ def _body_field(body: str, field_name: str) -> str:
     return m.group(1).strip() if m else ""
 
 
-# ─── Project metadata ──────────────────────────────────────────────
+# --- Project metadata ----------------------------------------------
 
 def resolve_project_name() -> str:
     """Best-effort name for the top-level package. Tries env, git remote, repo dir."""
@@ -133,7 +133,7 @@ def _to_pascal(s: str) -> str:
     return "".join(w[:1].upper() + w[1:] for w in re.split(r"[-_\s]+", s) if w)
 
 
-# ─── Renderers ─────────────────────────────────────────────────────
+# --- Renderers -----------------------------------------------------
 # Each renderer produces a block of SysMLv2 text. Tune syntax here if the
 # target tool rejects something — the mapping (what becomes what) is stable.
 
@@ -170,7 +170,7 @@ def render_user_need(un_id: str, info: IssueInfo) -> str:
     acceptance = _body_field(info.body, "Acceptance")
     body = acceptance or desc
     return (
-        f"\n    // ── User Need: {un_id} ──\n"
+        f"\n    // -- User Need: {un_id} --\n"
         f"    requirement def {sid} {{\n"
         f"{render_doc(body)}"
         f"    }}\n"
@@ -186,7 +186,7 @@ def render_functional(fr_id: str, info: IssueInfo, parent_uns: list[str]) -> str
     parents = ", ".join(sysml_id(u) for u in parent_uns)
     derives = f" :> {parents}" if parents else ""
     return (
-        f"\n    // ── Functional Requirement: {fr_id} (derives from {', '.join(parent_uns) or '—'}) ──\n"
+        f"\n    // -- Functional Requirement: {fr_id} (derives from {', '.join(parent_uns) or '—'}) --\n"
         f"    requirement def {sid}{derives} {{\n"
         f"{render_doc(body_text)}"
         f"    }}\n"
@@ -201,7 +201,7 @@ def render_non_functional(nfr_id: str, info: IssueInfo, parent_uns: list[str]) -
     parents = ", ".join(sysml_id(u) for u in parent_uns)
     derives = f" :> {parents}" if parents else ""
     return (
-        f"\n    // ── Non-Functional Requirement: {nfr_id} ──\n"
+        f"\n    // -- Non-Functional Requirement: {nfr_id} --\n"
         f"    requirement def {sid}{derives} {{\n"
         f"{render_doc(body_text)}"
         f"    }}\n"
@@ -222,7 +222,7 @@ def render_interface(if_id: str, info: IssueInfo, parent_uns: list[str]) -> str:
     )
     # SysMLv2: interfaces are typed via `interface def`. End types simplified.
     return (
-        f"\n    // ── Interface Requirement: {if_id} ──\n"
+        f"\n    // -- Interface Requirement: {if_id} --\n"
         f"    interface def {sid} {{\n"
         f"{render_doc(body_text)}"
         f"        end {sysml_id(side_a) or 'side_a'};\n"
@@ -241,7 +241,7 @@ def render_kpm(kpm_id: str, kpm_entry: dict) -> str:
     children = kpm_entry.get("aggregates_from") or []
 
     lines = [
-        f"\n    // ── KPM: {kpm_id} (aggregation: {aggregation}) ──",
+        f"\n    // -- KPM: {kpm_id} (aggregation: {aggregation}) --",
         f"    constraint def {sid} {{",
     ]
     if target_value is not None:
@@ -267,7 +267,7 @@ def render_verification_case(stage_num: int, stage_data: dict) -> str:
     title = stage_data.get("title", f"Stage {stage_num}")
     safe = re.sub(r"[^A-Za-z0-9_]", "_", title)
     return (
-        f"\n    // ── Verification Case: {title} ──\n"
+        f"\n    // -- Verification Case: {title} --\n"
         f"    verification case def {safe} {{\n"
         f"{render_doc(title)}"
         + "".join(
@@ -278,7 +278,7 @@ def render_verification_case(stage_num: int, stage_data: dict) -> str:
     )
 
 
-# ─── Reverse-map helpers ───────────────────────────────────────────
+# --- Reverse-map helpers -------------------------------------------
 
 def build_child_to_parents(req_map: dict) -> dict[str, list[str]]:
     """Map FR/NFR/IF/KPM ID → list of parent UN IDs (preserving order)."""
@@ -295,7 +295,7 @@ def build_child_to_parents(req_map: dict) -> dict[str, list[str]]:
     return result
 
 
-# ─── Main pipeline ─────────────────────────────────────────────────
+# --- Main pipeline -------------------------------------------------
 
 def export(req_map: dict, offline: bool) -> str:
     """Build the full SysMLv2 text and return it."""
@@ -334,37 +334,37 @@ def export(req_map: dict, offline: bool) -> str:
     parts: list[str] = [render_header(project_name, REQ_MAP_PATH)]
 
     if un_ids:
-        parts.append("\n    // ═══════ User Needs ═══════\n")
+        parts.append("\n    // ======= User Needs =======\n")
         for uid in un_ids:
             parts.append(render_user_need(uid, issue_bodies.get(uid, IssueInfo())))
 
     if fr_ids:
-        parts.append("\n    // ═══════ Functional Requirements ═══════\n")
+        parts.append("\n    // ======= Functional Requirements =======\n")
         for fid in fr_ids:
             parts.append(render_functional(fid, issue_bodies.get(fid, IssueInfo()),
                                            child_parents.get(fid, [])))
 
     if nfr_ids:
-        parts.append("\n    // ═══════ Non-Functional Requirements ═══════\n")
+        parts.append("\n    // ======= Non-Functional Requirements =======\n")
         for nid in nfr_ids:
             parts.append(render_non_functional(nid, issue_bodies.get(nid, IssueInfo()),
                                                child_parents.get(nid, [])))
 
     if if_ids:
-        parts.append("\n    // ═══════ Interface Requirements ═══════\n")
+        parts.append("\n    // ======= Interface Requirements =======\n")
         for iid in if_ids:
             parts.append(render_interface(iid, issue_bodies.get(iid, IssueInfo()),
                                           child_parents.get(iid, [])))
 
     if kpm_ids:
-        parts.append("\n    // ═══════ KPMs (constraint blocks) ═══════\n")
+        parts.append("\n    // ======= KPMs (constraint blocks) =======\n")
         kpms_dict = req_map.get("kpms") or {}
         for kid in kpm_ids:
             parts.append(render_kpm(kid, kpms_dict.get(kid, {})))
 
     stages = req_map.get("stages") or {}
     if stages:
-        parts.append("\n    // ═══════ Verification Cases (Stages) ═══════\n")
+        parts.append("\n    // ======= Verification Cases (Stages) =======\n")
         for stage_num in sorted(stages):
             parts.append(render_verification_case(stage_num, stages[stage_num] or {}))
 
