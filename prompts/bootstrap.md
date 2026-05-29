@@ -98,7 +98,6 @@ apply? See FAQ Q4 for the standards table.
 
 > **Operator:** `<<fill in: your GitHub handle>>`
 > **Date filled:** `<<fill in: YYYY-MM-DD>>`
-> **Bootstrap session ID (optional):** `<<fill in: leave blank or paste a unique identifier>>`
 
 ---
 
