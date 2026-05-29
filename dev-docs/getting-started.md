@@ -47,60 +47,58 @@ code --version
 
 Claude Code is two things working together:
 
-1. The **Claude Code CLI** — the actual agent runtime, distributed as
-   an npm package.
+1. The **Claude Code CLI** — the actual agent runtime.
 2. The **VS Code extension** — a thin UI on top of the CLI. The
    extension is useless without the CLI.
 
 Install in that order.
 
-#### 1.2a — Install Node.js (required by the CLI)
+#### 1.2a — Install the Claude Code CLI
 
-**Windows (PowerShell admin):**
+Anthropic distributes Claude Code via a **native installer** on each
+OS (no Node.js required) and via npm as a cross-platform fallback.
+The native path is simpler.
 
-```powershell
-winget install --id OpenJS.NodeJS.LTS
-```
+**Canonical install instructions:** <https://claude.ai/code>
+(or <https://docs.claude.com/en/docs/claude-code/setup>).
 
-**Mac:** `brew install node`
+Follow whatever the page recommends for your OS — Anthropic updates
+that page as the install paths evolve. As of writing, the typical
+flows are:
 
-**Linux:** see <https://nodejs.org/en/download/package-manager>.
+- **Mac:** Homebrew or a one-line `curl ... | sh` installer.
+- **Linux:** the one-line `curl ... | sh` installer.
+- **Windows:** native installer or `winget`; npm is still the most
+  reliable Windows path at the moment.
 
-Verify:
-
-```bash
-node --version    # >= 18
-npm --version
-```
-
-Restart your shell after install so the new PATH entries take effect.
-
-#### 1.2b — Install the Claude Code CLI
+**npm fallback (any OS):** if the native installer isn't available
+for your platform yet, install Node.js 18+ first
+(<https://nodejs.org/>) and then:
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
-On Mac/Linux you may need `sudo` for the global install, or set up
-a user-local npm prefix to avoid it.
+Mac/Linux may need `sudo` for the global install or a user-local npm
+prefix.
 
-Verify:
+Verify the install regardless of path:
 
 ```bash
 claude --version
 ```
 
-Run `claude` from any project directory to start a CLI session. Sign
-in when prompted (browser opens; uses your Anthropic account).
+Run `claude` from any project directory to start a session. Sign in
+when prompted (browser opens; uses your Anthropic account).
 
-#### 1.2c — Install the VS Code extension
+#### 1.2b — Install the VS Code extension
 
 1. Open VS Code.
 2. Click the Extensions icon in the left sidebar (or `Ctrl+Shift+X`).
 3. Search for **"Claude Code"** (publisher: Anthropic).
 4. Click Install.
 5. After install, click the Claude icon in the left sidebar. The
-   extension auto-detects the CLI you installed in 1.2b and inherits
+   extension auto-detects the CLI you installed in 1.2a and inherits
    its sign-in. If it prompts for sign-in again, that's normal on
    first launch.
 
@@ -312,7 +310,15 @@ Part 5.
 The template has a workflow (`.github/workflows/wiki-publish.yml`)
 that auto-publishes `dev-docs/` to the repo's GitHub Wiki on every
 push to `main`. It needs a Personal Access Token because GitHub's
-default `GITHUB_TOKEN` cannot push to wiki repos.
+default `GITHUB_TOKEN` cannot push to wiki repos — this is a GitHub
+platform limitation (no permission scope grants wiki write to the
+auto-issued token), not a template choice.
+
+If you'd rather skip the PAT, you can publish the wiki manually from
+your machine instead: `python scripts/migrate_wiki.py --push` uses
+your local git credentials, which already have wiki write access on
+repos you own. The trade-off is that the wiki stays stale until you
+remember to run it.
 
 ### 3.1 — Why a *classic* PAT (not fine-grained)
 
