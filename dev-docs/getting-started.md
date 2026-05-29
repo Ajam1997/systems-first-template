@@ -138,16 +138,28 @@ git config --global user.email "your-github-email@example.com"
 Use the email tied to your GitHub account so commits attribute
 correctly.
 
-### 1.4 — Python 3.11+
+### 1.4 — Python (version depends on your project)
 
-**Windows:** install from <https://www.python.org/downloads/windows/>.
-On the first installer screen, check **"Add python.exe to PATH"**
-before clicking Install.
+The template's own scripts run on **Python 3.11+** (any modern Python
+works). But if your project will use the recommended EE/ME tool stack
+(Build123d, CadQuery, Atopile), you need **Python 3.13 specifically** —
+those libraries don't yet support 3.14, and Atopile 0.3+ requires
+3.13. See `dev-docs/architecture/external-tools.md`.
 
-**Mac:** `brew install python@3.12` (install Homebrew from
+**Recommended:** install Python 3.13 even if you're not sure you'll
+need the EE/ME stack. It works for everything in the template.
+
+**Windows (PowerShell, user scope, no admin):**
+
+```powershell
+winget install Python.Python.3.13 --scope user
+```
+
+**Mac:** `brew install python@3.13` (install Homebrew from
 <https://brew.sh/> first if needed).
 
-**Linux:** `sudo apt install python3.11 python3-pip`.
+**Linux:** `sudo apt install python3.13 python3.13-venv python3-pip`
+(or deadsnakes PPA on older Ubuntu).
 
 Verify:
 
@@ -286,13 +298,42 @@ gh repo clone <your-handle>/<your-repo-name>
 cd <your-repo-name>
 ```
 
-### 2.3 — Install Python dependencies
+### 2.3 — Install Python dependencies (in a venv)
+
+Use a project-local virtual environment so deps don't fight with other
+projects on your machine. Especially important if the project uses
+the EE/ME stack (Build123d, Atopile) — those pin to specific Python
+versions and pull heavy OCCT binaries.
+
+**Windows (PowerShell):**
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+If your system Python is too new (3.14+), point the venv at 3.13
+explicitly:
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\Python\Python313\python.exe" -m venv .venv
+```
+
+**Mac/Linux:**
 
 ```bash
+python3.13 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-This installs PyYAML and requests — the only third-party deps.
+Heads-up on install size: a project with the full EE/ME stack pulls
+~800 MB on first install (OCCT binaries via `cadquery-ocp`). Cached
+after that. The template's bare minimum (PyYAML + requests) is ~5 MB.
+
+The `.venv/` directory is already gitignored.
 
 ### 2.4 — Open in VS Code
 
