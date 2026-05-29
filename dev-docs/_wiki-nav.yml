@@ -1,0 +1,44 @@
+# Wiki sidebar config — drives the order of `_Sidebar.md` on the GitHub Wiki.
+#
+# Consumed by `scripts/migrate_wiki.py`. Edit freely as you add docs.
+#
+# Rules:
+#   - Every .md under dev-docs/ gets published regardless of whether it's
+#     listed here. The nav only controls sidebar order/grouping/labels.
+#   - `page:` paths are relative to dev-docs/.
+#   - Sections are rendered top-to-bottom, separated by `---`.
+#   - The `Home` page (rendered from dev-docs/README.md if present,
+#     otherwise from the repo README) is always the first entry; you
+#     don't need to list it here.
+
+sections:
+  - title: Getting started
+    items:
+      - label: Getting started
+        page: getting-started.md
+      - label: Start-of-work checklist
+        page: start-work-checklist.md
+
+  - title: Architecture
+    items:
+      - label: Architecture overview
+        page: architecture.md
+      - label: Doc source of truth
+        page: architecture/doc-source-of-truth.md
+      - label: V&V matrix format
+        page: architecture/vv-matrix.md
+      - label: Artifact manifest format
+        page: architecture/artifact-manifest.md
+      - label: SysML export
+        page: architecture/sysml-export.md
+
+  # As the project grows, add sections here. Example:
+  #
+  #   - title: Living requirements
+  #     items:
+  #       - label: User needs
+  #         page: living-user-needs.md
+  #       - label: KPM dashboard
+  #         page: kpm-dashboard.md
+  #       - label: Roadmap
+  #         page: roadmap.md

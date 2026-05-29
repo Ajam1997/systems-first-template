@@ -43,16 +43,71 @@ Verify in a terminal:
 code --version
 ```
 
-### 1.2 — Claude Code extension for VS Code
+### 1.2 — Claude Code (CLI + VS Code extension)
+
+Claude Code is two things working together:
+
+1. The **Claude Code CLI** — the actual agent runtime, distributed as
+   an npm package.
+2. The **VS Code extension** — a thin UI on top of the CLI. The
+   extension is useless without the CLI.
+
+Install in that order.
+
+#### 1.2a — Install Node.js (required by the CLI)
+
+**Windows (PowerShell admin):**
+
+```powershell
+winget install --id OpenJS.NodeJS.LTS
+```
+
+**Mac:** `brew install node`
+
+**Linux:** see <https://nodejs.org/en/download/package-manager>.
+
+Verify:
+
+```bash
+node --version    # >= 18
+npm --version
+```
+
+Restart your shell after install so the new PATH entries take effect.
+
+#### 1.2b — Install the Claude Code CLI
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+On Mac/Linux you may need `sudo` for the global install, or set up
+a user-local npm prefix to avoid it.
+
+Verify:
+
+```bash
+claude --version
+```
+
+Run `claude` from any project directory to start a CLI session. Sign
+in when prompted (browser opens; uses your Anthropic account).
+
+#### 1.2c — Install the VS Code extension
 
 1. Open VS Code.
 2. Click the Extensions icon in the left sidebar (or `Ctrl+Shift+X`).
 3. Search for **"Claude Code"** (publisher: Anthropic).
 4. Click Install.
-5. After install, click the Claude icon in the left sidebar. Sign in
-   when prompted (uses your Anthropic account).
+5. After install, click the Claude icon in the left sidebar. The
+   extension auto-detects the CLI you installed in 1.2b and inherits
+   its sign-in. If it prompts for sign-in again, that's normal on
+   first launch.
 
-Verify: a chat panel opens in VS Code when you click the Claude icon.
+Verify: a chat panel opens in VS Code with a working input. If you
+see "Claude Code CLI not found," the extension didn't find `claude`
+on your PATH — restart VS Code, or re-check that
+`claude --version` works in a fresh terminal.
 
 ### 1.3 — Git
 
@@ -398,6 +453,7 @@ That picks the right agent for the work in front of you.
 | Milestones created but Issues have no milestone | Stale issue filed before milestone existed | Edit the Issue, set the milestone manually |
 | Wiki tab shows 404 / "Pages" empty | Step 3.4 not done | Seed the first page via the GitHub UI |
 | Wiki workflow runs but content is stale | `generate_docs.py` ran before Issues existed | Trigger **Regenerate Docs from Issues** manually from the Actions tab |
+| Wiki workflow fails: `Missing nav config at dev-docs/_wiki-nav.yml` | Custom dev-docs/ doesn't have a nav config | Copy the template's `dev-docs/_wiki-nav.yml` into your repo and edit to match your docs layout |
 | Render chain produces empty AUTO sections | No Issues with the right labels yet | Normal during bootstrap — Issues get filed in Step 5/B.4 |
 
 ---
