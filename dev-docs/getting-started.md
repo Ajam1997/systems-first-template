@@ -270,6 +270,72 @@ After install, the skills are available globally — every project's
 Claude Code session sees them, regardless of which repo you're in.
 You don't reinstall per-project.
 
+### 1.8 — Discipline-specific tools (when your project needs them)
+
+Skip this if you're on Profile A (software-only). For Profiles B/C
+or any project that activates `electrical_lead` or `mechanical_lead`,
+you need the tool stack documented in
+[`dev-docs/architecture/external-tools.md`](architecture/external-tools.md).
+TL;DR install:
+
+| Tool | Why | Install |
+|---|---|---|
+| **KiCad 9.x** | PCB layout + `kicad-cli` for CI verification | <https://www.kicad.org/download/> — native installer per OS |
+| **FreeCAD 1.0+** | FEA via FreeCAD FEM workbench; TechDraw drawings fallback | <https://www.freecad.org/downloads.php> — native installer per OS |
+| **build123d, ezdxf, cadquery, atopile** | Code-CAD + code-PCB Python libraries | In your project's venv: `pip install -r requirements.txt` (after the project's bootstrap adds them) |
+
+Verify after install:
+
+```bash
+kicad-cli --version       # >= 9.x
+FreeCADCmd --version      # >= 1.0  (on macOS/Linux: freecadcmd)
+python -c "import build123d, ezdxf, cadquery, atopile; print('ok')"
+```
+
+**Windows PATH gotcha:** the KiCad and FreeCAD installers on Windows
+**don't add their `bin/` directories to PATH automatically.** After
+install, manually add:
+
+- `<KiCad install root>\bin` (typical: `C:\Program Files\KiCad\<version>\bin`)
+- `<FreeCAD install root>\bin` (typical: `C:\Program Files\FreeCAD\bin`)
+
+…to your **user** PATH. Then restart your shell / VS Code so the new
+PATH is picked up. PowerShell one-liner (adjust paths):
+
+```powershell
+$kicad = "C:\Program Files\KiCad\9.0\bin"
+$freecad = "C:\Program Files\FreeCAD\bin"
+$cur = [Environment]::GetEnvironmentVariable("PATH", "User")
+$parts = $cur -split ';' | Where-Object { $_ }
+foreach ($p in @($kicad, $freecad)) { if ($parts -notcontains $p) { $parts += $p } }
+[Environment]::SetEnvironmentVariable("PATH", ($parts -join ';'), "User")
+```
+
+If you installed to a non-default location (e.g. `E:\PHOTONForge\KiCAD`),
+substitute that as the install root.
+
+On Mac and Linux the binaries usually land on PATH automatically via
+Homebrew or the package manager; if not, symlink them into
+`/usr/local/bin` or `~/.local/bin`.
+
+**Python version pinning for the EE/ME stack.** As of writing:
+- `build123d` requires Python **<3.14** (OCCT bindings)
+- `atopile` requires Python **>=3.13**
+- Sweet spot: **Python 3.13**
+
+If your system Python is 3.14 (bleeding edge) or 3.12 (lagging),
+create a project venv with 3.13:
+
+```powershell
+# Windows: install Python 3.13 user-scope
+winget install Python.Python.3.13 --scope user
+# In your project root:
+& "$env:LOCALAPPDATA\Programs\Python\Python313\python.exe" -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Add `.venv/` to `.gitignore` if it isn't already.
+
 ---
 
 ## Part 2 — Use the template
@@ -546,6 +612,11 @@ That picks the right agent for the work in front of you.
 | Wiki workflow runs but content is stale | `generate_docs.py` ran before Issues existed | Trigger **Regenerate Docs from Issues** manually from the Actions tab |
 | Wiki workflow fails: `Missing nav config at dev-docs/_wiki-nav.yml` | Custom dev-docs/ doesn't have a nav config | Copy the template's `dev-docs/_wiki-nav.yml` into your repo and edit to match your docs layout |
 | Agent recommends `superpowers:<skill>` but nothing happens | Superpowers plugin not installed | Step 1.7 — install the plugin globally; works in any project after |
+| `kicad-cli: command not found` (Windows) | KiCad installer didn't add `bin\` to PATH | Step 1.8 — manually add `<KiCad>\bin` to user PATH, restart shell |
+| `FreeCADCmd: command not found` (Windows) | Same as KiCad | Step 1.8 — manually add `<FreeCAD>\bin` to user PATH, restart shell |
+| `pip install` errors: `Could not find a version that satisfies build123d>=0.9` | Python version too new (>=3.14) or too old (<3.10) | Step 1.8 — create a Python 3.13 venv for this project |
+| `pip install` errors: `Could not find a version that satisfies atopile>=0.3` | Python version is 3.12 (atopile needs >=3.13) | Step 1.8 — create a Python 3.13 venv |
+| `import atopile` works but `atopile.__version__` raises AttributeError | Atopile doesn't expose `__version__` as an attribute | Use `python -m atopile --version` instead; this is a known atopile quirk, not a broken install |
 | Render chain produces empty AUTO sections | No Issues with the right labels yet | Normal during bootstrap — Issues get filed in Step 4/B.4 |
 
 ---
