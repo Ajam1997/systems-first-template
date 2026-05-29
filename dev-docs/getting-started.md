@@ -5,7 +5,7 @@ project bootstrap. Allow ~30–45 minutes the first time. Subsequent
 projects skip everything in Part 1.
 
 If you already have VS Code + Claude Code + Git + Python + gh CLI
-installed and authenticated, skip to [Part 4](#part-4--create-your-project-repo).
+installed and authenticated, skip to [Part 2](#part-2--use-the-template).
 
 ---
 
@@ -301,7 +301,7 @@ code .
 ```
 
 The Claude Code panel opens automatically. You'll come back to it in
-Part 5.
+Part 4.
 
 ---
 
@@ -402,16 +402,9 @@ Failure modes:
 
 ---
 
-## Part 4 — Create your project repo
+## Part 4 — Run the bootstrap
 
-Already done in Part 2 if you followed in order. If you skipped
-Part 1 because the tools were installed, do Part 2 now.
-
----
-
-## Part 5 — Run the bootstrap
-
-### 5.1 — Copy and fill the worksheet
+### 4.1 — Copy and fill the worksheet
 
 Pick a name for your filled copy. Use your GitHub handle so it
 identifies the operator:
@@ -432,7 +425,7 @@ on each field.
 > "Preferences: Open User Settings (JSON)" and add
 > `"workbench.editor.enablePreview": false`.
 
-### 5.2 — Commit the inception record
+### 4.2 — Commit the inception record
 
 ```bash
 git add prompts/bootstrap_<your-handle>.md
@@ -443,7 +436,7 @@ git push
 This is the project's permanent "this is how it started" record.
 It does not get deleted.
 
-### 5.3 — Paste into Claude Code
+### 4.3 — Paste into Claude Code
 
 In VS Code, open the Claude Code panel. Start a new session. Paste
 **the entire filled file**.
@@ -466,16 +459,16 @@ your UNs are.
 
 ---
 
-## Part 6 — After the bootstrap
+## Part 5 — After the bootstrap
 
-### 6.1 — Watch the wiki populate
+### 5.1 — Watch the wiki populate
 
 After the bootstrap's final push, the **Publish Dev Docs to Wiki**
 workflow fires. Browse to the **Wiki** tab on your repo a minute
 later — `dev-docs/` content should be there, navigable via the
 sidebar.
 
-### 6.2 — Find your first FR
+### 5.2 — Find your first FR
 
 The bootstrap's final message names a next action — usually:
 
@@ -490,7 +483,7 @@ Open Claude Code, paste:
 The lead agent reads the requirement map, drafts the brief, and
 hands off to the discipline lead named in its `Owner:` line.
 
-### 6.3 — Daily-driver workflow
+### 5.3 — Daily-driver workflow
 
 From now on, every session starts by reading
 [`dev-docs/start-work-checklist.md`](start-work-checklist.md) (~60 s).
@@ -512,7 +505,7 @@ That picks the right agent for the work in front of you.
 | Wiki workflow runs but content is stale | `generate_docs.py` ran before Issues existed | Trigger **Regenerate Docs from Issues** manually from the Actions tab |
 | Wiki workflow fails: `Missing nav config at dev-docs/_wiki-nav.yml` | Custom dev-docs/ doesn't have a nav config | Copy the template's `dev-docs/_wiki-nav.yml` into your repo and edit to match your docs layout |
 | Agent recommends `superpowers:<skill>` but nothing happens | Superpowers plugin not installed | Step 1.7 — install the plugin globally; works in any project after |
-| Render chain produces empty AUTO sections | No Issues with the right labels yet | Normal during bootstrap — Issues get filed in Step 5/B.4 |
+| Render chain produces empty AUTO sections | No Issues with the right labels yet | Normal during bootstrap — Issues get filed in Step 4/B.4 |
 
 ---
 
