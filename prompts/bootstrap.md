@@ -228,6 +228,49 @@ kpms:
 
 See FAQ Step 5 for aggregation strategy and margin guidance.
 
+### B.5.5 — Rewrite CLAUDE.md for this project
+
+The template ships a `CLAUDE.md` written for the upstream PHOTONForge
+project. Once UNs, FRs, NFRs, and KPMs exist, rewrite it for *this*
+project so future Claude Code sessions inherit the correct context.
+
+Use Section A's answers plus the live requirement tree:
+
+- **Context paragraph** — one paragraph from A1 (project sentence)
+  and A4 (markets/regimes). Name the host hardware if relevant.
+- **Agent Roster** — table of the active leads from
+  `config/disciplines.yml` (post-Step B.2 state). One row per lead,
+  with the same Superpowers pairing column the template uses.
+- **Architecture Decisions** — 2–4 bullets capturing decisions the
+  operator made implicitly during Section B.4/B.5 (e.g. "monolithic
+  vs microservice," "RTOS choice deferred to firmware lead," "no GPU
+  paths"). Leave blank if none yet — `@systems_lead` will fill it as
+  briefs land.
+- **Constraints** — every NFR with a hard threshold goes here as a
+  one-liner (e.g. `NFR-2.1: 100% offline at runtime`).
+- **FR Thresholds** — every FR that names a specific measurable
+  threshold in its acceptance criteria (e.g.
+  `FR-1.3: dHash Hamming distance <= 2`).
+- **KPMs** — bullet list of every KPM with its target and owner
+  discipline.
+- **Conventions** — language version, linter, test framework, naming
+  conventions. Reasonable defaults if the operator hasn't specified.
+- **Project Layout** — `src/`, `tests/`, `scripts/`, `deploy/`,
+  `firmware/`, etc. — whichever apply given the active disciplines.
+- **Build Sequence** — one bullet per stage from
+  `config/stages.yml`, with the active discipline lead in parens.
+- **Agent Write-back Protocol** — copy from the template's
+  CLAUDE.md unchanged. This is universal.
+
+Show the operator a diff before writing. Commit alongside the
+requirement-map.yml in B.6.
+
+If the operator wants to defer CLAUDE.md rewriting until after they
+see the bootstrap in action, that's fine — file an Issue
+("rewrite CLAUDE.md for this project") with the `chore` label and
+move on. The template's CLAUDE.md is non-blocking; it just produces
+inherited-from-template context until rewritten.
+
 ### B.6 — Run the render chain
 
 ```bash

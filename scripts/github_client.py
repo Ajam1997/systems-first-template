@@ -93,6 +93,29 @@ class GitHubClient:
                 return issue
         return None
 
+    def find_issue_by_title_prefix(self, requirement_id: str) -> dict | None:
+        """Return first open Issue whose title starts with `<requirement_id>`
+        followed by a non-alphanumeric separator (space, em-dash, hyphen,
+        colon, etc.).
+
+        Anchored prefix match prevents `KPM-1.1` from matching `KPM-1.10`
+        or `FR-2` from matching `FR-20`. Use this for requirement-ID
+        lookups (UN-XXX, FR-X.Y, NFR-X.Y, IF-X.Y, KPM-X.Y).
+        """
+        r = self._session.get(
+            f"{self.REST_BASE}/repos/{self.owner}/{self.repo}/issues",
+            params={"state": "open", "per_page": 100},
+        )
+        r.raise_for_status()
+        for issue in r.json():
+            title = issue.get("title", "")
+            if not title.startswith(requirement_id):
+                continue
+            tail = title[len(requirement_id):]
+            if not tail or not tail[0].isalnum():
+                return issue
+        return None
+
     def create_issue(self, title: str, body: str, labels: list[str]) -> dict:
         """Create an Issue and return the response dict (includes number and node_id)."""
         r = self._session.post(

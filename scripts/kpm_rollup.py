@@ -195,9 +195,15 @@ def fetch_latest_measurement(client: GitHubClient, issue_number: int) -> str | N
 
 
 def resolve_issue_numbers(client: GitHubClient, tree: dict[str, KPM]) -> None:
-    """Populate `issue_number` on each KPM via title search."""
+    """Populate `issue_number` on each KPM via title search.
+
+    Issue titles are filed by the bootstrap as `<KID> — <short title>`
+    (e.g. `KPM-1.1 — Boredom detection response time`). We match on the
+    KID as a prefix followed by a non-digit (space, em-dash, colon, etc.)
+    to avoid `KPM-1.1` matching `KPM-1.10` or `KPM-1.11`.
+    """
     for kid, kpm in tree.items():
-        found = client.find_issue_by_title(f"[{kid}]")
+        found = client.find_issue_by_title_prefix(kid)
         if found:
             kpm.issue_number = found["number"]
 

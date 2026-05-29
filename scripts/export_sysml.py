@@ -145,6 +145,11 @@ def render_header(project_name: str, source_path: Path) -> str:
         f"// Mapping spec: dev-docs/architecture/sysml-export.md\n"
         f"\n"
         f"package {project_name} {{\n"
+        f"\n"
+        f"    // Bring SysMLv2 primitive scalar types (Real, String, Integer,\n"
+        f"    // Boolean, etc.) into scope so attribute types resolve in Syson /\n"
+        f"    // Cameo / any conformant parser.\n"
+        f"    import ScalarValues::*;\n"
     )
 
 
@@ -263,7 +268,16 @@ def render_kpm(kpm_id: str, kpm_entry: dict) -> str:
 
 
 def render_verification_case(stage_num: int, stage_data: dict) -> str:
-    """Render a stage milestone as a SysMLv2 verification case."""
+    """Render a stage milestone as a SysMLv2 verification case.
+
+    Inside the case body, the requirements this case verifies are recorded
+    as `// verifies:` comments rather than `verify <id>;` statements. The
+    bare `verify` keyword inside a `verification case def` body is rejected
+    by Syson (it's a verb used in a different syntactic position in
+    SysMLv2). The comment form is unambiguous and round-trips through any
+    tool. Authoritative verifies-relationship lives in
+    requirements/requirement-map.yml + the GitHub Milestone link.
+    """
     title = stage_data.get("title", f"Stage {stage_num}")
     safe = re.sub(r"[^A-Za-z0-9_]", "_", title)
     return (
@@ -271,7 +285,7 @@ def render_verification_case(stage_num: int, stage_data: dict) -> str:
         f"    verification case def {safe} {{\n"
         f"{render_doc(title)}"
         + "".join(
-            f"        verify {sysml_id(un)};\n"
+            f"        // verifies: {sysml_id(un)}\n"
             for un in stage_data.get("user_needs", []) or []
         )
         + "    }\n"
