@@ -18,15 +18,29 @@ from @systems_lead (usually `dev-docs/architecture/<feature>-engineer-brief.md`
 linked to an FR Issue), and you ship it: CAD model + FEA + drawings +
 artifact manifest + DVT/EVT/PVT plans.
 
+## Tool stack
+
+The recommended stack (see [`dev-docs/architecture/external-tools.md`](../../../dev-docs/architecture/external-tools.md) for rationale):
+
+- **Parts + assemblies:** **Build123d** (code-first, `.py` → STEP). The CAD model *is* a Python file — agents author, diff, and review like any other source.
+- **Parts fallback:** **CadQuery** — mature alternative on the same OCCT core. Use if Build123d's API churns or for code patterns already established.
+- **Drawings:** **Build123d + ezdxf** code-authored DXF with title block, dimensions, and GD&T. *The integration toolkit is currently incubating per-project — check `tools/drawings/` in the active project before writing your own.* See "Deferred" in `external-tools.md`.
+- **Drawings fallback:** **FreeCAD TechDraw** when a parametric history GUI is genuinely needed.
+- **FEA:** **CalculiX via FreeCAD's FEM workbench**. Text input deck, scriptable, CI-friendly.
+- **Thermal / CFD:** ParaView + OpenFOAM. Heavyweight — gate on scheduled workflows, not PRs.
+
+If the project inherits a proprietary stack (Solidworks, Fusion 360, Inventor), see Pattern 4 ("Human-paired") in `external-tools.md` — author the manifest + delta description, hand the model edit to a human.
+
 ## Responsibilities
 
-- Author and maintain mechanical CAD assemblies (STEP, native CAD format)
-- Run and document FEA / thermal / tolerance analyses
-- Author manufacturing drawings (PDF) and BOMs (CSV / xlsx)
+- Author and maintain mechanical parts + assemblies in Build123d (`.py` → STEP)
+- Run and document FEA / thermal / tolerance analyses (CalculiX preferred for FEA)
+- Author manufacturing drawings via Build123d + ezdxf → DXF + PDF
 - Maintain `artifacts/mechanical/<part>.md` manifests for every mechanical
-  artifact (the file itself lives in your CAD vault / git-LFS / shared drive;
-  the manifest in the repo carries the reference, hash, reviewer, and
-  snapshot PNG)
+  artifact; the Python source lives in `mechanical/parts/<part>.py`, the
+  exported STEP lives in `artifacts/mechanical/` (small) or in a vault /
+  git-LFS (large), and the manifest carries the reference, hash, reviewer,
+  and snapshot PNG
 - Write DVT/EVT/PVT test plans under `verification/dvt/`, `verification/evt/`,
   `verification/pvt/` and post measurement results as KPM comments
 
@@ -34,12 +48,17 @@ artifact manifest + DVT/EVT/PVT plans.
 
 | Artifact | Location | Format |
 |---|---|---|
-| CAD assemblies | external vault | STEP, PRT, IGES, native CAD |
-| FEA runs | external vault | tool-native + a CSV/JSON summary in the repo |
-| Drawings | external vault | PDF |
+| Parts (source) | `mechanical/parts/<part>.py` | Build123d Python |
+| Assemblies (source) | `mechanical/assemblies/<asm>.py` | Build123d Python |
+| Parts (exported) | `artifacts/mechanical/<part>-rev<N>.step` | STEP — handoff to fab and to @electrical_lead |
+| STL for printing | `artifacts/mechanical/<part>-rev<N>.stl` | STL |
+| Drawings (source) | `mechanical/drawings/<drawing>.py` | Python (Build123d + ezdxf) |
+| Drawings (exported) | `artifacts/mechanical/drawings/<drawing>-rev<N>.dxf` and `.pdf` | DXF + rendered PDF |
+| FEA input decks | `verification/simulation/<analysis>.inp` | CalculiX text input |
+| FEA results summary | `verification/simulation/<analysis>.md` | Markdown with key values + plot PNGs |
 | BOMs | `artifacts/mechanical/bom-rev<N>.csv` | CSV (small, text — fine in repo) |
-| Artifact manifests | `artifacts/mechanical/<part>.md` | Markdown with structured fields — see `dev-docs/architecture/artifact-manifest.md` |
-| Snapshot images | `artifacts/mechanical/snapshots/<part>.png` | PNG, low-res render of the assembly so reviewers don't need the CAD tool |
+| Artifact manifests | `artifacts/mechanical/<part>.md` | per `dev-docs/architecture/artifact-manifest.md` |
+| Snapshot images | `artifacts/mechanical/snapshots/<part>.png` | rendered from Build123d via `export_png()` or similar |
 | Test plans | `verification/dvt/<plan>.md` etc. | Markdown |
 
 ## Artifact manifest convention

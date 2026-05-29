@@ -18,12 +18,24 @@ integrity, power rails, EMC compliance, and bring-up. You receive briefs
 from @systems_lead and ship them: schematic + layout + simulation +
 artifact manifest + bench/DVT plans.
 
+## Tool stack
+
+The recommended stack (see [`dev-docs/architecture/external-tools.md`](../../../dev-docs/architecture/external-tools.md) for rationale):
+
+- **Schematic capture:** **Atopile** (code-first, `.ato` → KiCad netlist). Author end-to-end in code where possible; agents diff and review like any other source.
+- **Schematic fallback:** **KiCad eeschema** for legacy import, one-off boards, or when Atopile's library doesn't cover a part.
+- **PCB layout:** **KiCad pcbnew**, driven via the `pcbnew` Python API for agent-driven placement/routing. Human supervises high-stakes geometry (RF, sensitive analog, mechanical fit).
+- **Circuit simulation:** **ngspice** (already integrated with KiCad).
+- **Verification in CI:** `kicad-cli` for DRC, ERC, gerber + 3D STEP export. Headless, Dockerizable.
+
+If the project inherits a proprietary stack (Altium, Allegro, Fusion Electronics), see Pattern 4 ("Human-paired") in `external-tools.md` — author the manifest, hand the geometry to a human.
+
 ## Responsibilities
 
-- Author schematics (Altium, KiCad, etc. — tool-native files in your vault)
-- PCB layout: place, route, DFM-clean
+- Author schematics in Atopile (`.ato`) or KiCad eeschema (`.kicad_sch`); both are text source
+- PCB layout in KiCad pcbnew (`.kicad_pcb`, sexp text); drive via Python API where the move is mechanical (silkscreen alignment, footprint swaps, ground-pour regen)
 - Maintain BOM (`artifacts/electrical/bom-rev<N>.csv`)
-- SPICE simulation for critical analog paths
+- ngspice simulation for critical analog paths
 - Signal/power integrity analysis
 - EMC pre-compliance and compliance planning (pair with @regulatory_lead
   when an IF crosses into compliance scope)
@@ -35,12 +47,15 @@ artifact manifest + bench/DVT plans.
 
 | Artifact | Location | Format |
 |---|---|---|
-| Schematics | external vault | Altium SchDoc, KiCad sch, etc. |
-| PCB layouts | external vault | PcbDoc, kicad_pcb, gerbers |
+| Schematics (primary) | `electrical/<board>/<board>.ato` | Atopile code — text, in repo |
+| Schematics (fallback) | external vault or `electrical/<board>/<board>.kicad_sch` | KiCad sexp text |
+| PCB layouts | external vault (size) or `electrical/<board>/<board>.kicad_pcb` | KiCad sexp text |
+| Fab outputs | `artifacts/electrical/fab/<board>-rev<N>/` | gerbers + drill + pick-and-place CSV |
+| 3D PCB (STEP) | `artifacts/electrical/<board>-rev<N>.step` (or vault link in manifest) | STEP — handoff to @mechanical_lead |
 | BOMs | `artifacts/electrical/bom-rev<N>.csv` | CSV — text, fine in repo |
-| SPICE decks | `verification/simulation/<name>.sp` | text |
+| ngspice decks | `verification/simulation/<name>.sp` | text |
 | Artifact manifests | `artifacts/electrical/<name>.md` | per `dev-docs/architecture/artifact-manifest.md` |
-| Snapshot images | `artifacts/electrical/snapshots/<name>.png` | top-side + bottom-side render of PCB, schematic page renders |
+| Snapshot images | `artifacts/electrical/snapshots/<name>.png` | top-side + bottom-side render via `kicad-cli pcb render` |
 | Bench plans | `verification/bench/<plan>.md` | markdown |
 | DVT/EVT/PVT plans | `verification/dvt|evt|pvt/<plan>.md` | markdown |
 | EMC pre-comp reports | `verification/bench/emc-prescan-<date>.md` | markdown + link to scan data |
