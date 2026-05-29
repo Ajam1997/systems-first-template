@@ -209,6 +209,57 @@ gh auth status
 
 Should show "Logged in to github.com as <your-handle>".
 
+### 1.7 — Superpowers plugin (recommended)
+
+**Superpowers** is a Claude Code plugin that ships a curated bundle
+of skills (`brainstorming`, `writing-plans`,
+`subagent-driven-development`, `test-driven-development`,
+`systematic-debugging`, `verification-before-completion`,
+`using-git-worktrees`, `dispatching-parallel-agents`, and more).
+
+The template's discipline-lead agents reference these skills
+extensively — every agent pack has a "Paired Superpowers Skills"
+section that recommends or mandates specific skills for that lead's
+work. Without Superpowers installed:
+
+- `@verification` and `@validation` mandate
+  `verification-before-completion`. Without it, the mandate becomes a
+  docstring with no enforcement — agents may claim completion before
+  evidence is in.
+- Discipline lead recommendations (e.g. "use `systematic-debugging`
+  when a yield drop appears") still apply as guidance but you lose
+  the structured skill flow.
+- The `start-work-checklist.md` SOPs cite skill invocations directly;
+  those references become dead links in the agent's context.
+
+You can run the template without it, but the agent harness is
+designed around it. Install it before your first bootstrap if you
+can.
+
+**Install** (from any Claude Code session — works in the CLI or
+inside VS Code's Claude Code panel):
+
+```
+/plugin marketplace add obra/superpowers-marketplace
+/plugin install superpowers@superpowers-marketplace
+```
+
+The exact slash-command syntax can drift between Claude Code
+versions. If the above fails, check the canonical install instructions
+at <https://github.com/obra/superpowers>.
+
+Verify (in a Claude Code session):
+
+```
+/plugin list
+```
+
+Should show `superpowers` in the list, status `enabled`.
+
+After install, the skills are available globally — every project's
+Claude Code session sees them, regardless of which repo you're in.
+You don't reinstall per-project.
+
 ---
 
 ## Part 2 — Use the template
@@ -454,6 +505,7 @@ That picks the right agent for the work in front of you.
 | Wiki tab shows 404 / "Pages" empty | Step 3.4 not done | Seed the first page via the GitHub UI |
 | Wiki workflow runs but content is stale | `generate_docs.py` ran before Issues existed | Trigger **Regenerate Docs from Issues** manually from the Actions tab |
 | Wiki workflow fails: `Missing nav config at dev-docs/_wiki-nav.yml` | Custom dev-docs/ doesn't have a nav config | Copy the template's `dev-docs/_wiki-nav.yml` into your repo and edit to match your docs layout |
+| Agent recommends `superpowers:<skill>` but nothing happens | Superpowers plugin not installed | Step 1.7 — install the plugin globally; works in any project after |
 | Render chain produces empty AUTO sections | No Issues with the right labels yet | Normal during bootstrap — Issues get filed in Step 5/B.4 |
 
 ---
