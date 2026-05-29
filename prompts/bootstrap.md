@@ -17,6 +17,11 @@
 > **Stuck on a question?** See [bootstrap-faq.md](bootstrap-faq.md) —
 > reference answers for every field in Section A and every decision
 > point in Section B.
+>
+> **New to the template?** See
+> [`dev-docs/getting-started.md`](../dev-docs/getting-started.md) for
+> the zero-to-first-bootstrap walkthrough including VS Code, Claude
+> Code, gh CLI, classic-PAT generation, and wiki setup.
 
 ---
 

@@ -93,6 +93,13 @@ detailed how-tos as they get written.
 
 ## Quick start
 
+> **First time on a new machine?** Start with
+> [`dev-docs/getting-started.md`](dev-docs/getting-started.md) — it
+> walks you from nothing installed through tools, tokens, wiki setup,
+> and the first bootstrap. ~30–45 min.
+>
+> If your tools are already set up, the short version is below.
+
 This is an **agent-driven** workflow — you don't customize the YAML
 files by hand. You paste a bootstrap prompt into Claude Code and let
 the agent harness do the scoping, profile activation, UN drafting,
