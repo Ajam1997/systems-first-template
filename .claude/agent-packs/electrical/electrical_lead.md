@@ -70,30 +70,60 @@ If the project inherits a proprietary stack (Altium, Allegro, Fusion Electronics
   are for at-a-glance PR review.
 - ≤ 200 KB each. Most EDA tools render at 1024×768 by default.
 
-## Atopile → artifacts/electrical/ promotion
+## Atopile → artifacts/electrical/ direct write
 
-Atopile writes its outputs to `electrical/<board>/build/` by default
-(gitignored — regenerable). The **fab-ready** outputs you commit live
-under `artifacts/electrical/` so they're reviewable in PRs and
-hashable in manifests. After every `ato build`, promote:
+Configure atopile to write fab-ready outputs directly to
+`artifacts/electrical/` via `paths.output_base` in each build target.
+**No copy step needed.** Intermediate build state (logs, manifest,
+working layout) still lives in `electrical/<board>/build/`
+(gitignored — regenerable).
 
-| From | To |
+In `electrical/<board>/<project>/ato.yaml`:
+
+```yaml
+builds:
+  default:
+    entry: main.ato:App
+    paths:
+      # Path relative to this project root. Adjust ../ depth to reach
+      # repo root. The basename (e.g. `mainboard-rev0`) is the prefix
+      # atopile appends suffixes to (.bom.csv, .pcba.step, etc.).
+      output_base: ../../../artifacts/electrical/<board>-rev<N>
+```
+
+Atopile writes these from `output_base`:
+
+| Suffix | Content |
 |---|---|
-| `electrical/<board>/build/builds/<target>/<target>.kicad_pcb` (latest) | `artifacts/electrical/<board>-rev<N>.kicad_pcb` |
-| `electrical/<board>/build/builds/<target>/<target>.bom.csv` | `artifacts/electrical/<board>-bom-rev<N>.csv` |
-| `electrical/<board>/build/builds/<target>/<target>/<target>.net` | `artifacts/electrical/<board>-netlist-rev<N>.net` |
+| `.bom.csv` | Bill of materials |
+| `.net` (in `<output_base>/<target>.net` subfolder) | Flat netlist |
+| `.pcba.step` | 3D PCB STEP (handoff to mechanical) |
+| `.pcba.png` | Top + bottom render |
+| `.pcba.svg` | Vector render |
+| `.pcba.dxf` | 2D outline (handoff to drawings toolkit) |
+| `.gerber.zip` | Fab gerbers + drill |
+| `.i2c_tree.md` | I2C bus topology report |
+| `.variables.md` | Variable / parameter report |
+| `.<timestamp>.kicad_pcb` | Snapshot of the layout PCB at build time |
 
-Then run `kicad-cli` to produce the discipline-handoff outputs:
+The live KiCad layout source remains at
+`electrical/<board>/<project>/layouts/<target>/<target>.kicad_pcb` —
+edit it in KiCad's pcbnew GUI, atopile syncs the schematic changes
+back during the next build.
 
-| Output | Tool | Location |
-|---|---|---|
-| Gerbers + drill | `kicad-cli pcb export gerbers / drill` | `artifacts/electrical/fab/<board>-rev<N>/` |
-| 3D STEP (for mechanical) | `kicad-cli pcb export step` | `artifacts/electrical/<board>-rev<N>.step` |
-| Render PNG (top + bottom) | `kicad-cli pcb render` | `artifacts/electrical/snapshots/` |
+## kicad-cli for outputs atopile doesn't produce
 
-Until promotion is scripted, it's a manual copy step at end-of-design.
-For repeated work, write a small `electrical/<board>/export.py` that
-runs `ato build` then copies the named artifacts to `artifacts/`.
+For DRC / ERC reports, additional rendering, or post-processing
+that atopile's build steps don't cover, drive `kicad-cli` against
+the live layout PCB:
+
+```bash
+kicad-cli pcb drc      electrical/<board>/.../layouts/.../target.kicad_pcb \
+                       --output artifacts/electrical/<board>-rev<N>-drc.json
+kicad-cli pcb render   electrical/<board>/.../layouts/.../target.kicad_pcb \
+                       --output artifacts/electrical/snapshots/<board>-rev<N>-top.png \
+                       --side top
+```
 
 ## How you ship an electrical feature
 
