@@ -260,8 +260,13 @@ def warn(msg: str) -> None:
 
 # --- Step 0: Validate ------------------------------------------------
 
-def write_profile(profile: str, dry_run: bool) -> None:
-    """Overwrite config/disciplines.yml + config/stages.yml from a preset."""
+def write_profile(profile: str, dry_run: bool) -> tuple[dict, dict]:
+    """Overwrite config/disciplines.yml + config/stages.yml from a preset.
+
+    Returns the parsed (disciplines, stages) dicts so downstream steps
+    can preview the post-activation state even in dry-run mode (where
+    the disk writes are skipped).
+    """
     if profile not in PROFILE_DISCIPLINES:
         sys.exit(f"Unknown profile {profile!r}. Valid: A (software), B (mechanical), C (mixed IoT).")
     disc_path = CONFIG / "disciplines.yml"
@@ -269,29 +274,41 @@ def write_profile(profile: str, dry_run: bool) -> None:
     step(f"Activating Profile {profile} (overwrites disciplines.yml + stages.yml)")
     info(f"  target: {disc_path.relative_to(REPO_ROOT)}")
     info(f"  target: {stages_path.relative_to(REPO_ROOT)}")
+    disc_text = PROFILE_DISCIPLINES[profile]
+    stages_text = PROFILE_STAGES[profile]
     if dry_run:
-        info("(dry-run -- no writes)")
-        return
-    disc_path.write_text(PROFILE_DISCIPLINES[profile], encoding="utf-8")
-    stages_path.write_text(PROFILE_STAGES[profile], encoding="utf-8")
-    info(f"  wrote {profile}-profile content to both files")
+        info("(dry-run -- no writes; downstream steps preview Profile " + profile + ")")
+    else:
+        disc_path.write_text(disc_text, encoding="utf-8")
+        stages_path.write_text(stages_text, encoding="utf-8")
+        info(f"  wrote {profile}-profile content to both files")
+    disc = yaml.safe_load(disc_text) or {}
+    stages = yaml.safe_load(stages_text) or {}
+    return disc, stages
 
 
-def validate_configs() -> tuple[dict, dict]:
+def validate_configs(preloaded: tuple[dict, dict] | None = None) -> tuple[dict, dict]:
     """Ensure required configs exist and have at least one active discipline.
+
+    If preloaded is given (e.g. from a --activate-profile in-memory parse
+    during dry-run), validate that instead of reading from disk. This
+    keeps dry-run output coherent with what a live run would produce.
 
     Returns (disciplines_yaml, stages_yaml).
     """
     step("Validating config/")
-    disc_path = CONFIG / "disciplines.yml"
-    stages_path = CONFIG / "stages.yml"
-    if not disc_path.exists():
-        sys.exit(f"Missing {disc_path}. This isn't a systems-first template clone.")
-    if not stages_path.exists():
-        sys.exit(f"Missing {stages_path}.")
+    if preloaded is not None:
+        disc, stages = preloaded
+    else:
+        disc_path = CONFIG / "disciplines.yml"
+        stages_path = CONFIG / "stages.yml"
+        if not disc_path.exists():
+            sys.exit(f"Missing {disc_path}. This isn't a systems-first template clone.")
+        if not stages_path.exists():
+            sys.exit(f"Missing {stages_path}.")
 
-    disc = yaml.safe_load(disc_path.read_text(encoding="utf-8")) or {}
-    stages = yaml.safe_load(stages_path.read_text(encoding="utf-8")) or {}
+        disc = yaml.safe_load(disc_path.read_text(encoding="utf-8")) or {}
+        stages = yaml.safe_load(stages_path.read_text(encoding="utf-8")) or {}
 
     active = [d for d in (disc.get("disciplines") or []) if d.get("active")]
     if not active:
@@ -467,10 +484,11 @@ def main() -> None:
 
     banner("Systems-First Template — Project Initializer")
 
+    preloaded = None
     if args.activate_profile:
-        write_profile(args.activate_profile, args.dry_run)
+        preloaded = write_profile(args.activate_profile, args.dry_run)
 
-    disc, stages = validate_configs()
+    disc, stages = validate_configs(preloaded=preloaded)
 
     client = GitHubClient()
     step(f"GitHub repo: {client.owner}/{client.repo}")
