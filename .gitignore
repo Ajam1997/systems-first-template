@@ -55,3 +55,14 @@ electrical/*/build/
 electrical/*/*/build/
 electrical/*/logs/
 electrical/*/*/logs/
+
+# Atopile writes timestamped backups of the layout + pcbnew session
+# state on every build:
+#   <output_base>.<YYYYMMDD>-<HHMMSS>.kicad_pcb  ← pre-build PCB snapshot
+#   <output_base>.<YYYYMMDD>-<HHMMSS>.kicad_prl  ← pcbnew session state
+# These are build-trail noise, not deliverables. The real fab-ready PCB
+# gets promoted from `layouts/<target>/<target>.kicad_pcb` to
+# `artifacts/electrical/<board>-<rev>.kicad_pcb` by each board's
+# `export.py`. Ignore the stubs.
+artifacts/electrical/*.????????-??????.kicad_pcb
+artifacts/electrical/*.????????-??????.kicad_prl

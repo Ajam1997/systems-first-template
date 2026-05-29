@@ -33,23 +33,48 @@ For pure-KiCad boards (no Atopile), drop the `<atopile-project>/` layer
 and put `<board>.kicad_sch` + `<board>.kicad_pcb` directly under
 `<board-name>/`.
 
-## Configuring atopile to write fab outputs into `artifacts/`
+## Where outputs go — two write paths
 
-In `<board>/<project>/ato.yaml`:
+1. **Atopile writes BOM / netlist / reports directly** via
+   `paths.output_base` in `ato.yaml`. Set it to
+   `../../../artifacts/electrical/<board>-rev<N>` and atopile drops
+   `.bom.csv`, the netlist subfolder, `.variables.md`, etc., straight
+   into `artifacts/electrical/`.
+
+2. **`export.py` promotes the live PCB**. Atopile keeps the placed
+   layout in `<project>/layouts/<target>/<target>.kicad_pcb` —
+   that's the file with footprints, traces, and pour. To make it
+   available in `artifacts/electrical/<board>-rev<N>.kicad_pcb`,
+   every board ships an `export.py` that runs `ato build` and then
+   copies the live PCB forward.
 
 ```yaml
+# <board>/<project>/ato.yaml
 builds:
   default:
     entry: main.ato:App
     paths:
-      # Relative to this project root. Adjust ../ depth to reach repo root.
       output_base: ../../../artifacts/electrical/<board>-rev<N>
 ```
 
-After `ato build`, fab-ready outputs land in `artifacts/electrical/`
-prefixed with `<board>-rev<N>`. See
+```bash
+# Author the schematic in <project>/main.ato.
+# Place + route in pcbnew on <project>/layouts/default/default.kicad_pcb.
+# When ready to publish:
+python export.py
+# -> writes artifacts/electrical/<board>-rev<N>.bom.csv (etc., from atopile)
+# -> copies layouts/.../default.kicad_pcb -> artifacts/electrical/<board>-rev<N>.kicad_pcb
+```
+
+> **The empty `.<timestamp>.kicad_pcb` mystery.** Atopile writes a
+> pre-build backup stub to `<output_base>.<timestamp>.kicad_pcb` on
+> every build. It has zero footprints (it's a snapshot taken before
+> the build placed anything). Gitignored at the template level.
+
+See
 [`.claude/agent-packs/electrical/electrical_lead.md`](../.claude/agent-packs/electrical/electrical_lead.md)
-for the full convention and the full atopile suffix table.
+for the full pattern, the suffix table, and the worked example
+script.
 
 ## See also
 

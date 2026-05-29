@@ -70,13 +70,15 @@ If the project inherits a proprietary stack (Altium, Allegro, Fusion Electronics
   are for at-a-glance PR review.
 - ≤ 200 KB each. Most EDA tools render at 1024×768 by default.
 
-## Atopile → artifacts/electrical/ direct write
+## Atopile → artifacts/electrical/ — two write paths
 
-Configure atopile to write fab-ready outputs directly to
-`artifacts/electrical/` via `paths.output_base` in each build target.
-**No copy step needed.** Intermediate build state (logs, manifest,
-working layout) still lives in `electrical/<board>/build/`
-(gitignored — regenerable).
+Atopile splits its outputs across two locations and you need to know
+which is which.
+
+### Path 1 — direct write via `paths.output_base` (BOM, netlist, reports)
+
+These atopile writes straight to `artifacts/electrical/` if you set
+`paths.output_base` in each build target.
 
 In `electrical/<board>/<project>/ato.yaml`:
 
@@ -86,30 +88,85 @@ builds:
     entry: main.ato:App
     paths:
       # Path relative to this project root. Adjust ../ depth to reach
-      # repo root. The basename (e.g. `mainboard-rev0`) is the prefix
-      # atopile appends suffixes to (.bom.csv, .pcba.step, etc.).
+      # repo root. Basename (e.g. `mainboard-rev0`) is the prefix
+      # atopile appends suffixes to.
       output_base: ../../../artifacts/electrical/<board>-rev<N>
 ```
 
-Atopile writes these from `output_base`:
-
-| Suffix | Content |
+| Suffix written by atopile | Content |
 |---|---|
-| `.bom.csv` | Bill of materials |
-| `.net` (in `<output_base>/<target>.net` subfolder) | Flat netlist |
-| `.pcba.step` | 3D PCB STEP (handoff to mechanical) |
-| `.pcba.png` | Top + bottom render |
-| `.pcba.svg` | Vector render |
-| `.pcba.dxf` | 2D outline (handoff to drawings toolkit) |
-| `.gerber.zip` | Fab gerbers + drill |
+| `.bom.csv` | Bill of materials with picked parts + LCSC #s |
+| `<output_base>/<target>.net` (subfolder) | Flat netlist |
 | `.i2c_tree.md` | I2C bus topology report |
-| `.variables.md` | Variable / parameter report |
-| `.<timestamp>.kicad_pcb` | Snapshot of the layout PCB at build time |
+| `.variables.md` | Parameter solver report |
+| `.pcba.step` | 3D PCB STEP — *target needs to be enabled (see atopile docs)* |
+| `.pcba.png` | Top + bottom render — *target needs to be enabled* |
+| `.pcba.svg` | Vector render — *target needs to be enabled* |
+| `.pcba.dxf` | 2D outline (drawings toolkit feed) — *target needs to be enabled* |
+| `.gerber.zip` | Fab gerbers + drill — *target needs to be enabled* |
 
-The live KiCad layout source remains at
-`electrical/<board>/<project>/layouts/<target>/<target>.kicad_pcb` —
-edit it in KiCad's pcbnew GUI, atopile syncs the schematic changes
-back during the next build.
+### Path 2 — promote the live PCB via `export.py` (the fab-ready layout)
+
+Atopile **does not** write the placed-layout PCB to `output_base`.
+The `.<timestamp>.kicad_pcb` files it does write there are
+zero-footprint pre-build backup stubs — they look like the file
+contains the layout, but the components aren't in them. **These are
+gitignored at the template level** (`*.????????-??????.kicad_pcb`
+under `artifacts/electrical/`).
+
+The actual fab-ready layout — the file with placed footprints, traces,
+ground pour, the thing you send to JLCPCB — lives in the source dir
+at:
+
+```
+electrical/<board>/<project>/layouts/<target>/<target>.kicad_pcb
+```
+
+This is where you (or pcbnew) place + route the components. Atopile
+keeps it in sync with `main.ato` on every `ato build`, preserving
+your placement and routing.
+
+To promote it to `artifacts/electrical/<board>-rev<N>.kicad_pcb` as
+the frozen deliverable, every board ships an `export.py`:
+
+```python
+# electrical/<board>/<project>/export.py
+"""Run `ato build` then promote the live PCB to artifacts/."""
+import os, shutil, subprocess, sys
+from pathlib import Path
+
+BOARD_NAME = "<board>"
+REV = "rev0"
+ATOPILE_TARGET = "default"
+
+PROJECT_ROOT = Path(__file__).parent.resolve()
+REPO_ROOT = PROJECT_ROOT.parents[2]
+ARTIFACTS_DIR = REPO_ROOT / "artifacts" / "electrical"
+LIVE_PCB = PROJECT_ROOT / "layouts" / ATOPILE_TARGET / f"{ATOPILE_TARGET}.kicad_pcb"
+PROMOTED_PCB = ARTIFACTS_DIR / f"{BOARD_NAME}-{REV}.kicad_pcb"
+
+env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+subprocess.run([sys.executable, "-m", "atopile", "--non-interactive", "build"],
+               cwd=PROJECT_ROOT, env=env, check=True)
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+shutil.copy2(LIVE_PCB, PROMOTED_PCB)
+```
+
+Run with `python export.py`. Worked example:
+`electrical/smoke_test/my_first_ato_project/export.py` (in
+feline-enrichment-device).
+
+### Why two paths?
+
+Atopile owns the schematic (it's the `.ato` source). Atopile generates
+nets and footprints. But **placement and routing remain a human
+concern** — you edit `layouts/<target>/<target>.kicad_pcb` in KiCad
+pcbnew. Atopile syncs schematic changes (adds/removes footprints,
+updates nets) on every build without disturbing your placement.
+
+So the "live" PCB is both source (where placement happens) and
+output (the fab-ready file). `export.py` is the conscious snapshot
+into `artifacts/` for fab handoff and PR review.
 
 ## kicad-cli for outputs atopile doesn't produce
 
