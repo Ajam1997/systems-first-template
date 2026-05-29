@@ -9,8 +9,23 @@ ask the operator, what to do, and what state to leave the repo in.
 
 | Prompt | Purpose |
 |---|---|
-| [bootstrap.md](bootstrap.md) | Take a fresh clone of the template through scoping → profile activation → UN drafting → requirement-map.yml → render chain. Run once per project. |
-| [bootstrap-faq.md](bootstrap-faq.md) | Operator-facing Q&A for the bootstrap prompt — what profile to pick, UN vs FR, KPM aggregation rules, etc. Look here if you get stuck on one of Claude's questions. |
+| [bootstrap.md](bootstrap.md) | Copy-and-fill scoping worksheet *and* execution prompt. Operator copies to `bootstrap_<their-name>.md`, fills Section A, commits as the project's inception record, then pastes into Claude. Claude reads Section A and executes Section B. Run once per project. |
+| [bootstrap-faq.md](bootstrap-faq.md) | Operator-facing Q&A for filling Section A of the bootstrap worksheet and for understanding the decisions Claude faces in Section B. Look here if you get stuck on a field. |
+
+## The `bootstrap_<operator>.md` inception record
+
+The bootstrap workflow is **copy-fill-commit-paste**, not interactive:
+
+1. Operator copies `bootstrap.md` to `bootstrap_<their-name>.md`
+2. Fills the Section A worksheet by hand
+3. Commits it — this becomes the project's permanent "how it started"
+   artifact, with operator handle, date, and the five scoping answers
+4. Pastes the whole file into a Claude Code session, which executes
+   Section B against those answers
+
+The filled file is never deleted. A second operator re-bootstrapping
+later makes their own copy. The series of `bootstrap_*.md` files in
+`prompts/` is the project's traceable inception history.
 
 ## Why prompts and not scripts
 

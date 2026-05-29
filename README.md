@@ -104,17 +104,24 @@ and render-chain setup conversationally.
 gh repo clone <owner>/<your-new-repo>
 cd <your-new-repo>
 pip install -r requirements.txt
-# 3. Open in Claude Code and paste the bootstrap prompt:
+# 3. Copy the bootstrap worksheet and fill it by hand:
+cp prompts/bootstrap.md prompts/bootstrap_<your-name>.md
+$EDITOR prompts/bootstrap_<your-name>.md   # fill Section A
+git add prompts/bootstrap_<your-name>.md
+git commit -m "chore(inception): scoping worksheet by <your-name>"
+# 4. Open Claude Code and paste the filled file:
 code .
-# Copy the contents of prompts/bootstrap.md into a new Claude Code session.
-# Claude will ask 5 scoping questions, run init_project.py with the
-# right profile, file your first 6–12 UNs as GitHub Issues, draft
-# requirements/requirement-map.yml, and run the full render chain.
+# Paste the entire contents of prompts/bootstrap_<your-name>.md into
+# a new Claude Code session. Claude reads Section A and executes
+# Section B: profile activation, UN drafting, render chain.
 ```
 
-The bootstrap prompt lives at [prompts/bootstrap.md](prompts/bootstrap.md).
-It is self-contained — Claude reads `METHODOLOGY.md` and the doc
-source-of-truth spec before it asks you anything.
+The bootstrap workflow is **copy-fill-commit-paste**, not interactive.
+The filled `bootstrap_<your-name>.md` is committed as the project's
+permanent inception record — "this is how it started." See
+[prompts/bootstrap.md](prompts/bootstrap.md) for the worksheet and
+[prompts/bootstrap-faq.md](prompts/bootstrap-faq.md) if you get stuck
+on a field.
 
 If you'd rather skip the conversation and drive the bootstrap by hand:
 

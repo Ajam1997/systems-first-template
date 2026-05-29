@@ -1,173 +1,197 @@
 # Bootstrap Prompt — Systems-First Template
 
-> **What this is.** A self-contained prompt for Claude Code. Paste it into
-> a fresh Claude Code session opened at the root of a repo cloned from
-> `systems-first-template`. Claude will read the methodology, scope the
-> project with you, activate the right discipline leads, file the first
-> user needs as GitHub Issues, draft `requirements/requirement-map.yml`,
-> and run the full render chain so the docs / SysML model / V&V matrix
-> are coherent before you write a line of code.
+> **What this is.** A copy-and-fill scoping worksheet *and* a self-contained
+> prompt for Claude Code, in one file. The operator fills Section A
+> (project scoping) by hand, commits the filled copy as the project's
+> permanent inception record, then pastes the whole file into a fresh
+> Claude Code session. Claude reads Section A as input and executes
+> Section B end-to-end.
 >
-> **Why a prompt and not a script.** Bootstrapping a systems project is
-> a *conversation*: the right discipline mix, the right phase model, the
-> right first 8–12 user needs all depend on what you're building. A
-> script can't ask the right follow-ups. Claude can.
+> **Why a worksheet first.** The operator's answers to the five scoping
+> questions are the *origin story* of the project. They deserve a
+> dated, named artifact in the repo — "this is how it started" — not
+> a chat scrollback that gets lost when the session ends. Filling the
+> form by hand also front-loads the operator's thinking before any
+> agent gets involved.
 >
 > **Stuck on a question?** See [bootstrap-faq.md](bootstrap-faq.md) —
-> reference answers for every decision point in this prompt
-> (profile choice, UN vs FR, KPM aggregation, margin targets, etc.).
->
-> **Prerequisites.**
-> - `gh auth status` shows you logged in
-> - `python --version` is ≥ 3.10
-> - `pip install -r requirements.txt` has run (PyYAML)
-> - The repo has a GitHub remote (`git remote -v` shows `origin`)
+> reference answers for every field in Section A and every decision
+> point in Section B.
 
 ---
 
-## Paste everything below this line into Claude Code
+## How to use this file
 
-You are bootstrapping a new project from the **systems-first-template**.
-Your job is to take a freshly-cloned template repo and bring it to a
-state where:
+1. **Copy** `prompts/bootstrap.md` to `prompts/bootstrap_<your-name>.md`
+   (e.g. `prompts/bootstrap_alex.md`). One filled copy per operator
+   who runs a bootstrap; if a second operator re-bootstraps later,
+   they make their own copy.
+2. **Fill** Section A below. Replace every `<<fill in: ...>>` sentinel
+   with a real answer. Don't delete the headers.
+3. **Commit** the filled copy:
+   ```bash
+   git add prompts/bootstrap_<your-name>.md
+   git commit -m "chore(inception): scoping worksheet by <your-name>"
+   git push
+   ```
+   This is the project's inception record. It does not get deleted
+   after the bootstrap runs.
+4. **Paste** the entire filled file into a new Claude Code session
+   opened at the repo root. Claude reads Section A, refuses if any
+   `<<fill in: ...>>` sentinel remains, and executes Section B.
 
-1. `config/disciplines.yml`, `config/stages.yml`, and
-   `config/evidence-kinds.yml` describe *this* project
-2. The right discipline-lead agents are active in `.claude/agents/`
-3. GitHub Milestones exist for every stage
-4. Labels are synced
-5. The first 8–12 user needs are filed as GitHub Issues with the
-   `UN`, `status:defined`, and milestone fields set
-6. `requirements/requirement-map.yml` reflects those UNs (with FR/NFR/
-   IF/KPM stubs decomposed under each)
-7. `dev-docs/`, `model/system.sysml`, and the V&V matrix have been
-   regenerated and are internally consistent
-8. The operator has a clear list of next actions
+---
 
-You will do this **conversationally** with the operator. Follow the
-sequence below. Stop and ask whenever a step needs a decision; never
-guess a project's scope, market, or discipline mix.
+## SECTION A — Project scoping worksheet  *(operator fills this)*
 
-### Step 0 — Ground yourself in the methodology
+### A1. Project, in one sentence
 
-Before you ask the operator anything, read these files in order. Do
-not skip any:
+Name **who** uses it, **what** it does, and **why** (or a defining
+constraint). Skip implementation. See FAQ Q1 for examples.
+
+> **Project:** `<<fill in: one sentence>>`
+
+### A2. Disciplines in scope → profile
+
+Tick the disciplines that apply. Systems is always on.
+
+- [ ] systems  *(always on)*
+- [ ] software
+- [ ] mechanical
+- [ ] electrical
+- [ ] firmware
+- [ ] manufacturing
+- [ ] regulatory
+
+Then declare the matching profile:
+
+> **Profile:** `<<fill in: A | B | C | custom>>`
+
+Mapping (see FAQ Q2 for the full table):
+- `{systems, software}` → **A** (software-only)
+- `{systems, mechanical, manufacturing}` → **B** (mechanical / hardware-led)
+- All seven → **C** (mixed-discipline IoT)
+- Anything else → **custom** (Claude will start from the closest profile and hand-edit `disciplines.yml`)
+
+> **If custom, name the closest base profile:** `<<fill in: A or B, or write 'n/a'>>`
+
+### A3. Top-level user-need count target
+
+Aim for 6–12 on this first pass. You can add more later.
+
+> **Target UN count:** `<<fill in: integer between 6 and 12>>`
+
+### A4. Target markets / certification regimes
+
+Which markets do you intend to sell into, and what compliance regimes
+apply? See FAQ Q4 for the standards table.
+
+> **Markets / regimes:** `<<fill in: e.g. "hobby / personal use only" OR "FCC Part 15B + CE-RED" OR "UL + IEC 60825 Class 2 laser">>`
+
+### A5. GitHub repo slug
+
+`owner/name`. Verify with `gh repo view <slug>` before pasting.
+
+> **Repo slug:** `<<fill in: owner/name>>`
+
+### A6. Operator + date  *(inception provenance)*
+
+> **Operator:** `<<fill in: your GitHub handle>>`
+> **Date filled:** `<<fill in: YYYY-MM-DD>>`
+> **Bootstrap session ID (optional):** `<<fill in: leave blank or paste a unique identifier>>`
+
+---
+
+## SECTION B — Execution instructions  *(Claude runs this)*
+
+> Claude, you are bootstrapping a new project from the systems-first
+> template. The operator has filled Section A above with this
+> project's scoping answers. **Read Section A as input.** Do not
+> re-ask the operator the questions in Section A — they already
+> answered them.
+
+### B.0 — Validate Section A
+
+Before doing anything else:
+
+1. Re-read Section A from the prompt you were pasted.
+2. If any field still contains a `<<fill in: ...>>` sentinel, **stop**
+   and tell the operator which fields are missing. Do not proceed.
+3. If A5 (repo slug) is filled, run `gh repo view <slug>` and read
+   the result back to confirm the repo exists and you're in its
+   clone.
+4. Briefly acknowledge: *"I have your scoping answers from Section A
+   of bootstrap_<operator>.md. Starting bootstrap for `<project>` as
+   profile `<profile>`."*
+
+### B.1 — Ground yourself in the methodology
+
+Read these files in order. Do not skip any:
 
 1. `README.md`
 2. `METHODOLOGY.md` — the five rules
 3. `dev-docs/architecture/doc-source-of-truth.md` — who writes what
 4. `dev-docs/start-work-checklist.md` — agent selection
 5. `config/README.md` — what the three config files do
-
-Then read these to understand what you'll be generating:
-
-6. `requirements/requirement-map.yml` (the template version — observe
-   the shape, not the content)
-7. `dev-docs/architecture/artifact-manifest.md` — non-text artifact
-   format (only relevant if the project has CAD / PCB / firmware)
+6. `requirements/requirement-map.yml` (template version — observe shape)
+7. `dev-docs/architecture/artifact-manifest.md` *(skip if profile A)*
 8. `dev-docs/architecture/vv-matrix.md` — V&V evidence format
 
-Briefly tell the operator: *"I've read the template methodology. Five
-questions before I start."*
+### B.2 — Activate the profile
 
-### Step 1 — Scope the project (5 questions)
-
-Ask the operator these five questions. Use one `AskUserQuestion` call
-with all five, or ask in plain text — your choice. Do not proceed
-until you have all five answers.
-
-1. **What is the project, in one sentence?** ("A handheld inventory
-   scanner for warehouse staff", "An offline photo workflow", etc.)
-2. **Which disciplines are in scope?** Multi-select from: systems,
-   software, mechanical, electrical, firmware, manufacturing,
-   regulatory. (Systems is always on.) Map their answer to a profile:
-   - {systems, software} → profile **A**
-   - {systems, mechanical, manufacturing} → profile **B**
-   - {systems, software, mechanical, electrical, firmware,
-     manufacturing, regulatory} → profile **C**
-   - Anything else → custom (you'll write `disciplines.yml` by hand
-     after running profile A or B as a starting point)
-3. **Roughly how many top-level user needs do you expect?** (Aim for
-   6–12 for the first pass; you can add more later.)
-4. **What target markets / certification regimes apply?** ("Hobby /
-   none", "FCC Part 15B", "CE-RED + UL", "Medical / IEC 62304", etc.)
-   This drives whether `regulatory_lead` activates.
-5. **What's the GitHub repo slug?** (`owner/name`) Confirm by running
-   `gh repo view` and reading the result back.
-
-### Step 2 — Activate a profile
-
-Based on the answers, run:
+Using Section A's profile answer, run:
 
 ```bash
 python scripts/init_project.py --activate-profile <A|B|C> --dry-run
 ```
 
 Show the operator the plan. If it looks right, run again without
-`--dry-run` to apply. This will:
+`--dry-run`. This will:
 
-- Overwrite `config/disciplines.yml` and `config/stages.yml` from the
-  preset
-- Sync `.github/labels.yml` to the repo (creates / updates / deletes)
-- Create one Milestone per stage in `config/stages.yml`
-- Copy the active discipline-lead agent packs from
-  `.claude/agent-packs/<name>/` → `.claude/agents/`
+- Overwrite `config/disciplines.yml` and `config/stages.yml` from the preset
+- Sync `.github/labels.yml` to the repo
+- Create one Milestone per stage
+- Copy active discipline-lead agent packs from `.claude/agent-packs/<name>/` → `.claude/agents/`
 - Run `scripts/generate_docs.py` to fill AUTO sections
 
-If the project is genuinely custom (Step 1 answer 2 didn't fit A/B/C),
-start from the closest profile, then hand-edit `config/disciplines.yml`
-to add or remove leads, and re-run `python scripts/init_project.py`
-(without `--activate-profile`).
+For **profile = custom**, start from the closest base profile (A6
+field "closest base profile"), then hand-edit `config/disciplines.yml`
+to add/remove leads, then re-run `init_project.py` without
+`--activate-profile`.
 
-### Step 3 — Tune evidence kinds
+For **profile sensitive to A4 markets**: if A4 names any
+certification regime (FCC, CE, UL, IEC 60825, IEC 62368, etc.) and
+the profile doesn't already include `regulatory_lead`, flag it to
+the operator and offer to activate it.
 
-Open `config/evidence-kinds.yml`. Read it with the operator. Confirm
-which `kind:` entries are valid for *this* project's V&V evidence.
-For pure software projects, you usually only need `pytest`, `manual`,
-`review`. For hardware, add `bench`, `dvt`, `evt`, `pvt`, `fea`, `emc`,
-`regulatory`. Trim the rest.
+### B.3 — Tune evidence kinds
 
-Edit the file in place. Commit on the way out of this step.
+Open `config/evidence-kinds.yml`. Trim to what this project will
+actually produce (see FAQ Step 3). Commit on the way out.
 
-### Step 4 — Draft user needs conversationally
+### B.4 — Draft user needs conversationally
 
-This is the heart of the bootstrap. Walk the operator through their
-project's user needs **one at a time**. For each:
+Walk the operator through A3 user needs **one at a time**. For each:
 
-1. Ask: *"What does the user / operator / customer need this system to
-   do?"* Capture in one sentence.
-2. Convert to a `UN-XXX` Issue body following the template at
-   `.github/ISSUE_TEMPLATE/user-need.md`. The body must include:
-   - **What:** one-paragraph need statement
-   - **Why:** motivation
-   - **Acceptance criteria:** bulleted, testable
-   - **Verified By:** (empty for now — leaf FRs/NFRs/KPMs will populate
-     it as they verify)
-   - **Validated By:** (empty for now — `pr_rollup.py` populates when
-     the parent milestone closes)
-   - **Milestone:** which stage this UN lands in
-3. Show the operator the drafted Issue body. Iterate until they're
-   happy.
-4. File it via `gh issue create --title "UN-XXX: <short>" --body-file
+1. Ask: *"What does the user / operator / customer need this system
+   to do?"*
+2. Convert to a `UN-XXX` Issue body following
+   `.github/ISSUE_TEMPLATE/user-need.md`. The body must include
+   **What**, **Why**, **Acceptance criteria** (bulleted, testable),
+   **Verified By:** (empty), **Validated By:** (empty), **Milestone:**.
+3. Show the operator the drafted body. Iterate until they're happy.
+4. File via `gh issue create --title "UN-XXX: <short>" --body-file
    <tempfile> --label "UN,status:defined" --milestone "<stage>"`.
-5. Record the Issue number; you'll need it for `requirement-map.yml`.
+5. Record the Issue number for the requirement map.
 
-Aim for 6–12 UNs on the first pass. If the operator wants more later,
-they can run a smaller version of this loop in a follow-up session.
+Stop at A3's target count. If the operator wants more later they'll
+run a smaller bootstrap variant in a follow-up session.
 
-### Step 5 — Decompose UNs into FR / NFR / IF / KPM
+### B.5 — Decompose UNs into FR / NFR / IF / KPM
 
-For each UN filed in Step 4, ask the operator: *"How do we know we've
-met this need?"* The answer is a small bundle of:
-
-- **FRs** — functional requirements ("the system shall …")
-- **NFRs** — non-functional ("response time < 100 ms", "RSS < 1.5 GB")
-- **IFs** — interfaces it crosses (USB-C, Bluetooth LE, REST API)
-- **KPMs** — measurable target values
-
-File each as a GitHub Issue with the matching label
-(`FR`/`NFR`/`IF`/`KPM`) and write the decomposition into
-`requirements/requirement-map.yml`. The schema is:
+For each UN, ask: *"How do we know we've met this need?"* File each
+FR / NFR / IF / KPM as a labeled Issue and write the decomposition
+into `requirements/requirement-map.yml`. Schema:
 
 ```yaml
 user_needs:
@@ -186,16 +210,6 @@ functional_requirements:
     fr_to_uns: [UN-001]      # supports multi-parent — always a list
     kpms: [KPM-1.1]
 
-# ... and so on for non_functional_requirements,
-#     interface_requirements, kpms
-```
-
-Multi-parent FRs are first-class: an FR can support more than one UN.
-Always write `fr_to_uns` as a list, even with one parent.
-
-KPMs need extra fields when they aggregate (V-model rollup):
-
-```yaml
 kpms:
   KPM-1.1:
     title: "End-to-end latency"
@@ -203,75 +217,65 @@ kpms:
     unit: ms
     target_value: 100
     target_op: "<="
-    aggregation: max          # one of: independent, sum, max, min
-    aggregates_from: [KPM-2.1, KPM-2.2, KPM-2.3]
-    margin_target: 0.20       # 20% margin below target
+    aggregation: max          # independent | sum | max | min
+    aggregates_from: [KPM-2.1, KPM-2.2]
+    margin_target: 0.20
 ```
 
-Leaf KPMs (no `aggregates_from`) get their measurements from either a
-`KPM Rollup` comment on the Issue or a value in an artifact manifest.
+See FAQ Step 5 for aggregation strategy and margin guidance.
 
-### Step 6 — Run the render chain
-
-With Issues filed and `requirement-map.yml` complete:
+### B.6 — Run the render chain
 
 ```bash
-python scripts/generate_docs.py        # fills AUTO sections in dev-docs/
-python scripts/kpm_rollup.py           # computes parent KPMs from leaves
-python scripts/export_sysml.py         # writes model/system.sysml
-python scripts/validate_artifacts.py   # CI gate — should be no-op pre-design
+python scripts/generate_docs.py
+python scripts/kpm_rollup.py
+python scripts/export_sysml.py
+python scripts/validate_artifacts.py
 ```
 
 Diff each output. Show the operator. Commit:
 
 ```bash
 git add config/ requirements/ dev-docs/ model/
-git commit -m "feat: bootstrap UN tree, render chain green"
+git commit -m "feat: bootstrap UN tree, render chain green (per bootstrap_<operator>.md)"
 ```
 
-### Step 7 — Report state and next actions
+Note the commit message references the filled bootstrap file —
+preserves the inception trail.
 
-End with a tight report: how many UNs filed, which Milestones exist,
-which discipline leads are active, where the SysML model writes to,
-and what the operator should do next. A good shape:
+### B.7 — Report state and next actions
+
+Format:
 
 ```
-Bootstrap complete.
+Bootstrap complete (per prompts/bootstrap_<operator>.md, dated <A6 date>).
 
-UNs filed:        UN-001 … UN-008  (8 issues, all status:defined)
-Milestones:       Stage-1 … Stage-5
-Active leads:     systems_lead, software_lead, mechanical_lead,
-                  electrical_lead, firmware_lead, manufacturing_lead,
-                  regulatory_lead
+Project:          <A1 sentence>
+Profile applied:  <A2 profile>
+UNs filed:        UN-001 … UN-<N>  (<count> issues, all status:defined)
+Milestones:       Stage-1 … Stage-<N>
+Active leads:     <list>
 Render chain:     [ok] generate_docs  [ok] kpm_rollup  [ok] export_sysml
-                  [ok] validate_artifacts (no artifacts yet)
-Open questions:   (any genuine ambiguity surfaced during scoping)
+                  [ok] validate_artifacts
+Open questions:   <any genuine ambiguity surfaced during scoping>
 
-Next action: open dev-docs/architecture/<feature>-engineer-brief.md
-for the first FR and hand it to @<discipline>_lead.
+Next action:      open dev-docs/architecture/<feature>-engineer-brief.md
+                  for the first FR and hand it to @<discipline>_lead.
 ```
 
 ---
 
-## Notes on operator-driven steps you should NOT automate
+## Operator-owned steps Claude does NOT do
 
-- **`gh repo create`.** The operator creates the repo before pasting
-  this prompt. You can verify it with `gh repo view` but you do not
-  create it.
-- **PAT generation.** If the wiki workflow needs to push, the operator
-  generates a classic PAT with `repo` scope and adds it as the
-  `WIKI_PUSH_TOKEN` secret. Do not paste tokens, do not write them to
-  files, do not echo them.
-- **Status label moves.** `pr_rollup.py` owns `verified` / `validated`
-  transitions on PR merge. You never edit those labels.
-- **Hand edits to AUTO sections.** Anything inside an `<!-- AUTO:key
-  -->` sentinel is regenerated. If you find yourself wanting to edit
-  the rendered table, edit the Issue or `requirement-map.yml` instead.
+- **`gh repo create`** — operator creates the repo before copying this file.
+- **PAT generation** — operator handles classic-PAT generation for the wiki workflow. Claude does not write tokens to files or echo them.
+- **Status label moves** — `pr_rollup.py` owns `verified` / `validated`. Claude does not touch them.
+- **Hand edits inside AUTO sentinels** — regenerated by `generate_docs.py`. Edit the Issue, not the rendered table.
 
-## When to stop and ask the operator
+## When Claude should stop and ask
 
-- The discipline mix doesn't fit a profile cleanly
 - A UN's acceptance criteria aren't testable
-- A KPM's aggregation strategy isn't obvious (sum vs max vs min)
-- An interface crosses a discipline boundary you don't have a lead for
+- A KPM's aggregation strategy isn't obvious (sum / max / min)
+- An interface crosses a discipline boundary with no active lead
 - The render chain fails — diagnose root cause, don't paper over
+- Section A's profile (A2) and market answer (A4) imply different discipline mixes (e.g. profile A but A4 names FCC)

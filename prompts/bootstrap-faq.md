@@ -3,13 +3,16 @@
 Quick reference for operators running [bootstrap.md](bootstrap.md).
 Look here if Claude asks a question and you're not sure how to answer.
 
-Organized in the order of the bootstrap steps.
+Organized in the order of the bootstrap steps. Section A questions
+are the fields the operator fills in `bootstrap_<their-name>.md`
+*before* pasting into Claude; Section B steps are what Claude
+executes after.
 
 ---
 
-## Step 1 — Scoping questions
+## Section A — Scoping worksheet fields
 
-### Q1. "What is the project, in one sentence?"
+### A1. "What is the project, in one sentence?"
 
 The sentence should name **who** uses it, **what** it does, and **why**
 (or a constraint that defines it). Skip implementation.
@@ -23,7 +26,7 @@ The sentence should name **who** uses it, **what** it does, and **why**
 If you can't write the sentence, the project isn't scoped yet — go
 brainstorm before bootstrapping.
 
-### Q2. "Which disciplines are in scope?" → profile A/B/C
+### A2. "Which disciplines are in scope?" → profile A/B/C
 
 | Profile | Active leads | When |
 |---|---|---|
@@ -39,7 +42,7 @@ Inactive leads stay in `.claude/agent-packs/` as dormant inventory.
 Activate one later by toggling its `active: true` in `disciplines.yml`
 and re-running `init_project.py` (without `--activate-profile`).
 
-### Q3. "How many top-level user needs do you expect?"
+### A3. "How many top-level user needs do you expect?"
 
 Aim for **6–12 on the first pass.** Fewer than 6 usually means you're
 collapsing distinct needs into one. More than 12 usually means you're
@@ -48,7 +51,7 @@ sneaking acceptance criteria into the UN list.
 You can always add UNs later — the bootstrap is the first pass, not
 the only pass.
 
-### Q4. "What target markets / certification regimes apply?"
+### A4. "What target markets / certification regimes apply?"
 
 This is what drives `regulatory_lead` activation and how strict V&V
 needs to be. Common answers:
@@ -65,12 +68,20 @@ needs to be. Common answers:
 If unsure, list the markets you intend to sell into — Claude can map
 each to the standards stack.
 
-### Q5. "What's the GitHub repo slug?"
+### A5. "What's the GitHub repo slug?"
 
 `owner/name`. Verify with `gh repo view <slug>` — if that returns the
 repo, it's correct.
 
+### A6. "Operator + date"
+
+Your GitHub handle and today's date (YYYY-MM-DD). These stamp the
+inception record so future maintainers know who scoped the project
+and when.
+
 ---
+
+## Section B — Steps Claude executes
 
 ## Step 2 — Profile activation
 
