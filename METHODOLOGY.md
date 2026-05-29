@@ -364,11 +364,21 @@ instead of an hour.
   scripts, not from gates that prevent you from working. You can write
   code that has no FR. The V&V matrix will flag it as orphan; the
   template won't block your commit.
-- **It doesn't host binary artifacts.** Use git-LFS, your own vault, or
-  a shared drive. The template tracks *references* to artifacts with
-  hashes, reviewers, and snapshot images — not the artifacts themselves.
+- **It doesn't host very large binary artifacts.** Multi-megabyte CAD
+  assemblies, FEA blobs, full Gerber zips → use git-LFS, your own vault,
+  or a shared drive, with a manifest in `artifacts/`. Small outputs
+  (BOM CSVs, snapshot PNGs, single-part STEPs, atopile-generated KiCad
+  PCBs) commit directly under `artifacts/<discipline>/` — see
+  `dev-docs/architecture/artifact-manifest.md` for the size threshold
+  rule of thumb.
 - **It doesn't replace your domain tools.** Keep SolidWorks, KiCad,
-  Altium, MATLAB, your IDE. The template wraps around them.
+  Altium, MATLAB, Fusion, Allegro, whatever you have — the template
+  wraps around them. For an agent-driven workflow the template
+  recommends a specific FOSS / code-first stack (Atopile + KiCad,
+  Build123d + ezdxf, FreeCAD FEM, ngspice). See
+  `dev-docs/architecture/external-tools.md` for the rationale and
+  rough edges. Proprietary tools fit as Pattern 4 ("human-paired")
+  escape hatches in that doc.
 
 ---
 

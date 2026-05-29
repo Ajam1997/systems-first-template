@@ -21,6 +21,22 @@ and the operating environment.>
 
 Start every session with `dev-docs/start-work-checklist.md` (~60s).
 
+## Tool Stack
+
+<If your project activates `electrical_lead` and/or `mechanical_lead`
+(profile B or C), list the specific tools you use here so agent
+sessions inherit the choice. Default recommendation:>
+
+- **Electrical:** Atopile (schematic), KiCad pcbnew (layout), ngspice (sim), `kicad-cli` (CI verification)
+- **Mechanical:** Build123d (parts/assemblies), ezdxf (drawings), CalculiX via FreeCAD FEM (analysis)
+- **Glue:** STEP as cross-discipline interchange
+
+See [dev-docs/architecture/external-tools.md](./dev-docs/architecture/external-tools.md)
+for the full stack rationale, the four integration patterns, and the
+rough edges. If your project picks differently (existing licenses,
+supplier constraints), note the override here so future sessions see
+the decision.
+
 ## Methodology
 
 This project follows the five rules in [METHODOLOGY.md](./METHODOLOGY.md):

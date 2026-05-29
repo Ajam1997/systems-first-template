@@ -145,6 +145,32 @@ python scripts/validate_artifacts.py
 python scripts/validate_artifacts.py --fix  # touch snapshots/, add stub fields
 ```
 
+## When to use a manifest vs commit the artifact directly
+
+The manifest pattern was designed for binaries too large to commit.
+With the code-CAD / code-PCB stack we recommend ([external-tools.md](external-tools.md)),
+many engineering outputs are now small enough to live directly in
+git:
+
+| Output | Typical size | Commit directly? |
+|---|---|---|
+| BOM CSV | <1 KB | yes |
+| Snapshot PNG | <200 KB | yes |
+| Build123d STEP (single part) | <100 KB | yes |
+| Atopile-generated KiCad PCB (small board) | <50 KB | yes |
+| ezdxf-generated drawing DXF | <50 KB | yes |
+| Full multi-part CAD assembly STEP | several MB | manifest + vault |
+| Full board Gerber zip with images | several MB | manifest + vault |
+| FEA result blobs | tens of MB | manifest + vault |
+| Firmware binaries with debug symbols | tens of MB | manifest + vault |
+
+**Rule of thumb:** if the binary is under ~1 MB and produced by a
+reproducible build (code-CAD `.py`, atopile `.ato`), commit it. The
+small artifact IS its own manifest in that case — git's SHA-1 + diff
+history is sufficient, and the source file regenerates it. Use the
+manifest format below for the cases where the binary is too large or
+its source isn't text.
+
 ## What this format does NOT do
 
 - **It doesn't store the artifact.** Use git-LFS, your CAD vault, or

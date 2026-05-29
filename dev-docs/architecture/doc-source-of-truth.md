@@ -27,7 +27,9 @@ at project start; refer back whenever a writer collision feels possible.**
 | Research / scratch notes | `dev-docs/research/*.md` | n/a | Free-form. Not in AUTO regen. |
 | Verification / validation evidence | GitHub Issue comments via `scripts/github_comment.py` | n/a | Reports as Issue comments, not as `docs/VerificationReports/*.md` files. |
 | Test plans (DVT/EVT/PVT, bench, simulation) | `verification/<phase>/<plan>.md` | Referenced from V&V matrix | Hand-authored procedures + result links. |
-| Non-text engineering artifacts (CAD/PCB/firmware-binaries) | external vault / git-LFS, with manifest in `artifacts/<discipline>/` | n/a | Manifest carries link, SHA-256, reviewer, snapshot PNG. The actual file lives elsewhere. |
+| Discipline source code (Atopile `.ato`, Build123d `.py`, firmware `.c`) | top-level `electrical/`, `mechanical/`, `firmware/`, `src/` | n/a | Hand-authored, agent-diffable. See [external-tools.md](external-tools.md) for the recommended FOSS tool stack per discipline. |
+| Small build outputs (BOM CSV, snapshot PNG, <1 MB STEPs, generated KiCad PCB) | committed directly to `artifacts/<discipline>/` | n/a | Produced by `ato build` (via `paths.output_base`), `python parts/<part>.py`, or `export.py`. PR-reviewable as small binaries; no manifest ceremony required. |
+| Large engineering artifacts (full CAD assemblies, dense FEA blobs, full Gerber zips) | external vault / git-LFS, with manifest in `artifacts/<discipline>/` | n/a | Manifest carries link, SHA-256, reviewer, snapshot PNG. The actual file lives elsewhere. |
 | System reviews | `dev-docs/SystemReviews/<date>-<topic>.md` | n/a | Operator-invoked deep reviews (@systemmaster). |
 | Operator's offline memory aid | GitHub Wiki | one-way exported from `dev-docs/` via `scripts/migrate_wiki.py` | Wiki is downstream of dev-docs. Direct edits to the wiki survive only if front-matter-tagged `WIKI:LOCAL-ONLY`. |
 

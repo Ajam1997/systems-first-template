@@ -42,6 +42,16 @@ Inactive leads stay in `.claude/agent-packs/` as dormant inventory.
 Activate one later by toggling its `active: true` in `disciplines.yml`
 and re-running `init_project.py` (without `--activate-profile`).
 
+**If you pick Profile B or C**, your bootstrap will activate
+`electrical_lead` and/or `mechanical_lead`. Those agents assume a
+specific FOSS code-first tool stack (Atopile + KiCad for electrical,
+Build123d + ezdxf for mechanical, FreeCAD FEM for analysis). Read
+[../dev-docs/architecture/external-tools.md](../dev-docs/architecture/external-tools.md)
+before the first electrical or mechanical engineer brief lands so you
+know what tools the agents will name in their authoring instructions.
+Install steps are in
+[../dev-docs/getting-started.md](../dev-docs/getting-started.md) §1.8.
+
 ### A3. "How many top-level user needs do you expect?"
 
 Aim for **6–12 on the first pass.** Fewer than 6 usually means you're

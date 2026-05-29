@@ -29,6 +29,8 @@ sections:
         page: architecture/vv-matrix.md
       - label: Artifact manifest format
         page: architecture/artifact-manifest.md
+      - label: External tooling stack (EE/ME/FW)
+        page: architecture/external-tools.md
       - label: SysML export
         page: architecture/sysml-export.md
 
