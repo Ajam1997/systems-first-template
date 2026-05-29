@@ -147,7 +147,24 @@ See `METHODOLOGY.md` for what each directory is for. Brief tour:
 
 - `config/` — three YAML files (disciplines, stages, evidence kinds) that adapt the template to your project
 - `requirements/` — the requirement decomposition tree (`requirement-map.yml`) + interface ICDs (`interfaces/IF-*.md`)
-- `artifacts/` — text manifests for non-text engineering artifacts (CAD, PCB, firmware, large datasets). Format spec: `dev-docs/architecture/artifact-manifest.md`. Validator: `scripts/validate_artifacts.py`. Worked example: `artifacts/mechanical/EXAMPLE-motor-mount.md`.
+
+### Discipline workspaces — sources vs outputs (split by intent)
+
+Each engineering discipline gets **two** top-level locations: one for
+hand-authored *sources* (inputs), one for build *outputs* (deliverables).
+Same split as Python's `src/` vs `dist/`, with the difference that we
+*do* commit our outputs because they're the things fab shops eat and we
+want PR-reviewable changes to gerbers, STEPs, and BOMs.
+
+| Sources (inputs, top-level) | Outputs (deliverables, under `artifacts/`) |
+|---|---|
+| `electrical/<board>/<project>/` — Atopile `.ato` + KiCad layout source | `artifacts/electrical/<board>-rev<N>.*` — BOM, netlist, gerbers, 3D STEP, render PNG |
+| `mechanical/parts/<part>.py` — Build123d Python sources | `artifacts/mechanical/<part>-rev<N>.step` + snapshots |
+| `mechanical/drawings/<drawing>.py` — Build123d + ezdxf drawing sources | `artifacts/mechanical/drawings/<drawing>-rev<N>.dxf` + `.pdf` |
+| `firmware/<target>/` — embedded source (when firmware activates) | `artifacts/firmware/<target>-rev<N>.bin` + manifest |
+| `src/` — software source (when Profile A activates) | `artifacts/software/` — large generated assets (model weights, datasets) |
+
+- `artifacts/` — see [`artifacts/README.md`](artifacts/README.md) for the discipline-output convention + the artifact-manifest pattern for binaries too large to commit (vault link + SHA-256). Format spec: `dev-docs/architecture/artifact-manifest.md`. Validator: `scripts/validate_artifacts.py`.
 - `verification/` — DVT/EVT/PVT/bench/simulation test plans + result links
 - `model/` — auto-generated SysMLv2 textual notation (`system.sysml`); read by Syson, Cameo, etc.
 - `verification/` — test plans (markdown) and result links
