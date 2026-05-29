@@ -70,6 +70,31 @@ If the project inherits a proprietary stack (Altium, Allegro, Fusion Electronics
   are for at-a-glance PR review.
 - ≤ 200 KB each. Most EDA tools render at 1024×768 by default.
 
+## Atopile → artifacts/electrical/ promotion
+
+Atopile writes its outputs to `electrical/<board>/build/` by default
+(gitignored — regenerable). The **fab-ready** outputs you commit live
+under `artifacts/electrical/` so they're reviewable in PRs and
+hashable in manifests. After every `ato build`, promote:
+
+| From | To |
+|---|---|
+| `electrical/<board>/build/builds/<target>/<target>.kicad_pcb` (latest) | `artifacts/electrical/<board>-rev<N>.kicad_pcb` |
+| `electrical/<board>/build/builds/<target>/<target>.bom.csv` | `artifacts/electrical/<board>-bom-rev<N>.csv` |
+| `electrical/<board>/build/builds/<target>/<target>/<target>.net` | `artifacts/electrical/<board>-netlist-rev<N>.net` |
+
+Then run `kicad-cli` to produce the discipline-handoff outputs:
+
+| Output | Tool | Location |
+|---|---|---|
+| Gerbers + drill | `kicad-cli pcb export gerbers / drill` | `artifacts/electrical/fab/<board>-rev<N>/` |
+| 3D STEP (for mechanical) | `kicad-cli pcb export step` | `artifacts/electrical/<board>-rev<N>.step` |
+| Render PNG (top + bottom) | `kicad-cli pcb render` | `artifacts/electrical/snapshots/` |
+
+Until promotion is scripted, it's a manual copy step at end-of-design.
+For repeated work, write a small `electrical/<board>/export.py` that
+runs `ato build` then copies the named artifacts to `artifacts/`.
+
 ## How you ship an electrical feature
 
 1. **Read the brief in full.** If the brief crosses into electrical-thermal,
