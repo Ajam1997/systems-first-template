@@ -13,6 +13,10 @@
 > right first 8–12 user needs all depend on what you're building. A
 > script can't ask the right follow-ups. Claude can.
 >
+> **Stuck on a question?** See [bootstrap-faq.md](bootstrap-faq.md) —
+> reference answers for every decision point in this prompt
+> (profile choice, UN vs FR, KPM aggregation, margin targets, etc.).
+>
 > **Prerequisites.**
 > - `gh auth status` shows you logged in
 > - `python --version` is ≥ 3.10
