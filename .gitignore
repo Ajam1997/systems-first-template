@@ -19,23 +19,39 @@ Thumbs.db
 *.token
 *.pem
 
-# Large binary artifacts (use git-LFS or external storage)
-*.step
-*.STEP
-*.prt
-*.PRT
-*.iges
-*.IGES
-*.sldprt
-*.sldasm
-*.slddrw
-*.f3d
-*.f3z
-# PCB editor binaries
+# Engineering binary artifacts
+#
+# Policy: small artifacts (<~1 MB STEPs, snapshot PNGs, BOM CSVs)
+# live in `artifacts/<discipline>/` directly. Larger ones (full CAD
+# assemblies, dense FEA result files, full PCB Gerbers in zip) should
+# be referenced by an artifact manifest pointing to git-LFS or an
+# external vault — see dev-docs/architecture/artifact-manifest.md.
+#
+# If your project needs a stricter "no binaries in repo" policy,
+# uncomment the patterns below in YOUR project's .gitignore.
+#
+# *.step
+# *.STEP
+# *.prt
+# *.PRT
+# *.iges
+# *.IGES
+# *.sldprt
+# *.sldasm
+# *.slddrw
+# *.f3d
+# *.f3z
+
+# Always ignore: editor backups and intermediate sim blobs
 *.kicad_pcb-bak
 *.kicad_sch-bak
 *.PcbDoc.bak
 *.SchDoc.bak
-# Simulation result blobs
 *.raw
 *.simulation
+
+# Atopile build outputs (regenerable from .ato sources)
+electrical/*/build/
+electrical/*/*/build/
+electrical/*/logs/
+electrical/*/*/logs/

@@ -617,6 +617,7 @@ That picks the right agent for the work in front of you.
 | `pip install` errors: `Could not find a version that satisfies build123d>=0.9` | Python version too new (>=3.14) or too old (<3.10) | Step 1.8 — create a Python 3.13 venv for this project |
 | `pip install` errors: `Could not find a version that satisfies atopile>=0.3` | Python version is 3.12 (atopile needs >=3.13) | Step 1.8 — create a Python 3.13 venv |
 | `import atopile` works but `atopile.__version__` raises AttributeError | Atopile doesn't expose `__version__` as an attribute | Use `python -m atopile --version` instead; this is a known atopile quirk, not a broken install |
+| `UnicodeEncodeError: 'charmap' codec can't encode character '\\u2728'` (Windows, running atopile) | Atopile uses Rich for console output; PowerShell's default cp1252 codec can't render Unicode glyphs Rich emits | Set `$env:PYTHONIOENCODING = "utf-8"` per session, or set it globally in user environment variables, or use Windows Terminal which handles UTF-8 natively |
 | Render chain produces empty AUTO sections | No Issues with the right labels yet | Normal during bootstrap — Issues get filed in Step 4/B.4 |
 
 ---
