@@ -5,6 +5,11 @@
 
 package SystemsFirstTemplate {
 
+    // Bring SysMLv2 primitive scalar types (Real, String, Integer,
+    // Boolean, etc.) into scope so attribute types resolve in Syson /
+    // Cameo / any conformant parser.
+    import ScalarValues::*;
+
     // ======= User Needs =======
 
     // -- User Need: UN-001 --
@@ -22,8 +27,8 @@ package SystemsFirstTemplate {
     // -- Verification Case: Stage 1 — Scaffold & Foundation --
     verification case def Stage_1___Scaffold___Foundation {
         doc /* Stage 1 — Scaffold & Foundation */
-        verify UN_001;
-        verify UN_002;
+        // verifies: UN_001
+        // verifies: UN_002
     }
 
     // -- Verification Case: Stage 2 — Core Engine --
