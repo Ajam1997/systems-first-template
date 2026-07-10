@@ -1,4 +1,4 @@
-# Systems-First Plugin Marketplace — Design Spec
+# PHOTONFORGE / PHOTONFOUNDRY Plugin Marketplaces — Design Spec
 
 **Date:** 2026-07-10
 **Status:** Approved (brainstormed with Alex; this document records the validated design)
@@ -24,11 +24,19 @@ conventions, and styles as first-class, agent-editable artifacts. That work
 - **Plugin = engine, repo = policy.** Plugins ship machinery (agents, skills,
   scripts, seed templates). Each project owns its policy instances (its House
   Style, glossary, doc templates, requirement data) as repo files.
-- **One storefront, source lives where it belongs.** A single marketplace
-  catalogs everything Alex authors. Process plugins (core + discipline packs)
-  live in the marketplace repo. Tool plugins (kicad-pcba and future domain
-  toolkits) live in their own repos and are **cross-listed** as external
-  marketplace entries.
+- **Two storefronts split by abstraction level, source lives where it
+  belongs.** All repos live under the `Ajam1997` GitHub account (private
+  until ready to share):
+  - **`PHOTONFORGE`** — the process/systems marketplace: systems-first-core,
+    the discipline packs, and the pip package live *in* this repo. The "how
+    projects are run" layer, lockstep-versioned.
+  - **`PHOTONFOUNDRY`** — the tool marketplace: a catalog-only repo that
+    cross-lists granular design toolkits (kicad-pcba today; mechanical,
+    firmware, enclosure tools later). Each tool plugin lives in **its own
+    repo** (they are large and version independently); the foundry is the
+    shared storefront. The "how things get built" layer.
+  A full-stack project adds both marketplaces; discipline packs *recommend*
+  foundry tools in their docs rather than auto-installing them.
 - **Objective state over honor system** (adopted from kicad-pcba's `gates.py`):
   skills and agents derive next actions from machine-computed state, not from
   narrative claims. "The failing gates ARE the to-do list."
@@ -38,11 +46,11 @@ conventions, and styles as first-class, agent-editable artifacts. That work
 
 ## 3. Repo topology
 
-New repo: **`PHOTONForge/systems-first-marketplace`** — simultaneously the
+New repo: **`Ajam1997/PHOTONFORGE`** — simultaneously the process
 marketplace, the process-plugin monorepo, and home of the Python package.
 
 ```
-.claude-plugin/marketplace.json      # catalog: internal plugins + external tool plugins
+.claude-plugin/marketplace.json      # catalog: the internal process plugins
 plugins/
   core/                              # plugin: systems-first-core
     .claude-plugin/plugin.json
@@ -74,9 +82,9 @@ Deliberate changes from the template's current layout:
 - **`nightly-drift` does not migrate.** It never worked and is abandoned;
   the photo-workflow migration deletes it.
 
-## 4. Marketplace catalog
+## 4. Marketplace catalogs
 
-`marketplace.json` lists:
+**PHOTONFORGE** `marketplace.json` (process plugins, all internal):
 
 | Entry | Source | Contents |
 |---|---|---|
@@ -84,15 +92,22 @@ Deliberate changes from the template's current layout:
 | `systems-first-software` | internal | software_lead |
 | `systems-first-electrical` | internal | electrical_lead (wired to kicad-pcba, §6) |
 | `systems-first-mechanical` … `-regulatory` | internal | one lead each |
-| `kicad-pcba` | **external** (GitHub repo, see §9.3) | EE tool plugin (skills + scripts + MCP), authored separately at its own cadence |
 
-A project installs core + the packs matching its profile. Profile A
-(photo-workflow) = core + software. A mechatronics project = core + software +
-electrical + mechanical (+ kicad-pcba as tooling). Nobody's roster carries
-disciplines they don't have.
+**PHOTONFOUNDRY** (`Ajam1997/PHOTONFOUNDRY`) is catalog-only — a
+`marketplace.json` + README, no plugin source. Every entry is external:
 
-Future tool plugins (mechanical/firmware toolkits) cost one external catalog
-entry each — no core changes.
+| Entry | Source | Contents |
+|---|---|---|
+| `kicad-pcba` | external: `Ajam1997/kicad-pcba` (see §9.3) | EE tool plugin (skills + scripts + MCP), versioned independently (currently 0.10.0) |
+| *(future)* mechanical / firmware / enclosure toolkits | external, one repo each | added as they exist |
+
+A project installs core + the packs matching its profile from PHOTONFORGE.
+Profile A (photo-workflow) = core + software. A mechatronics project = core +
+software + electrical + mechanical, plus the PHOTONFOUNDRY marketplace for
+kicad-pcba as tooling. Nobody's roster carries disciplines they don't have.
+
+Future tool plugins cost one PHOTONFOUNDRY catalog entry each — no changes to
+PHOTONFORGE.
 
 ## 5. The Python package
 
@@ -115,7 +130,7 @@ package — plugins do not vendor script copies. Console entry points replace
 Both consumers install the same versioned artifact, no PyPI required:
 
 ```
-pip install "systems-first @ git+https://github.com/PHOTONForge/systems-first-marketplace@v0.1.0#subdirectory=packages/systems-first"
+pip install "systems-first @ git+https://github.com/Ajam1997/PHOTONFORGE@v0.1.0#subdirectory=packages/systems-first"
 ```
 
 - **Agents** (via plugin instructions) call the `sf-*` commands from the
@@ -132,7 +147,7 @@ the package reads per-project).
 kicad-pcba stays in its own repo with its own version stream (currently
 0.10.0). The systems-first side:
 
-- `marketplace.json` cross-lists it as an external entry (requires §9.3).
+- PHOTONFOUNDRY cross-lists it as an external entry (requires §9.3).
 - `plugins/electrical/agents/electrical_lead.md` pairs the lead with
   kicad-pcba's skills: the plugin's spec→schematic→library→layout→sourcing→
   production sequence maps onto systems-first stage gates, and its
@@ -143,11 +158,12 @@ tool plugin = implementation capability.
 
 ## 7. Versioning & releases
 
-- Marketplace repo tags `vX.Y.Z` version **core + all internal packs + the
+- PHOTONFORGE repo tags `vX.Y.Z` version **core + all internal packs + the
   pip package in lockstep**. Every plugin.json version and the pyproject
   version bump together; one tag = one coherent release.
-- Tool plugins version independently in their own repos; the catalog entry
-  just points at them.
+- Tool plugins version independently in their own repos; PHOTONFOUNDRY is
+  catalog-only and needs no version stream of its own — its entries just
+  point at tool repos.
 - Projects pin: CI pins the package tag; plugin installs track the
   marketplace. An explicit project-upgrade note ships in the README (the
   kicad-pcba pilot already needed a cross-version project migration once —
@@ -178,7 +194,8 @@ in core later; the skeleton just gives them a home.
   (the nine CLIs plus `github_client.py`; project-agnostic machinery only —
   anything template-specific stays).
 - Workflows call `sf-*` commands at a pinned tag instead of `scripts/*.py`.
-- README/setup becomes: use the GitHub template → add the marketplace →
+- README/setup becomes: use the GitHub template → add the PHOTONFORGE
+  marketplace (plus PHOTONFOUNDRY if the project needs tool plugins) →
   install core + your packs → `pip install` the package → `sf-init`.
 - The template keeps what is genuinely per-project scaffolding:
   `requirements/`, `dev-docs/` seeds, `config/`, CI workflow files,
@@ -195,11 +212,14 @@ in core later; the skeleton just gives them a home.
 - Update CLAUDE.md roster/protocol sections to reference plugin agents and
   `sf-*` commands.
 
-### 9.3 kicad-pcba
+### 9.3 kicad-pcba + PHOTONFOUNDRY
 
-- Push the ClaudePCBA repo to GitHub (it currently lives only on F:).
-- Add the external catalog entry. Its local-marketplace install flow remains
-  the dev-time path.
+- Push the plugin to `Ajam1997/kicad-pcba` (repo root = the current
+  `kicad-pcba-plugin/` folder contents; fresh git init — the local ClaudePCBA
+  folder has no history). The kicad-mcp clone and the rack-pdu-12v pilot
+  project stay local.
+- Create `Ajam1997/PHOTONFOUNDRY` (catalog-only) with the kicad-pcba entry.
+- The local ClaudePCBA marketplace flow remains the dev-time install path.
 
 ## 10. Acceptance criteria
 
@@ -236,6 +256,6 @@ in core later; the skeleton just gives them a home.
 | Risk | Mitigation |
 |---|---|
 | Scripts have photo-workflow-isms baked in | Flushed into per-project config during packaging (§5); acceptance test 3 catches behavior changes |
-| External marketplace entries require public GitHub source | §9.3 pushes ClaudePCBA to GitHub; if it must stay private, installs need repo access — acceptable, sole-author |
+| All repos start private: plugin installs and pip installs need GitHub auth | Sole author with `gh` auth — acceptable; flip repos public when ready to share |
 | Plugin agent names must match existing CLAUDE.md rosters | Keep agent names identical (`software_lead`, etc.); photo-workflow CLAUDE.md updated in the same migration PR |
-| Lockstep versioning breaks if a tool plugin moved in-repo | Standing rule: tool plugins never live in the marketplace repo (§2) |
+| Lockstep versioning breaks if a tool plugin moved in-repo | Standing rule: tool plugins never live in PHOTONFORGE; they live in their own repos, cross-listed in PHOTONFOUNDRY (§2) |
