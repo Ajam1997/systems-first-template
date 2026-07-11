@@ -113,9 +113,9 @@ classes:
 doc_types:
   design-spec:      {class: review-critical, template: design-spec}
   design-review:    {class: review-critical, template: design-review}
+  system-review:    {class: review-critical, template: system-review}
   trade-study:      {class: review-critical, template: trade-study}
   adr:              {class: working, template: adr}
-  system-review:    {class: working, template: system-review}
   interface-spec:   {class: working, template: interface-spec}
   engineer-brief:   {class: working, template: engineer-brief}
   impl-plan:        {class: working, template: impl-plan}
@@ -253,9 +253,9 @@ any other dev-doc.
 
 - `house-style.md` — generic voice/lifecycle rules + index of everything below.
 - `doc-classes.yml` — the §3.2 table.
-- Templates (the proven photo-workflow set): `adr`, `system-review`,
-  `interface-spec`, `engineer-brief`, `design-spec`, `impl-plan`, plus
-  `design-review` and `trade-study` for the review-critical class.
+- Templates (the proven photo-workflow set): working class — `adr`,
+  `interface-spec`, `engineer-brief`, `impl-plan`; review-critical class —
+  `design-spec`, `design-review`, `system-review`, `trade-study`.
 - Starter conventions (extracted from photo-workflow's prose, generalized):
   `supersession-banner`, `auto-sections-never-hand-edited`
   (regex_forbidden on sentinel edits outside sf-docs commits — advisory),
