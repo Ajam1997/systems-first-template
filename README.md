@@ -32,6 +32,13 @@ A working scaffold for a project that wants:
   `.sysml` file for Eclipse Syson / Cameo / any conformant tool. Hand
   edits to AUTO sections lose. All three CLIs ship in the `systems-first`
   pip package — see [Install](#install-per-project) below.
+- **A documentation system, not just a docs folder** — the `house-style`
+  skill instantiates `dev-docs/house-style/` on first use (templates +
+  conventions, seeded empty, yours to edit). `sf-style` gates every PR
+  against those conventions in diff-aware mode via the `doc-style`
+  workflow — a green no-op until you instantiate house style. Need a
+  document shape the seed doesn't cover? The `template-writer` skill
+  mints a new type instead of freehanding it.
 - **Verification & Validation traceability** — every requirement carries
   an explicit list of evidence sources (test, simulation, bench,
   inspection, review) in its Issue body. A V&V matrix table renders

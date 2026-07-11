@@ -378,6 +378,23 @@ winget install Python.Python.3.13 --scope user
 
 Add `.venv/` to `.gitignore` if it isn't already.
 
+### 1.10 — House Style (optional)
+
+The template ships a `doc-style` CI check (`.github/workflows/doc-style.yml`)
+that runs `sf-style` in diff-aware mode on every PR. Until you instantiate
+project-specific conventions, it's a **green no-op** — nothing to install,
+nothing to configure, safe to ignore.
+
+When you're ready to define your project's document conventions (or the
+first time you go to author a dev-doc), invoke the `house-style` skill in
+a Claude Code session. It seeds `dev-docs/house-style/` (templates +
+conventions, empty to start) and `sf-style` starts enforcing it from then
+on. See a doc shape the seed doesn't cover? Invoke `template-writer`
+instead of freehanding it.
+
+Nothing to verify here — the no-op check running green on your first PR
+*is* the verification.
+
 ---
 
 ## Part 2 — Use the template

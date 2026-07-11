@@ -1,0 +1,20 @@
+name: doc-style
+
+on:
+  pull_request:
+
+jobs:
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install systems-first package
+        run: pip install "systems-first @ git+https://x-access-token:${{ secrets.PHOTONFORGE_READ_TOKEN }}@github.com/Ajam1997/PHOTONFORGE@v0.2.0#subdirectory=packages/systems-first"
+      # Green no-op until the project instantiates dev-docs/house-style/.
+      - name: Check doc conventions (diff-aware)
+        run: sf-style --pr-mode "origin/${{ github.base_ref }}"
