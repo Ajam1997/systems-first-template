@@ -1,7 +1,7 @@
 # `dev-docs/`
 
 Developer documentation. **This is the source.** What's rendered to the
-GitHub Wiki by `scripts/migrate_wiki.py` comes from here.
+GitHub Wiki by `sf-wiki` (from the `systems-first` package) comes from here.
 
 ## Contents
 
@@ -10,7 +10,7 @@ GitHub Wiki by `scripts/migrate_wiki.py` comes from here.
 - `SystemReviews/` — operator-invoked deep reviews (`@systemmaster`)
 - `research/` — investigations, prototypes, decision-making notes
 
-### AUTO-managed (regenerated from Issues by `scripts/generate_docs.py`)
+### AUTO-managed (regenerated from Issues by `sf-docs`)
 - `requirements-summary.md` — UN/FR/NFR/IF list with status and decomposition
 - `roadmap.md` — milestone-driven phase table with progress
 - `kpm-dashboard.md` — KPM table with last-measured and status

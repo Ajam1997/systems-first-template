@@ -180,5 +180,5 @@ in the project see the constraint.
 - [artifact-manifest.md](artifact-manifest.md) — manifest format that bridges all four integration patterns
 - [doc-source-of-truth.md](doc-source-of-truth.md) — who writes what across disciplines
 - [vv-matrix.md](vv-matrix.md) — V&V evidence format
-- `.claude/agent-packs/electrical/electrical_lead.md` — electrical lead's tool-specific authoring conventions
-- `.claude/agent-packs/mechanical/mechanical_lead.md` — mechanical lead's tool-specific authoring conventions
+- [`electrical_lead.md`](https://github.com/Ajam1997/PHOTONFORGE/blob/main/plugins/electrical/agents/electrical_lead.md) (PHOTONFORGE, `systems-first-electrical` plugin) — electrical lead's tool-specific authoring conventions
+- [`mechanical_lead.md`](https://github.com/Ajam1997/PHOTONFORGE/blob/main/plugins/mechanical/agents/mechanical_lead.md) (PHOTONFORGE, `systems-first-mechanical` plugin) — mechanical lead's tool-specific authoring conventions

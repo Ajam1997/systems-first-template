@@ -2,7 +2,7 @@
 
 Every FR / NFR / UN / IF / KPM Issue body carries explicit verification
 and validation evidence in two structured sections. The renderer in
-`scripts/generate_docs.py` parses these and produces a coverage table
+`sf-docs` (from the `systems-first` package) parses these and produces a coverage table
 in the architecture doc.
 
 This is the SysML «verify» relationship in tabular form.
@@ -70,7 +70,7 @@ section. Order: `Verified By` always before `Validated By`.
 
 ## Rendering
 
-`scripts/generate_docs.py` walks all Issues with `type: fr`,
+`sf-docs` (from the `systems-first` package) walks all Issues with `type: fr`,
 `type: nfr`, `type: if`, `type: kpm`, `type: user-need`, parses these
 two sections, and renders a V&V matrix into the architecture doc between
 the `<!-- AUTO:vv_matrix -->` sentinels.

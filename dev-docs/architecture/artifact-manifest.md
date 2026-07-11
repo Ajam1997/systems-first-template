@@ -15,8 +15,8 @@ The manifest is plain markdown with YAML front-matter. It carries:
 - An append-only change log
 
 This format works for any discipline (mechanical, electrical, firmware
-binaries, large datasets). `scripts/validate_artifacts.py` validates
-it independent of discipline.
+binaries, large datasets). `sf-artifacts` (from the `systems-first`
+package) validates it independent of discipline.
 
 ## File location
 
@@ -102,7 +102,7 @@ results, etc. — this section is not parsed.>
 
 `mass_g` and `cost_unit_usd` are the bridge to the KPM rollup engine.
 If a child KPM is `aggregation: independent` but linked to an artifact
-with `mass_g: 60`, `kpm_rollup.py` (future enhancement) can read the
+with `mass_g: 60`, `sf-kpm-rollup` (future enhancement) can read the
 manifest's mass directly instead of needing a per-component KPM
 measurement.
 
@@ -128,7 +128,7 @@ measurement.
 
 ## Validation
 
-`scripts/validate_artifacts.py` checks every manifest under
+`sf-artifacts` checks every manifest under
 `artifacts/`:
 
 - All required fields present
@@ -141,8 +141,8 @@ measurement.
 
 Run it manually or in CI:
 ```bash
-python scripts/validate_artifacts.py
-python scripts/validate_artifacts.py --fix  # touch snapshots/, add stub fields
+sf-artifacts
+sf-artifacts --fix  # touch snapshots/, add stub fields
 ```
 
 ## When to use a manifest vs commit the artifact directly
@@ -202,7 +202,7 @@ separate; track them together via the manifest.
 
 ## See also
 
-- `scripts/validate_artifacts.py` — the validator
+- `sf-artifacts` (`systems-first` package) — the validator
 - `artifacts/mechanical/EXAMPLE-motor-mount.md` — worked example
 - `dev-docs/architecture/doc-source-of-truth.md` — overall write authority
 - `METHODOLOGY.md` "The artifact hierarchy" — where this fits

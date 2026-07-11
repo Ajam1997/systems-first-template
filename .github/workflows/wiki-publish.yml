@@ -33,7 +33,7 @@ on:
     branches: [main]
     paths:
       - "dev-docs/**"
-      - "scripts/migrate_wiki.py"
+      - ".github/workflows/wiki-publish.yml"
   workflow_dispatch:
 
 # Prevent overlapping wiki pushes — two PRs merged back-to-back must serialize.
@@ -53,8 +53,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install PyYAML
+      - name: Install systems-first package
+        run: pip install "systems-first @ git+https://x-access-token:${{ secrets.PHOTONFORGE_READ_TOKEN }}@github.com/Ajam1997/PHOTONFORGE@v0.1.0#subdirectory=packages/systems-first"
 
       - name: Verify WIKI_PUSH_TOKEN is set
         env:
@@ -71,4 +71,4 @@ jobs:
           WIKI_PUSH_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN }}
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
-        run: python scripts/migrate_wiki.py --push
+        run: sf-wiki --push

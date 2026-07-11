@@ -39,7 +39,7 @@ The Issue body for the requirement then carries:
 - dvt: verification/dvt/DVT-thermal-soak.md (PASS 2026-06-12)
 ```
 
-`scripts/generate_docs.py` validates that referenced verification files
+`sf-docs` validates that referenced verification files
 exist and surfaces orphans.
 
 ## Why test plans live here, not on Issues

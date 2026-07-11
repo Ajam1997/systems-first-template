@@ -1,6 +1,6 @@
 name: PR — Roll Up Issue Status
 
-# On PR merge, scripts/pr_rollup.py:
+# On PR merge, sf-pr-rollup (from the systems-first package):
 #   1. Sets status: verified on every FR/NFR/IF Issue referenced by
 #      "Closes #N" (or Fixes/Resolves) in the PR body.
 #   2. Rolls up to parent UNs: when all FR/NFR/IF siblings of a UN
@@ -28,8 +28,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install requests PyYAML
+      - name: Install systems-first package
+        run: pip install "systems-first @ git+https://x-access-token:${{ secrets.PHOTONFORGE_READ_TOKEN }}@github.com/Ajam1997/PHOTONFORGE@v0.1.0#subdirectory=packages/systems-first"
 
       - name: Roll up Issue status
         env:
@@ -37,4 +37,4 @@ jobs:
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
           PR_BODY: ${{ github.event.pull_request.body }}
-        run: python -m scripts.pr_rollup
+        run: sf-pr-rollup

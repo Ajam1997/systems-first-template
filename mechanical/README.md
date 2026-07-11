@@ -45,5 +45,5 @@ toolkit" for the extraction plan.
 
 ## See also
 
-- `.claude/agent-packs/mechanical/mechanical_lead.md` — full authoring convention
+- [`mechanical_lead.md`](https://github.com/Ajam1997/PHOTONFORGE/blob/main/plugins/mechanical/agents/mechanical_lead.md) (PHOTONFORGE, `systems-first-mechanical` plugin) — full authoring convention
 - `dev-docs/architecture/external-tools.md` — tool stack rationale

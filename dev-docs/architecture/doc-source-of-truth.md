@@ -16,29 +16,29 @@ at project start; refer back whenever a writer collision feels possible.**
 
 | Thing | Canonical location | Rendered into | Notes |
 |---|---|---|---|
-| FR / UN / NFR / IF / KPM **status** (`defined`, `in-progress`, `verified`, `validated`) | GitHub Issue labels | `dev-docs/living-user-needs.md`, `dev-docs/architecture.md`, `dev-docs/roadmap.md`, `dev-docs/kpm-dashboard.md` AUTO sections | Only `scripts/pr_rollup.py` writes `verified` / `validated`. Agents post comments via `github_comment.py` but never move labels. |
-| FR / UN / NFR acceptance criteria, KPM target | GitHub Issue body | Architecture doc tables | Edit the Issue body, then run `python -m scripts.generate_docs`. |
+| FR / UN / NFR / IF / KPM **status** (`defined`, `in-progress`, `verified`, `validated`) | GitHub Issue labels | `dev-docs/living-user-needs.md`, `dev-docs/architecture.md`, `dev-docs/roadmap.md`, `dev-docs/kpm-dashboard.md` AUTO sections | Only `sf-pr-rollup` writes `verified` / `validated`. Agents post comments via `sf-comment` but never move labels. |
+| FR / UN / NFR acceptance criteria, KPM target | GitHub Issue body | Architecture doc tables | Edit the Issue body, then run `sf-docs`. |
 | Decomposition (UN → FR/NFR/IF/KPM) | `requirements/requirement-map.yml` | Living-user-needs.md AUTO section | Hand-edited; not regenerated from Issues. |
 | Interface details (ICDs, pinouts, protocols, drawings) | `requirements/interfaces/IF-X.Y.md` | n/a (hand-authored) | Free-form markdown for cross-discipline boundaries. |
-| Stage / Milestone definition | GitHub Milestones | `dev-docs/roadmap.md` AUTO section | Created from `config/stages.yml` on project setup. `pr_rollup.py` closes milestones when their UNs verify. |
-| Budget allocations | KPMs in `requirements/requirement-map.yml` with `aggregation: sum`; allocations are child KPMs | Architecture doc KPM table + rollup comments on parent KPM Issues | A budget is just an aggregated KPM. `scripts/kpm_rollup.py` posts computed values. |
+| Stage / Milestone definition | GitHub Milestones | `dev-docs/roadmap.md` AUTO section | Created from `config/stages.yml` on project setup. `sf-pr-rollup` closes milestones when their UNs verify. |
+| Budget allocations | KPMs in `requirements/requirement-map.yml` with `aggregation: sum`; allocations are child KPMs | Architecture doc KPM table + rollup comments on parent KPM Issues | A budget is just an aggregated KPM. `sf-kpm-rollup` posts computed values. |
 | System-level architecture contracts | `dev-docs/architecture/system-architecture-contracts.md` | n/a (hand-authored) | Top-level module decomposition. Format spec: [architecture-contracts-format.md](architecture-contracts-format.md). Worked example: [EXAMPLE-3d-printer-architecture-contracts.md](EXAMPLE-3d-printer-architecture-contracts.md). Authored by @systems_lead before any ICD lands. |
 | Per-feature architecture contracts | `dev-docs/architecture/<feature>-contracts.md` | n/a (hand-authored) | Lower-level decomposition when the system doc gets too coarse. Same format. Design docs, not status docs. Edit freely. |
 | Engineer briefs (per-feature plans) | `dev-docs/architecture/<feature>-engineer-brief.md` | n/a | Authored by @systems_lead, consumed by the assigned discipline lead. Must include "Open questions if you stop mid-step". |
 | Research / scratch notes | `dev-docs/research/*.md` | n/a | Free-form. Not in AUTO regen. |
-| Verification / validation evidence | GitHub Issue comments via `scripts/github_comment.py` | n/a | Reports as Issue comments, not as `docs/VerificationReports/*.md` files. |
+| Verification / validation evidence | GitHub Issue comments via `sf-comment` | n/a | Reports as Issue comments, not as `docs/VerificationReports/*.md` files. |
 | Test plans (DVT/EVT/PVT, bench, simulation) | `verification/<phase>/<plan>.md` | Referenced from V&V matrix | Hand-authored procedures + result links. |
 | Discipline source code (Atopile `.ato`, Build123d `.py`, firmware `.c`) | top-level `electrical/`, `mechanical/`, `firmware/`, `src/` | n/a | Hand-authored, agent-diffable. See [external-tools.md](external-tools.md) for the recommended FOSS tool stack per discipline. |
 | Small build outputs (BOM CSV, snapshot PNG, <1 MB STEPs, generated KiCad PCB) | committed directly to `artifacts/<discipline>/` | n/a | Produced by `ato build` (via `paths.output_base`), `python parts/<part>.py`, or `export.py`. PR-reviewable as small binaries; no manifest ceremony required. |
 | Large engineering artifacts (full CAD assemblies, dense FEA blobs, full Gerber zips) | external vault / git-LFS, with manifest in `artifacts/<discipline>/` | n/a | Manifest carries link, SHA-256, reviewer, snapshot PNG. The actual file lives elsewhere. |
 | System reviews | `dev-docs/SystemReviews/<date>-<topic>.md` | n/a | Operator-invoked deep reviews (@systemmaster). |
-| Operator's offline memory aid | GitHub Wiki | one-way exported from `dev-docs/` via `scripts/migrate_wiki.py` | Wiki is downstream of dev-docs. Direct edits to the wiki survive only if front-matter-tagged `WIKI:LOCAL-ONLY`. |
+| Operator's offline memory aid | GitHub Wiki | one-way exported from `dev-docs/` via `sf-wiki` | Wiki is downstream of dev-docs. Direct edits to the wiki survive only if front-matter-tagged `WIKI:LOCAL-ONLY`. |
 
 ---
 
 ## AUTO Sentinels — How Hand Edits Survive Regen
 
-`scripts/generate_docs.py` only replaces content between sentinels:
+`sf-docs` (from the `systems-first` package) only replaces content between sentinels:
 
 ```
 <!-- AUTO:key_name -->
@@ -74,8 +74,8 @@ sections you want auto-managed.
 
 | Actor | May write | May not write |
 |---|---|---|
-| @verification | Issue comments (with `Next action:` and `via:` footers) via `github_comment.py` | `dev-docs/*` AUTO sections; status labels |
-| @validation | Issue comments via `github_comment.py`; `verification/*` test plans + result links | `dev-docs/*` AUTO sections; status labels; `src/`; `tests/test_*` |
+| @verification | Issue comments (with `Next action:` and `via:` footers) via `sf-comment` | `dev-docs/*` AUTO sections; status labels |
+| @validation | Issue comments via `sf-comment`; `verification/*` test plans + result links | `dev-docs/*` AUTO sections; status labels; `src/`; `tests/test_*` |
 | @systems_lead | `requirements/*`, `requirements/interfaces/*`, `dev-docs/architecture/*`, `CLAUDE.md` | Status labels; AUTO sections of living docs |
 | @software_lead | `src/`, `tests/`, PR descriptions | Status labels; AUTO sections; non-software discipline artifacts |
 | @firmware_lead | `firmware/`, `tests/firmware/`, `artifacts/firmware/*.md` manifests, `verification/hil/*` test plans | Status labels; other disciplines' content |
@@ -83,11 +83,11 @@ sections you want auto-managed.
 | @mechanical_lead | `artifacts/mechanical/*.md` manifests + snapshots, `verification/simulation/*` (FEA) and `verification/bench/*` test plans, BOM CSVs | Status labels; other disciplines' content |
 | @manufacturing_lead | `artifacts/manufacturing/*` (AVL, supplier audits, fixture manifests), `verification/dfm/*`, `verification/evt/*`, `verification/pvt/*` | Designs themselves; status labels |
 | @regulatory_lead | `artifacts/regulatory/*` (cert roadmap, DoCs, technical file, per-standard plans), `verification/inspection/bom-compliance-*` | Designs themselves; status labels |
-| `pr_rollup.py` (workflow) | `verified` / `validated` labels on PR merge; closes milestones | Anything else |
-| `generate_docs.py` (workflow) | AUTO sections of the four living docs | Anything outside AUTO sentinels |
-| `kpm_rollup.py` (workflow) | KPM rollup comments on parent KPM Issues | Status labels; AUTO sections; non-KPM Issues |
-| `export_sysml.py` (workflow) | `model/system.sysml` | Anything else |
-| `validate_artifacts.py` (CI) | nothing (read-only) | n/a |
+| `sf-pr-rollup` (workflow) | `verified` / `validated` labels on PR merge; closes milestones | Anything else |
+| `sf-docs` (workflow) | AUTO sections of the four living docs | Anything outside AUTO sentinels |
+| `sf-kpm-rollup` (workflow) | KPM rollup comments on parent KPM Issues | Status labels; AUTO sections; non-KPM Issues |
+| `sf-sysml` (workflow) | `model/system.sysml` | Anything else |
+| `sf-artifacts` (CI) | nothing (read-only) | n/a |
 
 If you find an agent writing outside this table, that's the bug — fix
 the agent, not the doc.

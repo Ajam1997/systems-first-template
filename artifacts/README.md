@@ -82,7 +82,7 @@ One per active discipline. Add or remove based on
   do meaningful work without the heavyweight tool.
 - The SHA-256 in manifests catches silent overwrites in vaults.
 - The `Linked requirements:` field makes the «satisfy» relationship
-  automatic — `generate_docs.py` builds a manifest-to-requirement
+  automatic — `sf-docs` builds a manifest-to-requirement
   matrix from these.
 - Direct-committed binaries (small fab-ready files) skip the manifest
   ceremony — the file itself IS the artifact, and git's SHA-1 + diff
@@ -96,8 +96,8 @@ Worked example: [`artifacts/mechanical/EXAMPLE-motor-mount.md`](mechanical/EXAMP
 
 Validate all manifests:
 ```bash
-python scripts/validate_artifacts.py           # check, exit 1 on errors
-python scripts/validate_artifacts.py --verbose # show clean files too
+sf-artifacts           # check, exit 1 on errors
+sf-artifacts --verbose # show clean files too
 ```
 
 The validator runs in CI on every PR via a future workflow; for now,
@@ -106,5 +106,5 @@ run it locally before opening a PR that touches `artifacts/`.
 ## See also
 
 - [`dev-docs/architecture/external-tools.md`](../dev-docs/architecture/external-tools.md) — tool stack and the four integration patterns
-- [`.claude/agent-packs/electrical/electrical_lead.md`](../.claude/agent-packs/electrical/electrical_lead.md) — atopile→artifacts/electrical convention
-- [`.claude/agent-packs/mechanical/mechanical_lead.md`](../.claude/agent-packs/mechanical/mechanical_lead.md) — Build123d→artifacts/mechanical convention
+- [`electrical_lead.md`](https://github.com/Ajam1997/PHOTONFORGE/blob/main/plugins/electrical/agents/electrical_lead.md) (PHOTONFORGE, `systems-first-electrical` plugin) — atopile→artifacts/electrical convention
+- [`mechanical_lead.md`](https://github.com/Ajam1997/PHOTONFORGE/blob/main/plugins/mechanical/agents/mechanical_lead.md) (PHOTONFORGE, `systems-first-mechanical` plugin) — Build123d→artifacts/mechanical convention

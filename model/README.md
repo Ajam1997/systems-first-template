@@ -15,8 +15,8 @@ hand-edit.
 
 Manual:
 ```powershell
-python scripts/export_sysml.py            # uses live Issue bodies
-python scripts/export_sysml.py --offline  # YAML-only, no GitHub
+sf-sysml            # uses live Issue bodies
+sf-sysml --offline  # YAML-only, no GitHub
 ```
 
 Automatic: `.github/workflows/sysml-export.yml` runs on push to main
@@ -42,6 +42,6 @@ Open it in:
 - Commercial tools that support SysMLv2 (Cameo, Catia Magic, etc.)
 
 If your target tool rejects something, tune the relevant renderer
-function in `scripts/export_sysml.py` — the mapping (what becomes what)
-is stable; the syntax is the part most likely to need adjustment as
-SysMLv2 tools mature.
+function in `sf-sysml` (`systems-first` package) — the mapping (what
+becomes what) is stable; the syntax is the part most likely to need
+adjustment as SysMLv2 tools mature.
