@@ -69,6 +69,6 @@ body:
     attributes:
       value: |
         ---
-        After submitting, run `python -m scripts.generate_docs` to refresh the
+        After submitting, run `sf-docs` to refresh the
         AUTO sections of `dev-docs/`. Add the FR/NFR/IF/KPM decomposition links
         to `requirements/requirement-map.yml`.

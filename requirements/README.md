@@ -28,7 +28,7 @@ purpose:
   boundaries, which often need diagrams (ICDs, pinouts, mechanical
   drawings, protocol specs) too heavy for an Issue body.
 
-Both are read by `scripts/generate_docs.py` and `scripts/pr_rollup.py`.
+Both are read by `sf-docs` and `sf-pr-rollup`.
 They render into the architecture doc; they don't compete with the
 Issues for authority over status.
 

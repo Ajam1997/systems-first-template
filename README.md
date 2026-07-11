@@ -5,11 +5,15 @@ across software, electrical, mechanical, firmware, and mixed-discipline
 projects. Built on top of GitHub Issues + Milestones + a Claude Code agent
 harness. SysML-flavored without leaving GitHub.
 
-> **Status:** structurally complete (Passes 1–3 landed). 7 discipline-lead
-> agent packs ship (systems, software, mechanical, electrical, firmware,
-> manufacturing, regulatory). Roadmap → Pass 4: `critical_path` aggregation
-> in `kpm_rollup`, per-discipline example manifests beyond mechanical, and
-> pilot validation on a real project.
+> **Status:** structurally complete (Passes 1–3 landed). Agents and process
+> machinery now ship via the [PHOTONFORGE](https://github.com/Ajam1997/PHOTONFORGE)
+> marketplace: a `systems-first-core` plugin plus one thin
+> `systems-first-<discipline>` plugin per discipline (software, mechanical,
+> electrical, firmware, manufacturing, regulatory), backed by the
+> `systems-first` pip package (the `sf-*` CLIs). This template is scaffolding
+> only — no local `.claude/agents/` or machinery scripts. Roadmap → Pass 4:
+> `critical_path` aggregation in `sf-kpm-rollup`, per-discipline example
+> manifests beyond mechanical, and pilot validation on a real project.
 
 ---
 
@@ -23,16 +27,17 @@ A working scaffold for a project that wants:
   live as GitHub Issues with structured bodies and decomposition links
   in `requirements/requirement-map.yml`.
 - **A single source of truth, three render targets** — Issues are
-  canonical. `generate_docs.py` regenerates `dev-docs/`. `migrate_wiki.py`
-  publishes to the GitHub Wiki. `export_sysml.py` produces a SysMLv2
+  canonical. `sf-docs` regenerates `dev-docs/`. `sf-wiki`
+  publishes to the GitHub Wiki. `sf-sysml` produces a SysMLv2
   `.sysml` file for Eclipse Syson / Cameo / any conformant tool. Hand
-  edits to AUTO sections lose.
+  edits to AUTO sections lose. All three CLIs ship in the `systems-first`
+  pip package — see [Install](#install-per-project) below.
 - **Verification & Validation traceability** — every requirement carries
   an explicit list of evidence sources (test, simulation, bench,
   inspection, review) in its Issue body. A V&V matrix table renders
   automatically and shows the coverage gap.
 - **V-model KPM rollup** — KPMs sit at every level of the decomposition,
-  not just at user-need level. `scripts/kpm_rollup.py` aggregates child
+  not just at user-need level. `sf-kpm-rollup` aggregates child
   measurements into parent values (sum / max / min), flags margin
   erosion, replaces the older "budget" concept.
 - **Stage-gated delivery via GitHub Milestones** — one milestone per
@@ -44,13 +49,17 @@ A working scaffold for a project that wants:
   carries a reference + SHA-256 + snapshot PNG for CAD assemblies,
   schematics, firmware binaries, anything else that doesn't diff in
   git. Spec: `dev-docs/architecture/artifact-manifest.md`. Validator:
-  `scripts/validate_artifacts.py`.
-- **A Claude Code agent harness** — declarative discipline leads
-  (`systems_lead`, `software_lead`, `mechanical_lead`,
+  `sf-artifacts`.
+- **A Claude Code agent harness via the marketplace** — declarative
+  discipline leads (`systems_lead`, `software_lead`, `mechanical_lead`,
   `electrical_lead`, `firmware_lead`, `manufacturing_lead`,
   `regulatory_lead`), plus universal `verification`, `validation`,
-  and `systemmaster` agents. Mix and match per project via
-  `config/disciplines.yml` or `init_project.py --activate-profile`.
+  and `systemmaster` agents, all installed from the
+  [PHOTONFORGE](https://github.com/Ajam1997/PHOTONFORGE) marketplace as
+  a `systems-first-core` plugin plus one thin `systems-first-<discipline>`
+  plugin per discipline you activate in `config/disciplines.yml`. Add
+  the [PHOTONFOUNDRY](https://github.com/Ajam1997/PHOTONFOUNDRY)
+  marketplace too for design toolkits like `kicad-pcba`.
 
 ## Who this is for
 
@@ -91,6 +100,31 @@ engineering discipline.
 See `METHODOLOGY.md` for the design philosophy and `dev-docs/` for the
 detailed how-tos as they get written.
 
+## Install (per project)
+
+Agents and process machinery ship via the PHOTONFORGE marketplace, not
+as files in this repo:
+
+```bash
+claude plugin marketplace add Ajam1997/PHOTONFORGE
+claude plugin install systems-first-core@photonforge
+claude plugin install systems-first-<discipline>@photonforge   # + one per active discipline
+pip install "systems-first @ git+https://github.com/Ajam1997/PHOTONFORGE@v0.1.0#subdirectory=packages/systems-first"
+```
+
+Designing hardware? Also add the sibling tool marketplace for
+discipline-specific design toolkits (e.g. `kicad-pcba` for PCB work):
+
+```bash
+claude plugin marketplace add Ajam1997/PHOTONFOUNDRY
+```
+
+**CI:** the workflows under `.github/workflows/` install the
+`systems-first` package from a private repo, so add a
+`PHOTONFORGE_READ_TOKEN` Actions secret to every project that uses this
+template — a fine-grained PAT with `Contents: Read-only` on
+`Ajam1997/PHOTONFORGE` — while PHOTONFORGE stays private.
+
 ## Quick start
 
 > **First time on a new machine?** Start with
@@ -110,7 +144,10 @@ and render-chain setup conversationally.
 # 2. Locally:
 gh repo clone <owner>/<your-new-repo>
 cd <your-new-repo>
-pip install -r requirements.txt
+# Install the process machinery — see "Install (per project)" above:
+claude plugin marketplace add Ajam1997/PHOTONFORGE
+claude plugin install systems-first-core@photonforge
+pip install "systems-first @ git+https://github.com/Ajam1997/PHOTONFORGE@v0.1.0#subdirectory=packages/systems-first"
 # 3. Copy the bootstrap worksheet and fill it by hand:
 cp prompts/bootstrap.md prompts/bootstrap_<your-name>.md
 $EDITOR prompts/bootstrap_<your-name>.md   # fill Section A
@@ -134,8 +171,8 @@ If you'd rather skip the conversation and drive the bootstrap by hand:
 
 ```bash
 nano config/disciplines.yml config/stages.yml config/evidence-kinds.yml
-python scripts/init_project.py --activate-profile A    # or B / C
-python scripts/init_project.py --seed-sample           # files UN-001
+sf-init --activate-profile A --skip-agents    # or B / C — agents come from the marketplace, not .claude/agent-packs/
+sf-init --seed-sample                         # files UN-001
 ```
 
 But the prompt path is the recommended one — it's what the template
@@ -164,16 +201,15 @@ want PR-reviewable changes to gerbers, STEPs, and BOMs.
 | `firmware/<target>/` — embedded source (when firmware activates) | `artifacts/firmware/<target>-rev<N>.bin` + manifest |
 | `src/` — software source (when Profile A activates) | `artifacts/software/` — large generated assets (model weights, datasets) |
 
-- `artifacts/` — see [`artifacts/README.md`](artifacts/README.md) for the discipline-output convention + the artifact-manifest pattern for binaries too large to commit (vault link + SHA-256). Format spec: `dev-docs/architecture/artifact-manifest.md`. Validator: `scripts/validate_artifacts.py`.
+- `artifacts/` — see [`artifacts/README.md`](artifacts/README.md) for the discipline-output convention + the artifact-manifest pattern for binaries too large to commit (vault link + SHA-256). Format spec: `dev-docs/architecture/artifact-manifest.md`. Validator: `sf-artifacts`.
 - `verification/` — DVT/EVT/PVT/bench/simulation test plans + result links
 - `model/` — auto-generated SysMLv2 textual notation (`system.sysml`); read by Syson, Cameo, etc.
 - `verification/` — test plans (markdown) and result links
 - `dev-docs/` — developer documentation source; rendered to the wiki
 - `docs/` — placeholder for end-user / customer-facing docs
 - `prompts/` — paste-into-Claude prompts that drive multi-step agent workflows the template can't fully script. Start with `prompts/bootstrap.md`.
-- `scripts/` — 10 scripts: `init_project`, `generate_docs`, `pr_rollup`, `migrate_wiki`, `kpm_rollup`, `export_sysml`, `validate_artifacts`, `github_comment`, `sync_labels`, `github_client`. See `scripts/README.md`.
-- `.claude/agents/` — active agent roster (populated from agent-packs by `init_project.py`)
-- `.claude/agent-packs/` — discipline-specific lead agents: software, mechanical, electrical, firmware, manufacturing, regulatory (all landed in Pass 3)
+- `scripts/` — reserved for project-specific scripts; the `init_project`, `generate_docs`, `pr_rollup`, `migrate_wiki`, `kpm_rollup`, `export_sysml`, `validate_artifacts`, `github_comment`, `sync_labels`, `github_client` machinery now ships as the `sf-*` CLIs in the `systems-first` pip package. See `scripts/README.md`.
+- `.claude/` — agents no longer live here; they install from the [PHOTONFORGE](https://github.com/Ajam1997/PHOTONFORGE) marketplace (`systems-first-core` + `systems-first-<discipline>` plugins). See "Install (per project)" above.
 - `.github/` — Issue templates, workflows (regen-docs, pr-close-issues, wiki-publish, kpm-rollup, sysml-export), labels
 
 ## License

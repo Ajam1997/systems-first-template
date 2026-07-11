@@ -1,8 +1,8 @@
 # SysMLv2 Export — Mapping Spec
 
-`scripts/export_sysml.py` renders the project's requirement tree as a
+`sf-sysml` (from the `systems-first` package) renders the project's requirement tree as a
 single `.sysml` file in SysMLv2 textual notation. This document
-specifies the YAML → SysMLv2 mapping the script implements.
+specifies the YAML → SysMLv2 mapping the CLI implements.
 
 The export is a **render target**, not a source of truth. Authoring
 stays in GitHub Issues and `requirements/requirement-map.yml`. The
@@ -71,7 +71,7 @@ demands them:
   hand-authored SysMLv2 snippets or a Mermaid→SysMLv2 parser. Punt.
 - **Executable constraint expressions** — KPM aggregation is emitted as a
   comment, not a SysMLv2 calculation. Each target tool's solver dialect
-  varies; the YAML stays authoritative for `kpm_rollup.py` math.
+  varies; the YAML stays authoritative for `sf-kpm-rollup` math.
 - **Port typing on interfaces** — IFs render with bare `end side_a` /
   `end side_b`. Real interface typing (flow ports, signal types) needs
   more schema in `interface_requirements/` than the YAML currently
@@ -98,7 +98,7 @@ construct without touching the mapping logic.
 produces plausible SysMLv2 text but doesn't run a parser pass. The
 suggested loop:
 
-1. Run `python scripts/export_sysml.py --offline`
+1. Run `sf-sysml --offline`
 2. Open `model/system.sysml` in Syson (or run `syson-cli validate`)
 3. If something's rejected, note the rule and adjust the relevant
    renderer
@@ -116,12 +116,12 @@ Trigger the export when:
 - Before opening Syson for a session
 
 Automation options:
-- **Manual** — `python scripts/export_sysml.py` whenever
+- **Manual** — `sf-sysml` whenever
 - **CI** — `.github/workflows/sysml-export.yml` runs on push to main, commits the result with `[skip ci]`. Optional; not enabled by default.
 
 ## See also
 
-- `scripts/export_sysml.py` — the renderer (small enough to read end-to-end)
+- `sf-sysml` (`systems-first` package) — the renderer (small enough to read end-to-end)
 - `requirements/requirement-map.yml` — the source of truth
 - `METHODOLOGY.md` "The V-model and where KPMs live" — why KPMs deserve formal constraint blocks
 - [Eclipse Syson](https://github.com/eclipse-syson/syson) — primary target SysMLv2 tool

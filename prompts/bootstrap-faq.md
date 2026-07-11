@@ -38,9 +38,11 @@ brainstorm before bootstrapping.
 **Rule of thumb:** if the system has a microcontroller *and* you ship
 it to someone outside your house, you're profile C.
 
-Inactive leads stay in `.claude/agent-packs/` as dormant inventory.
-Activate one later by toggling its `active: true` in `disciplines.yml`
-and re-running `init_project.py` (without `--activate-profile`).
+Inactive leads simply aren't installed — their `systems-first-<discipline>`
+plugin stays uninstalled until you need it. Activate one later by
+toggling its `active: true` in `disciplines.yml`, running
+`claude plugin install systems-first-<discipline>@photonforge`, and
+re-running `sf-init` (without `--activate-profile`).
 
 **If you pick Profile B or C**, your bootstrap will activate
 `electrical_lead` and/or `mechanical_lead`. Those agents assume a

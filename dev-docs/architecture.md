@@ -2,7 +2,7 @@
 
 > **Template placeholder.** Replace this preamble with your project's
 > own architecture narrative. The AUTO sections below are filled in
-> automatically by `scripts/generate_docs.py` from GitHub Issues —
+> automatically by `sf-docs` (from the `systems-first` package) from GitHub Issues —
 > don't hand-edit between the sentinels.
 
 ## 1. System Overview

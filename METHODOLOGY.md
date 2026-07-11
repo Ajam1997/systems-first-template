@@ -48,13 +48,13 @@ lives on its GitHub Issue's labels. Nothing else. Not the doc, not the
 wiki, not a spreadsheet. If a requirement is "verified" but the Issue
 says "defined," the requirement is defined.
 
-`scripts/pr_rollup.py` is the sole writer of `status: verified` and
+`sf-pr-rollup` is the sole writer of `status: verified` and
 `status: validated`. Humans can flip labels by hand; the convention
 is don't, but the system survives if they do.
 
 ### 2. Docs render from Issues
 
-`scripts/generate_docs.py` regenerates the AUTO sections of the living
+`sf-docs` regenerates the AUTO sections of the living
 docs (`requirements-summary.md`, `roadmap.md`, `kpm-dashboard.md`,
 `v&v-matrix`) from current Issue state. Hand edits inside AUTO sentinels
 (`<!-- AUTO:key -->`) lose on the next regen. Hand edits *outside*
@@ -65,7 +65,7 @@ source — fix the Issue, not the doc.
 
 ### 3. Wiki is one-way export
 
-The wiki is your private memory aid. `scripts/migrate_wiki.py --push`
+The wiki is your private memory aid. `sf-wiki --push`
 renders `dev-docs/` into the wiki. Direct wiki edits are preserved only
 if the wiki page is tagged `<!-- WIKI:LOCAL-ONLY -->` on line 1.
 
@@ -145,7 +145,7 @@ vault / git-LFS / shared drive. The manifest carries:
 
 Full schema: `dev-docs/architecture/artifact-manifest.md`. Worked
 example: `artifacts/mechanical/EXAMPLE-motor-mount.md`. Validator:
-`scripts/validate_artifacts.py`.
+`sf-artifacts`.
 
 This format is discipline-neutral — same manifest shape works for
 mechanical STEP files, electrical schematics, firmware `.elf` binaries,
@@ -181,7 +181,7 @@ KPMs come in two flavors:
   System-level mass is the sum of subsystem masses. Peak power is the
   max of subsystem peaks. End-to-end latency is the bottleneck path.
 
-`scripts/kpm_rollup.py` reads the KPM tree from
+`sf-kpm-rollup` reads the KPM tree from
 `requirements/requirement-map.yml`, collects leaf measurements from each
 KPM's Issue, and computes parent values automatically. If a child
 overruns its target, the parent flips to failing *by construction* —
@@ -246,9 +246,12 @@ them (a battery-powered IoT device with a custom enclosure + regulatory):
 - **`regulatory_lead`** — owns compliance evidence (FCC, CE, UL, ISO,
   applicable standards).
 
-Each lead's `.claude/agents/<name>.md` is a system prompt + an operating
-ruleset. Add or remove leads per project by editing `config/disciplines.yml`
-and (de)activating the corresponding agent file.
+Each lead is a system prompt + an operating ruleset, shipped as a
+`systems-first-<discipline>` plugin from the
+[PHOTONFORGE](https://github.com/Ajam1997/PHOTONFORGE) marketplace.
+Add or remove leads per project by editing `config/disciplines.yml`
+and installing/uninstalling the corresponding plugin
+(`claude plugin install systems-first-<discipline>@photonforge`).
 
 ---
 
@@ -294,7 +297,7 @@ The default `config/stages.yml` ships with two presets:
 - **Hardware preset:** Concept → PDR → CDR → Engineering Build → DVT → EVT → PVT → Production.
 
 Plus a `custom` slot you fill in. Each stage maps 1:1 to a GitHub Milestone.
-`pr_rollup.py` closes the Milestone when all its user-needs roll up to
+`sf-pr-rollup` closes the Milestone when all its user-needs roll up to
 verified.
 
 ---
@@ -307,17 +310,20 @@ source of truth. Three render targets consume them:
 ```
 GitHub Issues + requirement-map.yml  <-- source of truth
               |
-              +-> generate_docs.py    --> dev-docs/<AUTO sections>
+              +-> sf-docs             --> dev-docs/<AUTO sections>
               |                            (living-user-needs.md,
               |                             architecture.md, etc.)
               |
-              +-> migrate_wiki.py     --> github.com/<repo>/wiki
+              +-> sf-wiki              --> github.com/<repo>/wiki
               |                            (one-way; LOCAL-ONLY escape hatch)
               |
-              +-> export_sysml.py     --> model/system.sysml
+              +-> sf-sysml             --> model/system.sysml
                                            (SysMLv2 textual notation
                                             for Syson, Cameo, etc.)
 ```
+
+All three CLIs ship in the `systems-first` pip package — see
+[`README.md`](README.md#install-per-project) for the install command.
 
 - Edit **Issues** to change status, body, or labels — all three render
   targets refresh on next run.
@@ -326,10 +332,10 @@ GitHub Issues + requirement-map.yml  <-- source of truth
 - Edit **AUTO-sentineled regions** of living docs — *don't*; edit the
   Issue instead.
 - Never edit `model/system.sysml` by hand — regenerate from the YAML
-  via `python scripts/export_sysml.py`.
+  via `sf-sysml`.
 
 The KPM rollup runs in parallel with these render targets:
-`scripts/kpm_rollup.py` reads child KPM measurements from Issue
+`sf-kpm-rollup` reads child KPM measurements from Issue
 comments, aggregates them per the `aggregation` field in
 `requirement-map.yml`, and posts the computed parent values back as
 Issue comments.

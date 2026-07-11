@@ -1,7 +1,8 @@
 name: KPM Rollup
 
-# Runs scripts/kpm_rollup.py: aggregates child KPM measurements into
-# parent KPMs (sum/max/min) per requirements/requirement-map.yml.
+# Runs sf-kpm-rollup (from the systems-first package): aggregates child
+# KPM measurements into parent KPMs (sum/max/min) per
+# requirements/requirement-map.yml.
 #
 # Triggers:
 #   - workflow_run after pr-close-issues.yml so rollup happens after the
@@ -40,12 +41,12 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install requests PyYAML
+      - name: Install systems-first package
+        run: pip install "systems-first @ git+https://x-access-token:${{ secrets.PHOTONFORGE_READ_TOKEN }}@github.com/Ajam1997/PHOTONFORGE@v0.1.0#subdirectory=packages/systems-first"
 
       - name: Run KPM rollup
         env:
           GITHUB_TOKEN: ${{ secrets.REGEN_TOKEN || secrets.GITHUB_TOKEN }}
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
-        run: python -m scripts.kpm_rollup
+        run: sf-kpm-rollup

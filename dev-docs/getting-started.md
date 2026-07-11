@@ -14,11 +14,12 @@ installed and authenticated, skip to [Part 2](#part-2--use-the-template).
 - A new private GitHub repo, created from the template
 - The repo open in VS Code with the Claude Code extension running
 - A classic Personal Access Token wired up so the wiki auto-publishes
+- The PHOTONFORGE marketplace agents + `systems-first` package installed
 - A filled `prompts/bootstrap_<your-name>.md` worksheet, committed as
   the project's inception record
-- Claude having executed the bootstrap: profile activated, agents
-  installed, first 6–12 user-need Issues filed, requirement map drafted,
-  documentation and SysML model regenerated
+- Claude having executed the bootstrap: profile activated, first 6–12
+  user-need Issues filed, requirement map drafted, documentation and
+  SysML model regenerated
 - A clear next action: hand the first FR to a discipline lead
 
 ---
@@ -173,8 +174,9 @@ and `pip` — both work.)
 
 ### 1.5 — GitHub CLI (`gh`)
 
-Required: every script in `scripts/` shells out to `gh` for GitHub
-operations.
+Required: every `sf-*` CLI in the `systems-first` package (see
+[Install](../README.md#install-per-project)) shells out to `gh` for
+GitHub operations.
 
 **Windows (PowerShell admin):**
 
@@ -270,7 +272,47 @@ After install, the skills are available globally — every project's
 Claude Code session sees them, regardless of which repo you're in.
 You don't reinstall per-project.
 
-### 1.8 — Discipline-specific tools (when your project needs them)
+### 1.8 — PHOTONFORGE marketplace (agents + machinery)
+
+The discipline-lead agents and the render-chain machinery
+(`generate_docs`, `kpm_rollup`, `export_sysml`, `validate_artifacts`,
+`migrate_wiki`, etc.) no longer live in this repo — they ship from the
+[PHOTONFORGE](https://github.com/Ajam1997/PHOTONFORGE) marketplace as
+Claude Code plugins plus the `systems-first` pip package. Install per
+project (from the repo root, in a Claude Code session for the plugin
+commands):
+
+```bash
+claude plugin marketplace add Ajam1997/PHOTONFORGE
+claude plugin install systems-first-core@photonforge
+claude plugin install systems-first-<discipline>@photonforge   # + one per active discipline
+pip install "systems-first @ git+https://github.com/Ajam1997/PHOTONFORGE@v0.1.0#subdirectory=packages/systems-first"
+```
+
+Designing hardware? Also add the sibling tool marketplace for
+discipline-specific design toolkits (e.g. `kicad-pcba` for PCB work):
+
+```bash
+claude plugin marketplace add Ajam1997/PHOTONFOUNDRY
+```
+
+**CI needs a token too.** The workflows under `.github/workflows/`
+install the `systems-first` package from a private repo, so add a
+`PHOTONFORGE_READ_TOKEN` Actions secret to your new project — a
+fine-grained PAT with `Contents: Read-only` on `Ajam1997/PHOTONFORGE`
+— while PHOTONFORGE stays private. Repo → Settings → Secrets and
+variables → Actions → New repository secret.
+
+Verify:
+
+```
+/plugin list
+```
+
+Should show `systems-first-core` (and any discipline packs you
+installed) enabled.
+
+### 1.9 — Discipline-specific tools (when your project needs them)
 
 Skip this if you're on Profile A (software-only). For Profiles B/C
 or any project that activates `electrical_lead` or `mechanical_lead`,
@@ -422,7 +464,8 @@ platform limitation (no permission scope grants wiki write to the
 auto-issued token), not a template choice.
 
 If you'd rather skip the PAT, you can publish the wiki manually from
-your machine instead: `python scripts/migrate_wiki.py --push` uses
+your machine instead: `sf-wiki --push` (from the `systems-first`
+pip package — see [Install](../README.md#install-per-project)) uses
 your local git credentials, which already have wiki write access on
 repos you own. The trade-off is that the wiki stays stale until you
 remember to run it.
@@ -552,13 +595,16 @@ Claude will:
 
 1. Validate Section A (refuse if any `<<fill in: ...>>` remains)
 2. Read the methodology files
-3. Run `init_project.py --activate-profile <X>` (with `--dry-run`
-   first; you confirm, then it runs for real)
+3. Run `sf-init --activate-profile <X> --skip-agents` (with `--dry-run`
+   first; you confirm, then it runs for real) — `--skip-agents` is
+   required because this template no longer ships local
+   `.claude/agent-packs/` for `sf-init` to copy from; agents come from
+   the marketplace install in Step 1.8 instead
 4. Walk you through 6–12 user needs, filing each as a GitHub Issue
 5. Decompose each UN into FR / NFR / IF / KPM Issues
 6. Write `requirements/requirement-map.yml`
-7. Run the render chain (`generate_docs`, `kpm_rollup`,
-   `export_sysml`, `validate_artifacts`)
+7. Run the render chain (`sf-docs`, `sf-kpm-rollup`,
+   `sf-sysml`, `sf-artifacts`)
 8. Commit and report
 
 Expect the conversation to take ~30–60 min depending on how clean
@@ -606,16 +652,16 @@ That picks the right agent for the work in front of you.
 | `ModuleNotFoundError: yaml` | Skipped 2.3 | `pip install -r requirements.txt` |
 | Claude Code panel empty | Not signed in | Click Claude icon, sign in |
 | Bootstrap refuses with "field still has `<<fill in>>`" | Missed a worksheet field | Open `bootstrap_<handle>.md`, find the sentinel, replace it |
-| `init_project.py` complains "No active disciplines" | Profile not activated | Re-run with `--activate-profile A|B|C` |
+| `sf-init` complains "No active disciplines" | Profile not activated | Re-run with `--activate-profile A|B|C` |
 | Milestones created but Issues have no milestone | Stale issue filed before milestone existed | Edit the Issue, set the milestone manually |
 | Wiki tab shows 404 / "Pages" empty | Step 3.4 not done | Seed the first page via the GitHub UI |
-| Wiki workflow runs but content is stale | `generate_docs.py` ran before Issues existed | Trigger **Regenerate Docs from Issues** manually from the Actions tab |
+| Wiki workflow runs but content is stale | `sf-docs` ran before Issues existed | Trigger **Regenerate Docs from Issues** manually from the Actions tab |
 | Wiki workflow fails: `Missing nav config at dev-docs/_wiki-nav.yml` | Custom dev-docs/ doesn't have a nav config | Copy the template's `dev-docs/_wiki-nav.yml` into your repo and edit to match your docs layout |
 | Agent recommends `superpowers:<skill>` but nothing happens | Superpowers plugin not installed | Step 1.7 — install the plugin globally; works in any project after |
-| `kicad-cli: command not found` (Windows) | KiCad installer didn't add `bin\` to PATH | Step 1.8 — manually add `<KiCad>\bin` to user PATH, restart shell |
-| `FreeCADCmd: command not found` (Windows) | Same as KiCad | Step 1.8 — manually add `<FreeCAD>\bin` to user PATH, restart shell |
-| `pip install` errors: `Could not find a version that satisfies build123d>=0.9` | Python version too new (>=3.14) or too old (<3.10) | Step 1.8 — create a Python 3.13 venv for this project |
-| `pip install` errors: `Could not find a version that satisfies atopile>=0.3` | Python version is 3.12 (atopile needs >=3.13) | Step 1.8 — create a Python 3.13 venv |
+| `kicad-cli: command not found` (Windows) | KiCad installer didn't add `bin\` to PATH | Step 1.9 — manually add `<KiCad>\bin` to user PATH, restart shell |
+| `FreeCADCmd: command not found` (Windows) | Same as KiCad | Step 1.9 — manually add `<FreeCAD>\bin` to user PATH, restart shell |
+| `pip install` errors: `Could not find a version that satisfies build123d>=0.9` | Python version too new (>=3.14) or too old (<3.10) | Step 1.9 — create a Python 3.13 venv for this project |
+| `pip install` errors: `Could not find a version that satisfies atopile>=0.3` | Python version is 3.12 (atopile needs >=3.13) | Step 1.9 — create a Python 3.13 venv |
 | `import atopile` works but `atopile.__version__` raises AttributeError | Atopile doesn't expose `__version__` as an attribute | Use `python -m atopile --version` instead; this is a known atopile quirk, not a broken install |
 | `UnicodeEncodeError: 'charmap' codec can't encode character '\\u2728'` (Windows, running atopile) | Atopile uses Rich for console output; PowerShell's default cp1252 codec can't render Unicode glyphs Rich emits | Set `$env:PYTHONIOENCODING = "utf-8"` per session, or set it globally in user environment variables, or use Windows Terminal which handles UTF-8 natively |
 | Render chain produces empty AUTO sections | No Issues with the right labels yet | Normal during bootstrap — Issues get filed in Step 4/B.4 |

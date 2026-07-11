@@ -1,36 +1,34 @@
 # `scripts/`
 
-The four scripts that enforce the five rules from `METHODOLOGY.md`.
+The process machinery that used to live here (`generate_docs.py`,
+`pr_rollup.py`, `migrate_wiki.py`, `github_comment.py`, `kpm_rollup.py`,
+`export_sysml.py`, `init_project.py`, `validate_artifacts.py`,
+`github_client.py`, `sync_labels.py`) now ships as the `systems-first`
+pip package, installed from the
+[PHOTONFORGE](https://github.com/Ajam1997/PHOTONFORGE) marketplace repo —
+see the root [`README.md`](../README.md#install-per-project) for the
+install command.
 
-| Script | Role | When it runs |
-|---|---|---|
-| `generate_docs.py` | Re-renders AUTO sections of living docs from Issue state. Reads `config/*.yml` for the active vocabulary. | On every PR merge (`.github/workflows/regen-docs.yml`) and manually |
-| `pr_rollup.py` | Sole writer of `status: verified` and `status: validated`. Closes Milestones when their UNs roll up. | On every PR merge (`.github/workflows/pr-close-issues.yml`) |
-| `migrate_wiki.py` | One-way render of `dev-docs/` to the GitHub Wiki. Diff-mode preview, LOCAL-ONLY escape hatch. | On push to main (`.github/workflows/wiki-publish.yml`) and manually with `--diff` / `--push` |
-| `github_comment.py` | Agent-safe CLI for posting Issue comments. Required `--next-action` flag enforces the breadcrumb rule. | Invoked by `verification` and `validation` agents |
-| `kpm_rollup.py` | Aggregates child KPM measurements into parent KPMs (sum/max/min). The V-model rollup engine. | On every PR merge + manually (`.github/workflows/kpm-rollup.yml`) |
-| `export_sysml.py` | Renders the requirement tree as SysMLv2 textual notation into `model/system.sysml`. | On `requirement-map.yml` change + manually (`.github/workflows/sysml-export.yml`) |
-| `init_project.py` | One-command bootstrapper: validate config, sync labels, create milestones, activate agent packs, regen docs. | Manually after first clone |
-| `validate_artifacts.py` | Lints artifact manifests under `artifacts/<discipline>/` against the spec at `dev-docs/architecture/artifact-manifest.md`. | Locally before PR; CI via future workflow |
+| Old script | Now |
+|---|---|
+| `generate_docs.py` | `sf-docs` |
+| `pr_rollup.py` | `sf-pr-rollup` |
+| `migrate_wiki.py` | `sf-wiki` |
+| `github_comment.py` | `sf-comment` |
+| `kpm_rollup.py` | `sf-kpm-rollup` |
+| `export_sysml.py` | `sf-sysml` |
+| `init_project.py` | `sf-init` |
+| `validate_artifacts.py` | `sf-artifacts` |
+| `sync_labels.py` | `sf-labels` |
+| `github_client.py` | internal to the `systems-first` package (no CLI) |
 
-Plus shared infrastructure:
+The `sf-*` CLIs still read `config/disciplines.yml`,
+`config/evidence-kinds.yml`, `config/stages.yml`, and
+`requirements/requirement-map.yml` from your project — edit the config,
+not the package, to adapt to your domain. Repo identity resolution
+(`--owner`/`--repo`, `REPO_OWNER`/`REPO_NAME` env vars, or
+`git config --get remote.origin.url`) is unchanged.
 
-- `github_client.py` — thin REST + GraphQL wrapper. The token-holder.
-- `sync_labels.py` — pure-Python label syncer (uses `gh`); reconciles
-  the repo's labels to `.github/labels.yml`.
-
-## Configuration-driven
-
-The scripts read `config/disciplines.yml`, `config/evidence-kinds.yml`,
-`config/stages.yml`, plus the requirement + KPM tree at
-`requirements/requirement-map.yml`. Edit the config, not the scripts,
-to adapt to your domain.
-
-## Repo identity
-
-Every script resolves the GitHub owner/repo from:
-1. Explicit `--owner` / `--repo` (or `owner=` / `repo=` kwargs)
-2. `REPO_OWNER` and `REPO_NAME` env vars
-3. `git config --get remote.origin.url`
-
-CI workflows set the env vars explicitly; local runs auto-detect.
+This directory is now reserved for **project-specific scripts** — the
+kind of thing `photo-workflow` keeps here (`safe_eject.sh`,
+`manage_ssd.sh`, etc.). It ships empty in the template.

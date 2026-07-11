@@ -1,48 +1,47 @@
 # `.claude/` — Agent harness
 
-Claude Code agents that implement the systems-first workflow.
+Claude Code agents that implement the systems-first workflow now ship
+from the [PHOTONFORGE](https://github.com/Ajam1997/PHOTONFORGE)
+marketplace as plugins, not as files in this directory. See the root
+[`README.md`](../README.md#install-per-project) for the install
+commands.
 
-## `agents/` — Always-on roster
+## `systems-first-core` — Always-on roster
 
-Three universal agents that work for every project regardless of
-discipline:
+Universal agents that work for every project regardless of discipline:
 
-- `systemmaster.md` — operator-invoked cross-cutting review
-- `verification.md` — per-commit verification cycle
-- `validation.md` — per-milestone E2E validation
+- `systemmaster` — operator-invoked cross-cutting review
+- `verification` — per-commit verification cycle
+- `validation` — per-milestone E2E validation
+- `systems_lead` — requirements tree, architecture, interfaces
 
-## `agent-packs/` — Opt-in discipline packs
+## `systems-first-<discipline>` — Opt-in discipline packs
 
-One subdirectory per discipline. Activate by:
+One thin plugin per discipline. Activate by:
 
 1. Edit `config/disciplines.yml` and set the discipline to active.
-2. Copy or symlink the pack's agents into `.claude/agents/`.
+2. `claude plugin install systems-first-<discipline>@photonforge`.
 
 Available packs:
 
 | Pack | Contains | Use when |
 |---|---|---|
-| `software/` | `systems_lead`, `software_lead` | Pure software project |
-| `firmware/` | `firmware_lead` | Embedded / RTOS work |
-| `electrical/` | `electrical_lead` | PCB / schematic work |
-| `mechanical/` | `mechanical_lead` | CAD / FEA / DVT work |
-| `manufacturing/` | `manufacturing_lead` | DFM / DFA / EVT / PVT |
-| `regulatory/` | `regulatory_lead` | FCC / CE / UL / safety standards |
+| `systems-first-software` | `software_lead` | Pure software project |
+| `systems-first-firmware` | `firmware_lead` | Embedded / RTOS work |
+| `systems-first-electrical` | `electrical_lead` | PCB / schematic work |
+| `systems-first-mechanical` | `mechanical_lead` | CAD / FEA / DVT work |
+| `systems-first-manufacturing` | `manufacturing_lead` | DFM / DFA / EVT / PVT |
+| `systems-first-regulatory` | `regulatory_lead` | FCC / CE / UL / safety standards |
 
 You can mix packs freely. A battery-powered IoT device with a custom
 enclosure pulls in software + firmware + electrical + mechanical +
 manufacturing + regulatory.
 
-## Pass 1 status
+## Authoring conventions (for the marketplace repo, not this one)
 
-Pass 1 ships only the `software/` pack and the three universal agents.
-Mechanical, electrical, firmware, manufacturing, regulatory are
-roadmapped — see `dev-docs/architecture/template-roadmap.md` (to be
-written).
-
-## Authoring conventions
-
-Every agent file has the same structure (lifted from PHOTONForge):
+Agent definitions are now authored and versioned in PHOTONFORGE, not
+here. For reference, every agent file there follows the same
+structure (lifted from PHOTONForge):
 
 ```yaml
 ---
@@ -66,4 +65,5 @@ color: <named color>
 ```
 
 Keep them short (≤300 lines). Long agent definitions accumulate cruft
-and reduce the agent's signal-to-noise.
+and reduce the agent's signal-to-noise. To propose a change to an
+agent's behavior, open a PR against PHOTONFORGE.

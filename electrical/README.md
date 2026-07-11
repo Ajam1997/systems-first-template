@@ -72,7 +72,8 @@ python export.py
 > the build placed anything). Gitignored at the template level.
 
 See
-[`.claude/agent-packs/electrical/electrical_lead.md`](../.claude/agent-packs/electrical/electrical_lead.md)
+[`electrical_lead.md`](https://github.com/Ajam1997/PHOTONFORGE/blob/main/plugins/electrical/agents/electrical_lead.md)
+(PHOTONFORGE, `systems-first-electrical` plugin)
 for the full pattern, the suffix table, and the worked example
 script.
 
@@ -81,4 +82,4 @@ script.
 - [`../artifacts/electrical/`](../artifacts/electrical/) — where outputs go
 - [`../artifacts/README.md`](../artifacts/README.md) — source-vs-output split
 - [`../dev-docs/architecture/external-tools.md`](../dev-docs/architecture/external-tools.md) — tool stack rationale
-- [`../.claude/agent-packs/electrical/electrical_lead.md`](../.claude/agent-packs/electrical/electrical_lead.md) — full authoring convention
+- [`electrical_lead.md`](https://github.com/Ajam1997/PHOTONFORGE/blob/main/plugins/electrical/agents/electrical_lead.md) (PHOTONFORGE, `systems-first-electrical` plugin) — full authoring convention
