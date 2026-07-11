@@ -47,26 +47,36 @@ jobs:
     # Skip if the upstream regen workflow failed (workflow_run only)
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install systems-first package
-        run: pip install "systems-first @ git+https://x-access-token:${{ secrets.PHOTONFORGE_READ_TOKEN }}@github.com/Ajam1997/PHOTONFORGE@v0.1.2#subdirectory=packages/systems-first"
-
-      - name: Verify WIKI_PUSH_TOKEN is set
+      # Wiki publishing is OPT-IN: without the secret this job is a green
+      # no-op, so freshly instantiated projects aren't red-X'd until they
+      # decide they want a wiki.
+      - name: Check whether WIKI_PUSH_TOKEN is configured
+        id: token
         env:
           WIKI_PUSH_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN }}
         run: |
           if [ -z "$WIKI_PUSH_TOKEN" ]; then
-            echo "::error::WIKI_PUSH_TOKEN secret is not set. See workflow file for setup instructions."
-            exit 1
+            echo "has_token=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::WIKI_PUSH_TOKEN secret is not set — skipping wiki publish. See the setup checklist in this workflow file to enable it."
+          else
+            echo "has_token=true" >> "$GITHUB_OUTPUT"
+            echo "WIKI_PUSH_TOKEN is set (length: ${#WIKI_PUSH_TOKEN})."
           fi
-          echo "WIKI_PUSH_TOKEN is set (length: ${#WIKI_PUSH_TOKEN})."
+
+      - uses: actions/checkout@v4
+        if: steps.token.outputs.has_token == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.token.outputs.has_token == 'true'
+        with:
+          python-version: "3.11"
+
+      - name: Install systems-first package
+        if: steps.token.outputs.has_token == 'true'
+        run: pip install "systems-first @ git+https://x-access-token:${{ secrets.PHOTONFORGE_READ_TOKEN }}@github.com/Ajam1997/PHOTONFORGE@v0.1.2#subdirectory=packages/systems-first"
 
       - name: Publish wiki
+        if: steps.token.outputs.has_token == 'true'
         env:
           WIKI_PUSH_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN }}
           REPO_OWNER: ${{ github.repository_owner }}
