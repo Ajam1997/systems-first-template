@@ -43,7 +43,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install systems-first package
-        run: pip install "systems-first @ git+https://x-access-token:${{ secrets.PHOTONFORGE_READ_TOKEN }}@github.com/Ajam1997/PHOTONFORGE@v0.1.1#subdirectory=packages/systems-first"
+        run: pip install "systems-first @ git+https://x-access-token:${{ secrets.PHOTONFORGE_READ_TOKEN }}@github.com/Ajam1997/PHOTONFORGE@v0.1.2#subdirectory=packages/systems-first"
 
       - name: Export SysMLv2 model
         env:
