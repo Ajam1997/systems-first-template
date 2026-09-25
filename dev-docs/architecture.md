@@ -52,7 +52,7 @@ covered, ⚠ partial, ✗ unverified.
 | ID | Type | Verified By | Validated By | Coverage |
 |:---|:---|:---|:---|:---:|
 
-_Coverage: **0 / 0** requirements fully verified+validated. Format spec: `dev-docs/architecture/vv-matrix.md`. Evidence vocabulary: `config/evidence-kinds.yml`._
+_Coverage: **0 / 0** requirements fully verified+validated. Per `dev-docs/architecture/vv-matrix.md`._
 <!-- /AUTO:vv_matrix -->
 
 ## 3. Behavior & Structure Models
