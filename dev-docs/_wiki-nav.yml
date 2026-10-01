@@ -31,6 +31,8 @@ sections:
         page: architecture/artifact-manifest.md
       - label: Architecture contracts format
         page: architecture/architecture-contracts-format.md
+      - label: Requirement format (default guide)
+        page: architecture/requirement-format.md
       - label: External tooling stack (EE/ME/FW)
         page: architecture/external-tools.md
       - label: SysML export
