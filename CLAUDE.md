@@ -73,6 +73,10 @@ as Issue comments. Agents do **not** edit `dev-docs/*` AUTO sections by hand,
 and they do **not** move status labels — that is `sf-pr-rollup`'s job on PR merge.
 See `dev-docs/architecture/doc-source-of-truth.md`.
 
+Requirements are written to `dev-docs/architecture/requirement-format.md`
+(user-voice UNs, EARS `shall` statements, one-number KPMs, directed
+interface crossings). Read it before filing or editing any requirement.
+
 Agents write results via `sf-comment`. **Never call the GitHub
 API directly.** Every comment **must** end with a `**Next action:** ...` line.
 Every agent comment carries a `via: @<agent>` footer.
