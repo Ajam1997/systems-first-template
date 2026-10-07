@@ -105,35 +105,6 @@ Notes for work on the template itself, kept here so they are not lost
 between sessions. They were learned porting a 525-requirement project
 (ReadShift, `Ajam1997/Notion-clone`) into this template in 2026-09/10.
 
-### Requirement rules not yet in `requirement-format.md`
-
-The format guide covers the first 14 rules. Decided since, and owed to
-the guide:
-
-- **Atomic requirements (R17).** Exactly one `shall` per FR, NFR and
-  interface. A split keeps the original id on the first statement; new
-  ids go at the end of the pillar; ids are never renumbered. Each child
-  has its own status and evidence, so a half-built requirement becomes
-  one shipped and one planned item. A list one `shall` covers stays one
-  requirement.
-- **Atomic user needs.** One first-person sentence ("I ..."), one goal.
-  Independent goals split; example lists move down to child requirements.
-- **Acceptance** is one to three checkable bullets.
-- **Interface = pointer.** The interface Issue is one sentence naming
-  both sides and the ICD file; the ICD holds the detail.
-- **Interface links.** A requirement lists a crossing (`IF-x.y#k`) only
-  when its statement is about the exchange itself: it names the other
-  side or something on the wire (route, header, token, frame, response
-  or error body). A requirement about what one side shows or stores has
-  no link. Reverse lists (`Realised By` on the interface Issue,
-  `Requirements:` under each ICD contract section) are generated, never
-  hand-kept. A crossing with no realising requirement is a lint warning;
-  it is how behaviour hiding in an ICD is found.
-- **Test for "does this need an interface":** could the behaviour be
-  shown with the other side switched off? If yes, no link. If a
-  behaviour must survive a round trip, expect three requirements: the
-  sender, the carrier and the keeper.
-
 ### Skills and tools to build
 
 1. **Write-requirement skill.** Drafts or rewrites one UN, FR, NFR, IF

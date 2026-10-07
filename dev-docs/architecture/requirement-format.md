@@ -32,14 +32,14 @@ observation or an audit.
 
 ---
 
-## The fourteen rules at a glance
+## The sixteen rules at a glance
 
 | # | Rule | Checkable by script |
 |---|---|---|
 | R1 | UNs in user voice; FR, NFR, IF in EARS with **shall** and a named component | yes |
 | R2 | Title is a noun phrase, 60 characters or fewer | yes |
 | R3 | **What** holds behaviour only; **Rationale** and **Notes** are their own lines | partly |
-| R4 | Acceptance is two to four plain sentences, each one check | partly |
+| R4 | Acceptance is one to three plain sentences, each one check | partly |
 | R5 | Implementation is one path per line, verified to exist | yes |
 | R6 | NFRs carry **Constraint**, **Threshold**, **Scope** | yes |
 | R7 | The ICD file is the contract; the Issue points at it; every crossing has a direction | yes |
@@ -50,6 +50,8 @@ observation or an audit.
 | R12 | Source anchors resolve | yes |
 | R13 | One behaviour, one test, one FR | no |
 | R14 | A requirement lives with the module that implements it | no |
+| R15 | Atomic: one `shall` per FR, NFR and IF; one goal per UN | yes |
+| R16 | A requirement links a crossing only when it is about the exchange | partly |
 
 ---
 
@@ -121,8 +123,8 @@ KPM titles name the measure and its aggregation. IF titles are
 
 ## R3. What, Rationale, Notes
 
-`What` is one to three EARS sentences: behaviour or constraint, nothing
-else. Two more lines exist on every kind:
+`What` is one EARS sentence with one **shall** (R15): behaviour or
+constraint, nothing else. Two more lines exist on every kind:
 
 - **Rationale:** why the requirement exists. One or two sentences, or `NONE`.
 - **Notes:** history, superseded approaches, cross-references, intended
@@ -149,7 +151,7 @@ Mechanisms and formulas go to the kind's own field: `Implementation`
 
 ## R4. Acceptance
 
-Two to four bullets on UN, FR, NFR and IF. None on a KPM. Each bullet is
+One to three bullets on UN, FR, NFR and IF. None on a KPM. Each bullet is
 one plain sentence naming an actor or input and an observable outcome
 that **one test or one person** can check. Put any setup in the same
 sentence. Do not restate the `What`. No subjective adverbs
@@ -260,7 +262,7 @@ only in the ICD.
 | **What Crosses** | A numbered list of nouns, each with a direction. |
 | **Spec** | Path to the ICD file. |
 | **Status** | `living` or `planned`. Never `shipped`. |
-| **Acceptance** | Two to four checks that the contract holds. |
+| **Acceptance** | One to three checks that the contract holds. |
 
 ### Direction
 
@@ -421,8 +423,7 @@ decision.
 - Variants along a single axis are one FR whose acceptance enumerates
   them: per carrier, per sensor, per connector, per mounting position,
   per shift.
-- A `What` needing more than three EARS sentences, or naming more than
-  three independent outcomes, is split.
+- A requirement whose `What` would need a second `shall` is split (R15).
 - When items merge, the lowest id survives and the rest become
   `superseded`. Ids are never reused.
 
@@ -450,22 +451,80 @@ A requirement filed in the wrong subsystem keeps its id and becomes
 
 ---
 
+## R15. Atomic requirements
+
+**FR, NFR and IF: exactly one `shall`.** A requirement that holds several
+is split. The original id keeps the first statement; each further
+statement gets a new id at the end of its subsystem, with
+`Notes: split from <id> (R15)`. Ids are never renumbered. Each child
+inherits the parents, stage and source that apply to it, and its status,
+implementation and evidence are checked on their own, so a half-built
+requirement becomes one shipped and one planned item.
+
+**Variants stay one requirement** when one `shall` covers them ("shall
+accept a scan from each supported carrier"); the acceptance enumerates
+them (R13).
+
+**User needs: one goal.** The `What` is one sentence starting with "I "
+that states one goal. Where "and" joins two things a person could have
+one without the other, split the need. Where it joins examples of one
+thing, keep it whole and move the list into the child requirements.
+
+**Interfaces: one pointer statement.** The `What` of an IF names both
+sides and points at the ICD:
+
+> The Firmware and the Barometer Module shall exchange measurements as
+> specified in requirements/interfaces/IF-2.1.md.
+
+The crossings list and the ICD carry the detail.
+
+| Before | After |
+|---|---|
+| When a carrier posts a scan, the Ingest Service shall record it and the Tracking API shall report the new status. | FR-1.4 When a carrier posts a scan, the Ingest Service shall record it against the parcel. · FR-1.9 When a scan is recorded, the Tracking API shall report the parcel's new status. |
+
+---
+
+## R16. Interface links
+
+An FR or NFR that implements one side of a crossing names it in an
+`Interfaces:` line: `IF-<x>.<y>#<crossing number>`, one per line. Link a
+crossing **only when the statement is about the exchange itself**: it
+names the other side, or something on the wire (a route, a header, a
+token, a frame, a response or error body, the order of requests).
+
+**Test:** could this behaviour be shown with the other side switched off?
+If yes, there is no link. A behaviour that must survive a round trip
+usually needs three requirements: the sender, the carrier and the keeper.
+
+The reverse lists are **generated, never hand-kept**: the interface shows
+`Realised By` per crossing, and the ICD shows a `Requirements:` line under
+each contract section. A link to a crossing that does not exist is an
+error. A crossing with no realising requirement is a warning; it is how
+behaviour hiding in an ICD is found.
+
+| Domain | Links a crossing | No link |
+|---|---|---|
+| Software | The Desktop App shall save the column layout through the Daemon. | The Desktop App shall hide the selected column. |
+| Electrical | The Firmware shall acknowledge each data-ready interrupt within 1 ms. | The Firmware shall average the last eight pressure readings. |
+
+---
+
 ## Complete bodies, one per kind
 
 ### User Need (human system)
 
 ```
-[UN-301] Known place in the queue
+[UN-301] Known wait time
 
 Stage: 2
 Status: shipped
 
-What: I know my place in the queue and roughly how long I will wait.
+What: I know roughly how long I will wait.
 
 Rationale: Patients who cannot see progress leave or interrupt reception.
 
 Acceptance:
-- A patient given a queue number can see that number and the number being served from any waiting-room seat.
+- A patient can see an estimated wait from any waiting-room seat.
 - The displayed wait estimate is within 10 minutes of the actual wait for 9 of 10 sampled patients.
 
 Decisions: NONE
@@ -489,27 +548,24 @@ Parent: UN-101
 Stage: 2
 Status: shipped
 
-What: When a carrier posts a scan, the Ingest Service shall record it and
-the Tracking API shall report the parcel's new status. If the scan names
-an unknown parcel, then the Ingest Service shall reject it with a 404.
+What: When a carrier posts a scan, the Ingest Service shall record it
+against the parcel.
 
 Rationale: Status must follow the carrier without manual entry.
 
 Acceptance:
 - A scan posted for parcel P appears in GET /parcels/P within 2 s.
 - A scan from each of the three supported carriers updates status.
-- A scan for an unknown tracking number returns 404 and stores nothing.
 
 Implementation:
 services/ingest/src/scan.ts::handleScan
 services/api/src/parcels.ts::getParcel
 
 Decisions: NONE
-Notes: NONE
+Notes: split from FR-1.4 (R15): status reporting is FR-1.9; unknown-parcel rejection is FR-1.10.
 
 Verified By:
 - pytest: tests/test_ingest.py::test_scan_updates_status
-- pytest: tests/test_ingest.py::test_unknown_parcel_rejected
 
 Validated By:
 - (none yet)
@@ -560,8 +616,8 @@ Parent: UN-202
 Stage: 2
 Status: living
 
-What: The Firmware shall read pressure from the Barometer Module only
-through the register interface defined in the ICD.
+What: The Firmware and the Barometer Module shall exchange measurements
+as specified in requirements/interfaces/IF-2.1.md.
 
 Side A: Firmware (firmware/)
 Side B: Barometer Module (electrical/tern/baro)
@@ -624,3 +680,5 @@ and review.
 | R10 `retired`, `superseded` | labels are `defined`, `verified` and so on | two labels in `sf-labels`; `sf-pr-rollup` must leave them alone |
 | R11 explicit stage | stage via milestone | a `Stage` line read by the filing script |
 | R12 anchors | not checked | heading resolution in the link checker |
+| R15 one `shall`, one-goal UN | not enforced | a `shall` count lint; a UN sentence-count lint |
+| R16 interface links | not in the forms | an `Interfaces` field; generated `Realised By`; an unrealised-crossing warning |
