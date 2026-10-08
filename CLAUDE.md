@@ -98,3 +98,45 @@ sf-comment validate-un UN-X \
 <If your verification cycle runs on a remote target — Yoga, RPi, bench
 fixture, hardware-in-loop rig — document the SSH pattern here. Delete
 this section if everything runs locally.>
+
+## Template Development Backlog (delete this section when you instantiate)
+
+Notes for work on the template itself, kept here so they are not lost
+between sessions. They were learned porting a 525-requirement project
+(ReadShift, `Ajam1997/Notion-clone`) into this template in 2026-09/10.
+
+### Skills and tools to build
+
+1. **Write-requirement skill.** Drafts or rewrites one UN, FR, NFR, IF
+   or KPM to the format guide, including R15 and R16 of
+   dev-docs/architecture/requirement-format.md.
+   Source to adapt: ReadShift `prompts/rewrite-requirements.md`.
+2. **Requirement lint tool.** Deterministic checks (one `shall`, EARS
+   shape, known module names, acceptance count, UN sentence count,
+   interface references, unrealised crossings, stage order). Source:
+   the `lint` and `icd-links` subcommands of ReadShift
+   `scripts/req_stage.py` and its tests.
+3. **Requirement review skill.** The judgement pass a linter cannot do:
+   status checked against the code, cited tests exercise the statement,
+   duplicates merged, over- and under-splitting. Source: the per-pillar
+   procedure in ReadShift `dev-docs/migration/README.md`.
+4. **Before/after review page.** Renders a set of requirement changes as
+   one HTML page for the owner to approve before Issues are edited.
+   Source: ReadShift `scripts/req_diff_page.py`.
+5. **Port-a-project skill.** How to bring an existing non-systems
+   project into this template: extract candidate requirements from
+   specs and code into staged fragments, merge and allocate ids, file
+   Issues pillar by pillar, then run the correction pass. Source:
+   ReadShift `dev-docs/migration/README.md`, `scripts/req_stage.py`
+   (`merge`, `render`, `file`, `edit`) and the review record
+   `dev-docs/SystemReviews/2026-10-01-requirements-review.md` (Part 5
+   holds every rule with its reason).
+
+Lessons the port skill must carry: decide the format before extracting
+(the port filed 525 Issues, then rewrote them all); gate the first
+pillar on a visual review by the owner; never hand-edit Issue bodies,
+only through the staging script; keep fragments as the editable source
+and the map as generated output.
+
+The ReadShift sources live on branch `feat/port-corrections` until that
+work merges.
