@@ -554,15 +554,14 @@ against the parcel.
 Rationale: Status must follow the carrier without manual entry.
 
 Acceptance:
-- A scan posted for parcel P appears in GET /parcels/P within 2 s.
+- A scan posted for parcel P is stored against P within 2 s.
 - A scan from each of the three supported carriers updates status.
 
 Implementation:
 services/ingest/src/scan.ts::handleScan
-services/api/src/parcels.ts::getParcel
 
 Decisions: NONE
-Notes: split from FR-1.4 (R15): status reporting is FR-1.9; unknown-parcel rejection is FR-1.10.
+Notes: FR-1.9 (status reporting) and FR-1.10 (unknown-parcel rejection) were split from this requirement (R15).
 
 Verified By:
 - pytest: tests/test_ingest.py::test_scan_updates_status

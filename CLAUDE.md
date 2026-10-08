@@ -108,7 +108,8 @@ between sessions. They were learned porting a 525-requirement project
 ### Skills and tools to build
 
 1. **Write-requirement skill.** Drafts or rewrites one UN, FR, NFR, IF
-   or KPM to the format guide, including the split and link rules above.
+   or KPM to the format guide, including R15 and R16 of
+   dev-docs/architecture/requirement-format.md.
    Source to adapt: ReadShift `prompts/rewrite-requirements.md`.
 2. **Requirement lint tool.** Deterministic checks (one `shall`, EARS
    shape, known module names, acceptance count, UN sentence count,
